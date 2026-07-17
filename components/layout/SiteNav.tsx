@@ -20,8 +20,8 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
   return (
     <nav
       style={{
-        background: '#ffffff',
-        boxShadow: '0 2px 8px rgba(44,62,80,0.08)',
+        background: 'var(--background)',
+        boxShadow: 'var(--shadow-sm)',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -76,7 +76,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
               textDecoration: 'none',
               fontSize: '0.95rem',
               fontWeight: 500,
-              color: isActive ? '#2880b9' : '#2c3e50',
+              color: isActive ? 'var(--aero-sky)' : 'var(--foreground)',
             }
 
             return (
@@ -103,7 +103,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
             background: 'none',
             border: 'none',
             fontSize: '1.5rem',
-            color: '#2c3e50',
+            color: 'var(--foreground)',
             cursor: 'pointer',
             display: 'none',
           }}
@@ -116,8 +116,8 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
         <div
           className="mobile-nav-menu"
           style={{
-            borderTop: '1px solid #e5e7eb',
-            background: '#ffffff',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--background)',
             padding: '1rem 2rem',
           }}
         >
@@ -136,7 +136,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
                 {link.internal ? (
                   <Link
                     href={link.href}
-                    style={{ textDecoration: 'none', color: '#2c3e50', fontSize: '0.95rem' }}
+                    style={{ textDecoration: 'none', color: 'var(--foreground)', fontSize: '0.95rem' }}
                     onClick={() => setOpen(false)}
                   >
                     {link.label}
@@ -144,7 +144,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
                 ) : (
                   <a
                     href={link.href}
-                    style={{ textDecoration: 'none', color: '#2c3e50', fontSize: '0.95rem' }}
+                    style={{ textDecoration: 'none', color: 'var(--foreground)', fontSize: '0.95rem' }}
                   >
                     {link.label}
                   </a>

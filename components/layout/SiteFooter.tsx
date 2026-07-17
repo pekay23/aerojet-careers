@@ -1,6 +1,6 @@
 export default function SiteFooter() {
   return (
-    <footer style={{ background: 'var(--navy)', color: 'white' }}>
+    <footer style={{ background: 'var(--aero-blue)', color: 'white' }}>
       <div className="max-w-content mx-auto px-8 py-10 text-center">
         <img
           src="/images/aalogowhite-BCKBvd3h.png"

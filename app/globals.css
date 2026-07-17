@@ -1,4 +1,4 @@
-@import "@aerojet/design-tokens/css";
+@import "./design-tokens.css";
 @import "tailwindcss";
 
 @theme {
@@ -196,6 +196,26 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  :root {
+    /* Legacy color variable aliases for backward compatibility */
+    --navy: var(--aero-blue);
+    --blue: var(--aero-sky);
+    --grey: var(--muted-foreground);
+    --dark: var(--aero-slate);
+    --light: var(--aero-light);
+    --bg: var(--bg-light);
+    --border: var(--border);
+    --muted: var(--muted-foreground);
+    --white: var(--background);
+
+    --success: var(--success);
+    --success-bg: var(--success-soft);
+    --error: var(--danger);
+    --error-bg: var(--danger-soft);
+    --warn: var(--warning);
+    --warn-bg: var(--warning-soft);
   }
 
   body {
