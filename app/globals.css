@@ -1,0 +1,414 @@
+@import "@aerojet/design-tokens/css";
+@import "tailwindcss";
+
+@theme {
+  /* Aerojet Brand Colors (from design tokens) */
+  --color-aero-blue: var(--aero-blue);
+  --color-aerojet-blue: var(--aero-blue);
+  --color-aero-accent: var(--aero-sky);
+  --color-aero-dark: var(--aero-slate);
+  --color-aero-light: var(--aero-offwhite);
+  --color-aero-slate: var(--aero-slate);
+  --color-aero-soft-blue: var(--aero-soft-blue);
+
+  /* Semantic colors (shadcn/ui compatible) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar colors (maintained from careers for admin sidebar) */
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Extended surfaces */
+  --color-paper: var(--paper);
+  --color-paper-dark: var(--paper-dark);
+  --color-ink: var(--ink);
+  --color-bg-light: var(--bg-light);
+  --color-bg-dark: var(--bg-dark);
+
+  /* Semantic status colors */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-success-soft: var(--success-soft);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-info-soft: var(--info-soft);
+
+  /* Font families (match main site) */
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-outfit: var(--font-outfit);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  /* Layout containers */
+  --container-narrow: var(--col-narrow);
+  --container-default: var(--col-default);
+  --container-wide: var(--col-wide);
+
+  /* Spacing */
+  --space-1: var(--sp-1);
+  --space-2: var(--sp-2);
+  --space-3: var(--sp-3);
+  --space-4: var(--sp-4);
+  --space-5: var(--sp-5);
+  --space-6: var(--sp-6);
+  --space-7: var(--sp-7);
+  --space-8: var(--sp-8);
+
+  /* Border radius */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-pill: var(--r-pill);
+
+  /* Shadows */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* Custom shadow glow (main site) */
+  --shadow-glow: 0 5px 15px rgba(0, 174, 239, 0.4);
+}
+
+/* ============================================
+   COMPONENT CLASSES — Match main site (aerojet-aviation)
+   ============================================ */
+
+@layer components {
+  /* Buttons — exact match from main site globals.css */
+  .btn-primary {
+    @apply bg-aero-accent text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 shadow-md hover:-translate-y-1 hover:shadow-glow inline-block;
+  }
+
+  .btn-secondary {
+    @apply border-2 border-white text-white px-8 py-2.5 rounded-full font-semibold transition-all duration-300 ml-4 hover:bg-white hover:text-aero-blue inline-block;
+  }
+
+  /* Section heading — exact match from main site */
+  .section-heading {
+    @apply font-display text-2xl md:text-3xl font-black text-aero-blue mt-10 mb-4 pb-3 border-b-2 border-aero-accent/30 uppercase tracking-tight;
+  }
+
+  /* Article components (main site) */
+  .article-blockquote {
+    @apply relative my-8 pl-6 italic text-lg text-slate-700 leading-relaxed border-l-4 border-aero-accent bg-white/50 py-4 pr-6 rounded-r-xl shadow-sm;
+  }
+
+  .article-blockquote::before {
+    content: '\201C';
+    @apply text-4xl text-aero-accent/30 absolute -top-2 left-3 font-serif leading-none;
+  }
+
+  .article-pullquote {
+    @apply my-10 py-8 px-8 text-center text-2xl font-bold text-aero-blue leading-snug border-y-2 border-aero-accent/20;
+  }
+
+  .article-section-heading {
+    @apply text-2xl font-black text-aero-blue mt-10 mb-4 pb-3 border-b-2 border-aero-accent/30 uppercase tracking-tight;
+  }
+
+  .article-stat {
+    @apply my-8 p-6 bg-aero-blue rounded-2xl text-white shadow-xl;
+  }
+
+  .article-stat p {
+    @apply text-lg leading-relaxed;
+  }
+
+  .article-stat strong {
+    @apply text-aero-accent;
+  }
+
+  .article-list {
+    @apply space-y-3 my-6;
+  }
+
+  .article-list li {
+    @apply flex items-start gap-3 text-slate-700 leading-relaxed;
+  }
+
+  .article-list li::before {
+    content: '';
+    @apply mt-2.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-aero-accent;
+  }
+
+  .article-timeline {
+    @apply relative pl-8 pb-8 border-l-2 border-aero-accent/40 last:pb-0 last:border-l-0;
+  }
+
+  .article-timeline::before {
+    content: '';
+    @apply absolute left-[-5px] top-1 h-2.5 w-2.5 rounded-full bg-aero-accent border-2 border-white shadow;
+  }
+
+  .article-timeline strong:first-child {
+    @apply block text-sm font-black text-aero-accent uppercase tracking-widest mb-1;
+  }
+
+  .article-timeline-group {
+    @apply my-8 pl-2;
+  }
+
+  .article-source {
+    @apply mt-8 pt-4 text-xs text-slate-400 italic border-t border-slate-200;
+  }
+
+  .article-metric {
+    @apply inline-flex items-center gap-1.5 bg-aero-accent/10 text-aero-blue font-black px-3 py-1 rounded-full text-sm;
+  }
+}
+
+/* ============================================
+   BASE STYLES (from design tokens + main site)
+   ============================================ */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-foreground bg-background antialiased;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold text-foreground;
+    line-height: 1.2;
+  }
+
+  a {
+    @apply text-aero-accent no-underline border-b border-transparent transition-colors duration-120;
+  }
+
+  a:hover {
+    border-bottom-color: currentColor;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-aero-blue text-white;
+  }
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .page-pad {
+    @apply pt-[70px];
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .admin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .admin-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+  }
+  .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+  }
+
+  /* Container widths */
+  .container-narrow {
+    max-width: var(--container-narrow);
+  }
+  .container-default {
+    max-width: var(--container-default);
+  }
+  .container-wide {
+    max-width: var(--container-wide);
+  }
+}
+
+/* ============================================
+   LEGACY CAREERS COMPONENT CLASSES (preserved for compatibility)
+   These use the new design tokens but keep the old class names
+   ============================================ */
+
+@layer components {
+  /* Buttons — careers legacy, now using design tokens */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded border-none cursor-pointer transition-all duration-150 no-underline select-none;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded border-none cursor-pointer transition-all duration-150 no-underline select-none text-white;
+    background: var(--aero-blue);
+  }
+  .btn-primary:hover { background: var(--aero-slate); }
+
+  .btn-blue {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded border-none cursor-pointer transition-all duration-150 no-underline select-none text-white;
+    background: var(--aero-sky);
+  }
+  .btn-blue:hover { background: var(--aero-soft-blue); }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded cursor-pointer transition-all duration-150 no-underline select-none border;
+    color: var(--aero-blue);
+    border-color: var(--border);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    border-color: var(--aero-blue);
+    background: var(--muted);
+  }
+
+  .btn-sm { @apply px-3 py-1.5 text-xs; }
+  .btn-lg { @apply px-7 py-3.5 text-base; }
+
+  /* Cards */
+  .card {
+    @apply bg-card rounded-xl border overflow-hidden;
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Form fields */
+  .field { @apply mb-4; }
+
+  .field-label {
+    @apply block text-xs font-semibold uppercase tracking-wider mb-1.5;
+    color: var(--muted-foreground);
+  }
+
+  .field-input {
+    @apply w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none transition-colors duration-150;
+    border-color: var(--input);
+    background: var(--background);
+    color: var(--foreground);
+    font-family: inherit;
+  }
+  .field-input:focus {
+    border-color: var(--aero-sky);
+    box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.12);
+  }
+  .field-input::placeholder { color: var(--muted-foreground); }
+  .field-input-error { border-color: var(--danger) !important; }
+
+  .field-error {
+    @apply text-xs mt-1;
+    color: var(--danger);
+  }
+
+  /* Status pills — using design token status colors */
+  .pill {
+    @apply inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .pill-new          { background: var(--info-soft); color: var(--info); }
+  .pill-under-review { background: var(--warning-soft); color: var(--warning); }
+  .pill-shortlisted  { background: var(--info-soft); color: var(--info); border: 1px solid var(--info); }
+  .pill-interview    { background: var(--muted); color: var(--aero-blue); }
+  .pill-offer        { background: var(--success-soft); color: var(--success); }
+  .pill-hired        { background: var(--aero-blue); color: white; }
+  .pill-rejected     { background: var(--danger-soft); color: var(--danger); }
+  .pill-transferred  { background: var(--info-soft); color: var(--info); border: 1px solid var(--info); }
+  .pill-open         { background: var(--success-soft); color: var(--success); }
+  .pill-draft        { background: var(--muted); color: var(--muted-foreground); }
+  .pill-closed       { background: var(--danger-soft); color: var(--danger); }
+  .pill-paused       { background: var(--warning-soft); color: var(--warning); }
+
+  /* Section label */
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-wider mb-3;
+    color: var(--muted-foreground);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Blue accent bar */
+  .accent-bar {
+    width: 36px; height: 3px;
+    background: var(--aero-sky);
+    margin-bottom: 1rem;
+  }
+
+  /* Admin sidebar items — using sidebar design tokens */
+  .sb-item {
+    @apply flex items-center gap-2.5 px-5 py-2.5 text-sm font-medium transition-colors duration-150 cursor-pointer no-underline border-l-2 border-transparent select-none;
+    color: var(--sidebar-foreground);
+    opacity: 0.6;
+  }
+  .sb-item:hover { background: var(--sidebar-accent); opacity: 1; }
+  .sb-item-active {
+    opacity: 1;
+    background: var(--sidebar-accent);
+    border-left-color: var(--sidebar-primary);
+  }
+}
+
+/* ============================================
+   DARK MODE OVERRIDES (handled by design tokens @media)
+   ============================================ */
+
+/* Legacy support classes */
+.track-option:hover {
+  background: var(--muted) !important;
+}
+
+.admin-signout-btn:hover {
+  color: var(--sidebar-foreground) !important;
+}

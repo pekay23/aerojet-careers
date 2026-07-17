@@ -1,0 +1,59 @@
+import { NextRequest } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { ApiResponse, verifyRole } from '@/lib/api-utils'
+
+export async function GET(req: NextRequest) {
+  try {
+    const auth = await verifyRole(['admin'])
+    if (!auth) return ApiResponse.error('Unauthorized', 403)
+
+    const { data: settings, error } = await supabaseAdmin
+      .from('system_settings')
+      .select('*')
+      .order('setting_key')
+
+    if (error) throw error
+    return ApiResponse.success(settings)
+  } catch (err: any) {
+    return ApiResponse.error(err.message, 500)
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const auth = await verifyRole(['admin'])
+    if (!auth) return ApiResponse.error('Unauthorized', 403)
+
+    const body = await req.json()
+    const { settings } = body // Expected: Array of { key: string, value: string }
+
+    if (!Array.isArray(settings)) {
+      return ApiResponse.error('Invalid settings format. Expected an array.', 400)
+    }
+
+    const updates = settings.map(s => ({
+      setting_key: s.key,
+      setting_value: s.value,
+      updated_by: auth.user.id,
+      updated_at: new Date().toISOString()
+    }))
+
+    const { data, error } = await supabaseAdmin
+      .from('system_settings')
+      .upsert(updates, { onConflict: 'setting_key' })
+      .select()
+
+    if (error) throw error
+
+    // Log the configuration update in the audit trail
+    await supabaseAdmin.from('pipeline_events').insert({
+      event_type:    'system_update',
+      note:          `Configuration updated by ${auth.user.email} (${settings.length} parameters)`,
+      admin_user_id: auth.user.id
+    })
+
+    return ApiResponse.success(data)
+  } catch (err: any) {
+    return ApiResponse.error(err.message, 500)
+  }
+}

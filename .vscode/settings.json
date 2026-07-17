@@ -1,0 +1,41 @@
+{
+  "http.systemCertificatesNode": true,
+  "http.proxyStrictSSL": false,
+  "geminicodeassist.project": "aerojet-academy-491315",
+  "files.autoSave": "afterDelay",
+  "claudeCode.preferredLocation": "panel",
+  "claudeCode.selectedModel": "gemma4",
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "terminal.integrated.commandsToSkipShell": [
+    "kilo-code.new.agentManagerOpen",
+    "kilo-code.new.agentManager.showTerminal"
+  ],
+  "kilo-code.new.autocomplete.enableAutoTrigger": true,
+  "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": true,
+  "kilo-code.new.autocomplete.enableChatAutocomplete": true,
+  "python.languageServer": "Default",
+  "claudeCode.disableLoginPrompt": true,
+  "claudeCode.environmentVariables": [
+    {
+      "name": "ANTHROPIC_BASE_URL",
+      "value": "https://185-167-97-122.eu-cloud-xip.com"
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "value": "ollama"
+    },
+    {
+      "name": "ANTHROPIC_AUTH_TOKEN",
+      "value": "ollama"
+    },
+    {
+      "name": "ANTHROPIC_MODEL",
+      "value": "gemma4"
+    },
+    {
+      "name": "NODE_TLS_REJECT_UNAUTHORIZED",
+      "value": "0"
+    }
+  ]
+}
