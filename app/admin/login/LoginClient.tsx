@@ -1,10 +1,18 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Lock, Mail, ChevronRight, AlertCircle, Loader2 } from 'lucide-react'
 
+/**
+ * Split-screen login, matching the aerojet-aviation portal shell:
+ *   • Left navy branding panel (hidden on mobile) with logo + heading
+ *   • Right light form panel with the sign-in card
+ *
+ * Auth logic is unchanged from before: `supabase.signInWithPassword` is the
+ * Neon-backed shim that posts to /api/auth/login and sets the session cookie.
+ */
 export default function LoginClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -22,10 +30,7 @@ export default function LoginClient() {
     setError('')
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
         setError(error.message)
@@ -42,93 +47,122 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-6 font-medium">
+    <div className="flex min-h-screen">
+      {/* Left branding panel — hidden on mobile */}
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-aerojet-blue p-12 lg:flex lg:w-[45%] xl:w-[40%]">
+        <div className="absolute inset-0 bg-linear-to-br from-aerojet-blue via-[#003a7c] to-[#001a3c]" />
 
-      <div className="w-full max-w-[420px] relative">
-        {/* Branding Container */}
-        <div className="text-center mb-8">
-          <div className="inline-block p-4 bg-white rounded-2xl shadow-sm border border-slate-100 mb-6">
+        <div className="relative z-10">
+          <Link href="/" className="mb-20 block h-10 w-40">
             <img
-              src="/images/aalogo-TUj_x_h8.png"
+              src="/logos/logo-footer.png"
               alt="Aerojet Aviation"
-              className="h-8 w-auto"
+              className="h-full w-auto object-contain object-left"
             />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Staff Portal
+          </Link>
+          <h1 className="font-display max-w-md text-4xl font-black uppercase leading-[1.05] tracking-tight text-white xl:text-5xl">
+            Careers Portal
           </h1>
-          <p className="mt-2 text-xs font-medium text-slate-400">
-            Sign in with your admin credentials
+          <p className="mt-6 max-w-sm font-sans leading-relaxed text-blue-100/60">
+            Access the staff dashboard to manage vacancies, applications, and the talent pipeline.
           </p>
         </div>
 
-        {/* Login Form Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
-                  <Mail size={18} />
-                </div>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="name@aerojet-aviation.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300"
-                />
-              </div>
-            </div>
+        <p className="relative z-10 text-[10px] uppercase tracking-widest text-blue-100/40">
+          &copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.
+        </p>
+      </div>
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Password</label>
-              </div>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
-                  <Lock size={18} />
-                </div>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-slate-300"
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-3 p-3.5 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs font-medium">
-                <AlertCircle size={16} className="shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-            >
-              {loading ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : (
-                <>
-                  Sign In
-                  <ChevronRight size={16} />
-                </>
-              )}
-            </button>
-          </form>
+      {/* Right form panel */}
+      <div className="relative flex min-h-screen flex-1 flex-col bg-slate-50">
+        {/* Mobile header */}
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white p-4 lg:hidden">
+          <Link href="/" className="block h-8 w-32">
+            <img
+              src="/logos/logo-navbar.png"
+              alt="Aerojet Aviation"
+              className="h-full w-auto object-contain object-left"
+            />
+          </Link>
+          <Link
+            href="/"
+            className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-600"
+          >
+            ← Back to site
+          </Link>
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-[11px] text-slate-400">
+        {/* Form area */}
+        <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
+          <div className="w-full max-w-xl">
+            <div className="mb-8">
+              <h2 className="font-display text-2xl font-black uppercase tracking-tight text-aero-blue sm:text-3xl">
+                Welcome Back
+              </h2>
+              <p className="mt-2 font-sans text-base text-slate-500">
+                Sign in to your portal account.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label
+                    className="mb-2 block text-sm font-bold text-slate-700"
+                    htmlFor="email"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-all hover:border-slate-300 focus:ring-4 focus:ring-aerojet-blue/10"
+                    placeholder="admin@aerojet-aviation.com"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    className="mb-2 block text-sm font-bold text-slate-700"
+                    htmlFor="password"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-all hover:border-slate-300 focus:ring-4 focus:ring-aerojet-blue/10"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-aerojet-blue px-4 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-aerojet-blue/20 transition-all hover:-translate-y-0.5 hover:bg-[#003a7c] hover:shadow-xl hover:shadow-aerojet-blue/30 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-slate-100 p-6 text-center">
+          <p className="text-[10px] uppercase tracking-widest text-slate-400">
             &copy; {new Date().getFullYear()} Aerojet Aviation &middot; Staff Portal
           </p>
         </div>

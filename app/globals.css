@@ -48,7 +48,18 @@
   --color-aero-sky-800: var(--aero-sky-800);
   --color-aero-sky-900: var(--aero-sky-900);
 
+  /* Shared brand aliases — kept in sync with aerojet-aviation so the same
+     utility classes (bg-aerojet-blue, text-aero-blue, focus:border-aerojet-blue,
+     bg-aero-accent) resolve identically across both apps. */
+  --color-aero-blue: var(--aero-blue-700);
+  --color-aerojet-blue: var(--aero-blue-700);
+  --color-aero-accent: var(--aero-sky-500);
+  --color-aerojet-sky: #4c9ded;
+  --color-aero-dark: #333333;
+  --color-aero-light: #f4f4f4;
+
   /* Surface tokens (bg-surface, bg-surface-subtle, bg-surface-muted, ...) */
+
   --color-surface: var(--surface);
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-muted: var(--surface-muted);

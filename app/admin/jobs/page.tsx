@@ -78,7 +78,13 @@ export default function JobsAdminPage() {
     setModal('new') 
   }
   const openEdit = (j: Job) => {
-    setForm({ ...j, tags: (j.tags || []).join(', '), target_count: j.target_count || '' })
+    setForm({
+      ...j,
+      tags: (j.tags || []).join(', '),
+      target_count: j.target_count || '',
+      // Normalize to YYYY-MM-DD so the <input type="date"> accepts it.
+      closes_at: j.closes_at ? new Date(j.closes_at).toISOString().slice(0, 10) : '',
+    })
     setModal('edit')
   }
 
@@ -181,7 +187,7 @@ export default function JobsAdminPage() {
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900 uppercase tracking-tight group-hover/row:text-blue-600 transition-colors">{j.title}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{j.ref_code} · {j.location}</span>
-                        {j.closes_at && <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter mt-1">Closes {j.closes_at}</span>}
+                        {j.closes_at && <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter mt-1">Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
                       </div>
                     </td>
                     <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-600 uppercase tracking-tight">{j.department}</td>

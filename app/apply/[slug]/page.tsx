@@ -164,7 +164,7 @@ export default async function ApplyPage({ params }: Props) {
                     ['Contract',   j.employment_type?.replace(/_/g, ' ')],
                     ['Vacancies',  j.target_count ? String(j.target_count) : 'Multiple'],
                     ['Ref',        j.ref_code],
-                    ['Closes',     j.closes_at || 'Rolling'],
+                    ['Closes',     j.closes_at ? new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Rolling'],
                   ].map(([label, value]) => (
                     <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid var(--border)', fontSize: 13, gap: '0.5rem' }}>
                       <span style={{ color: 'var(--muted)', fontWeight: 500 }}>{label}</span>

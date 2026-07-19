@@ -25,9 +25,10 @@ export function PageHero({
       />
       <div className="absolute inset-0 z-10 bg-[#1c2a38]/60 backdrop-blur-[2px]" />
 
-      {/* Content */}
+      {/* Content — force white explicitly so the global `h1 { color: var(--foreground) }`
+          base rule can't override the on-image contrast. */}
       <div className="relative z-20 max-w-4xl mx-auto space-y-4">
-        <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight uppercase leading-tight drop-shadow-2xl">
+        <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight uppercase leading-tight drop-shadow-2xl text-white">
           {title}
         </h1>
         {subtitle && (
