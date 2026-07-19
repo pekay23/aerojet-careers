@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { MapPin, Building2, Clock, Users, ArrowLeft } from 'lucide-react'
 import SiteNav from '@/components/layout/SiteNav'
+
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero, StatusPill, NoticeBanner } from '@/components/ui'
 import ApplicationForm from '@/components/forms/ApplicationForm'
@@ -71,10 +73,11 @@ export default async function ApplyPage({ params }: Props) {
           </div>
           <h1 style={{ color: 'white', fontSize: '2rem', marginBottom: '0.875rem' }}>{j.title}</h1>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
-            <span>📍 {j.location}</span>
-            <span>🏢 {j.department}</span>
-            <span>⏰ {j.employment_type?.replace(/_/g, ' ')}</span>
-            {j.target_count && <span>👥 {j.target_count} {j.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><MapPin size={15} aria-hidden="true" /> {j.location}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Building2 size={15} aria-hidden="true" /> {j.department}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {j.employment_type?.replace(/_/g, ' ')}</span>
+            {j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {j.target_count} {j.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+
           </div>
         </div>
       </div>
@@ -82,9 +85,10 @@ export default async function ApplyPage({ params }: Props) {
       {/* Two-column layout */}
       <section style={{ background: 'white', padding: '3rem 1rem' }}>
         <div className="max-w-content mx-auto">
-          <Link href="/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--blue)', fontSize: 13, fontWeight: 500, textDecoration: 'none', marginBottom: '2rem' }}>
-            ← Back to All Vacancies
+          <Link href="/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--blue)', fontSize: 13, fontWeight: 500, textDecoration: 'none', marginBottom: '2rem' }}>
+            <ArrowLeft size={15} aria-hidden="true" /> Back to All Vacancies
           </Link>
+
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '3rem', alignItems: 'start' }}>
 
@@ -130,8 +134,9 @@ export default async function ApplyPage({ params }: Props) {
                 </div>
                 <div style={{ padding: '1.25rem 1.5rem' }}>
                   <a href="#apply-now" className="btn btn-blue" style={{ width: '100%', marginBottom: '0.875rem' }}>
-                    Apply Now →
+                    Apply Now
                   </a>
+
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     {[
                       { label: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL}/apply/${j.slug}`)}`, bg: '#0a66c2' },

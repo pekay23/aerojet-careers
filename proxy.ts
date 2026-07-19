@@ -1,77 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { jwtVerify } from 'jose'
+
+/**
+ * Edge middleware — protects /admin and /api/admin routes.
+ *
+ * Verifies the JWT session cookie directly (edge-safe, no pg / no next/headers).
+ * Mirrors lib/auth.ts session config.
+ */
+
+const SESSION_COOKIE = 'aj_session'
+
+function getSecret(): Uint8Array | null {
+  const secret =
+    process.env.AUTH_SECRET ||
+    process.env.JWT_SECRET ||
+    process.env.NEXTAUTH_SECRET
+  if (!secret) return null
+  return new TextEncoder().encode(secret)
+}
 
 export default async function proxy(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
-    // If keys are missing, we can't secure the route. 
-    // We log and return the response to avoid a site-wide crash, 
-    // although Auth will eventually fail in the components.
-    console.error(`[Middleware] Supabase Initialization Error: Missing credentials.`)
-    return response
-  }
-
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseKey,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          request.cookies.set({ name, value, ...options })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({ name, value, ...options })
-        },
-        remove(name: string, options: any) {
-          request.cookies.set({ name, value: '', ...options })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({ name, value: '', ...options })
-        },
-      },
-    }
-  )
-
-  const { data: { user } } = await supabase.auth.getUser()
-
   const { pathname } = request.nextUrl
   const isAdminPath = pathname.startsWith('/admin')
-  const isAdminApi  = pathname.startsWith('/api/admin')
+  const isAdminApi = pathname.startsWith('/api/admin')
 
   // Skip guard for login page
   if (pathname === '/admin/login') {
-    return response
+    return NextResponse.next()
   }
 
-  if (isAdminPath || isAdminApi) {
-    if (!user) {
-      if (isAdminApi) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-      const url = new URL('/admin/login', request.url)
-      url.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(url)
+  if (!isAdminPath && !isAdminApi) {
+    return NextResponse.next()
+  }
+
+  const token = request.cookies.get(SESSION_COOKIE)?.value
+  const secret = getSecret()
+
+  let valid = false
+  if (token && secret) {
+    try {
+      await jwtVerify(token, secret)
+      valid = true
+    } catch {
+      valid = false
     }
   }
 
-  return response
+  if (!valid) {
+    if (isAdminApi) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const url = new URL('/admin/login', request.url)
+    url.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(url)
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {

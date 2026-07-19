@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Briefcase } from 'lucide-react'
 import type { Job } from '@/types'
+
 
 // Metadata state
 type Metadata = {
@@ -131,7 +133,7 @@ export default function JobsAdminPage() {
         {/* Toolbar */}
         <div className="px-4 lg:px-8 py-4 lg:py-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center">
           <div className="flex items-center gap-3">
-            <select value={statusF} onChange={e => setStatusF(e.target.value)} className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-800 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer appearance-none min-w-[160px]">
+            <select value={statusF} onChange={e => setStatusF(e.target.value)} className="admin-input text-xs uppercase tracking-widest cursor-pointer appearance-none min-w-[160px]">
               <option value="">All statuses</option>
               {['open','draft','closed','paused','filled'].map(s => <option key={s}>{s}</option>)}
             </select>
@@ -157,7 +159,8 @@ export default function JobsAdminPage() {
           </div>
         ) : jobs.length === 0 ? (
           <div className="py-20">
-            <EmptyState icon="📌" message="No job postings yet. Create your first one." />
+            <EmptyState icon={Briefcase} message="No job postings yet. Create your first one." />
+
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -225,7 +228,7 @@ export default function JobsAdminPage() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" 
             onClick={() => !saving && setModal(null)} 
@@ -252,62 +255,62 @@ export default function JobsAdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Job title *</label>
-                  <input value={form.title ?? ''} onChange={e => sf('title')(e.target.value)} placeholder="e.g. Licensed Aircraft Engineers" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-200" />
+                  <input value={form.title ?? ''} onChange={e => sf('title')(e.target.value)} placeholder="e.g. Licensed Aircraft Engineers" className="admin-input" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Reference Code</label>
-                  <input value={form.ref_code ?? ''} onChange={e => sf('ref_code')(e.target.value)} placeholder="e.g. AERO-ENG-001" className="w-full px-5 py-3.5 bg-slate-100/50 border border-slate-200 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-300" />
+                  <input value={form.ref_code ?? ''} onChange={e => sf('ref_code')(e.target.value)} placeholder="e.g. AERO-ENG-001" className="admin-input" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Department *</label>
-                  <select value={form.department ?? ''} onChange={e => sf('department')(e.target.value)} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 appearance-none">
+                  <select value={form.department ?? ''} onChange={e => sf('department')(e.target.value)} className="admin-input appearance-none">
                     <option value="">Select…</option>
                     {meta.departments.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Category</label>
-                  <select value={form.category} onChange={e => sf('category')(e.target.value)} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 appearance-none">
+                  <select value={form.category} onChange={e => sf('category')(e.target.value)} className="admin-input appearance-none">
                     {meta.categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Employment type</label>
-                  <select value={form.employment_type} onChange={e => sf('employment_type')(e.target.value)} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 appearance-none">
+                  <select value={form.employment_type} onChange={e => sf('employment_type')(e.target.value)} className="admin-input appearance-none">
                     {meta.employment_types.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Location</label>
-                  <input value={form.location ?? ''} onChange={e => sf('location')(e.target.value)} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900" />
+                  <input value={form.location ?? ''} onChange={e => sf('location')(e.target.value)} className="admin-input" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Number of vacancies</label>
-                  <input type="number" value={form.target_count ?? ''} onChange={e => sf('target_count')(e.target.value)} placeholder="e.g. 5" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900" min="1" />
+                  <input type="number" value={form.target_count ?? ''} onChange={e => sf('target_count')(e.target.value)} placeholder="e.g. 5" className="admin-input" min="1" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Closing date</label>
-                  <input type="date" value={form.closes_at ?? ''} onChange={e => sf('closes_at')(e.target.value)} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900" />
+                  <input type="date" value={form.closes_at ?? ''} onChange={e => sf('closes_at')(e.target.value)} className="admin-input" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Tags (comma-separated)</label>
-                  <input value={form.tags ?? ''} onChange={e => sf('tags')(e.target.value)} placeholder="e.g. EASA Part-66, Boeing 737, AOG" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-lg focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-200" />
+                  <input value={form.tags ?? ''} onChange={e => sf('tags')(e.target.value)} placeholder="e.g. EASA Part-66, Boeing 737, AOG" className="admin-input" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Summary</label>
-                  <textarea value={form.summary ?? ''} onChange={e => sf('summary')(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-200 min-h-[100px] leading-relaxed" />
+                  <textarea value={form.summary ?? ''} onChange={e => sf('summary')(e.target.value)} className="admin-input admin-textarea min-h-[100px]" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Key responsibilities</label>
-                  <textarea value={form.responsibilities ?? ''} onChange={e => sf('responsibilities')(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-200 min-h-[120px] leading-relaxed" placeholder="• Responsibility 1&#10;• Responsibility 2" />
+                  <textarea value={form.responsibilities ?? ''} onChange={e => sf('responsibilities')(e.target.value)} className="admin-input admin-textarea min-h-[120px]" placeholder="• Responsibility 1&#10;• Responsibility 2" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Requirements</label>
-                  <textarea value={form.requirements ?? ''} onChange={e => sf('requirements')(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-200 min-h-[120px] leading-relaxed" placeholder="• Requirement 1&#10;• Requirement 2" />
+                  <textarea value={form.requirements ?? ''} onChange={e => sf('requirements')(e.target.value)} className="admin-input admin-textarea min-h-[120px]" placeholder="• Requirement 1&#10;• Requirement 2" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">What we offer</label>
-                  <textarea value={form.what_we_offer ?? ''} onChange={e => sf('what_we_offer')(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-sm text-slate-900 placeholder:text-slate-200 min-h-[100px] leading-relaxed" />
+                  <textarea value={form.what_we_offer ?? ''} onChange={e => sf('what_we_offer')(e.target.value)} className="admin-input admin-textarea min-h-[100px]" />
                 </div>
               </div>
             </div>

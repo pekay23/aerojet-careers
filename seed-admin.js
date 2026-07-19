@@ -1,78 +1,98 @@
-const { createClient } = require('@supabase/supabase-js')
+/**
+ * Seeds an initial admin user into Neon.
+ *
+ * Creates (or updates) an auth_users row with a bcrypt password and links
+ * an admin_users row with the 'admin' role.
+ *
+ * Usage:  node seed-admin.js
+ * Env:    DATABASE_URL (Neon), optional SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD
+ */
 
-require('dotenv').config()
+const { Pool } = require('pg')
+const bcrypt = require('bcryptjs')
+const fs = require('fs')
+const path = require('path')
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Minimal .env.local loader (avoids a dotenv dependency)
+function loadEnv(file) {
+  try {
+    const content = fs.readFileSync(path.join(process.cwd(), file), 'utf8')
+    for (const line of content.split('\n')) {
+      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/i)
+      if (!m) continue
+      let val = m[2].trim().replace(/^["']|["']$/g, '')
+      if (!(m[1] in process.env)) process.env[m[1]] = val
+    }
+  } catch {
+    /* file optional */
+  }
+}
+loadEnv('.env.local')
+loadEnv('.env')
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error("Missing SUPABASE URL or SERVICE ROLE KEY in .env")
+const connectionString =
+  process.env.DATABASE_URL ||
+  process.env.NEON_DATABASE_URL ||
+  process.env.POSTGRES_URL
+
+
+if (!connectionString) {
+  console.error('Missing DATABASE_URL (Neon connection string) in .env.local')
   process.exit(1)
 }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const pool = new Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+})
 
 async function createAdmin() {
-  const email = 'admin@aerojet-aviation.com'
-  const password = 'Admin@2026'
+  const email = process.env.SEED_ADMIN_EMAIL || 'admin@aerojet-aviation.com'
+  const password = process.env.SEED_ADMIN_PASSWORD || 'Admin@2026'
+  const fullName = 'Admin User'
 
-  // 1. Create User in Auth
-  console.log('Creating auth user...')
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-  })
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
 
-  let userId;
+    const hash = await bcrypt.hash(password, 10)
 
-  if (authError) {
-    if (authError.message.includes('already exists') || authError.status === 422) {
-       console.log('User already exists in auth.users, proceeding to check admin_users table.')
-       const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers()
-       if (usersError) {
-           console.error('Error fetching users:', usersError)
-           process.exit(1)
-       }
-       const existingUser = usersData.users.find(u => u.email === email)
-       if (!existingUser) {
-           console.error('User not found despite "already exists" error.')
-           process.exit(1)
-       }
-       userId = existingUser.id;
-       // Update the password just in case they want it reset
-       console.log('Updating password to Admin@2026...')
-       await supabase.auth.admin.updateUserById(userId, { password })
-    } else {
-       console.error('Error creating user:', authError.message)
-       process.exit(1)
-    }
-  } else {
-    userId = authData.user.id;
-    console.log('User created with ID:', userId)
-  }
+    // 1. Upsert auth user
+    console.log('Creating/updating auth user...')
+    const authRes = await client.query(
+      `INSERT INTO auth_users (email, password_hash, user_metadata, email_confirmed)
+       VALUES ($1, $2, $3, TRUE)
+       ON CONFLICT (email)
+       DO UPDATE SET password_hash = EXCLUDED.password_hash
+       RETURNING id`,
+      [email, hash, JSON.stringify({ full_name: fullName })]
+    )
+    const userId = authRes.rows[0].id
+    console.log('Auth user id:', userId)
 
-  // 2. Insert into admin_users
-  console.log('Inserting into admin_users...')
-  const { error: dbError } = await supabase
-    .from('admin_users')
-    .insert([
-      {
-        auth_user_id: userId,
-        email: email,
-        full_name: 'Admin User',
-        role: 'admin'
-      }
-    ])
+    // 2. Upsert admin_users row
+    console.log('Linking admin_users record...')
+    await client.query(
+      `INSERT INTO admin_users (auth_user_id, email, full_name, role, is_active)
+       VALUES ($1, $2, $3, 'admin', TRUE)
+       ON CONFLICT (email)
+       DO UPDATE SET auth_user_id = EXCLUDED.auth_user_id,
+                     role = EXCLUDED.role,
+                     is_active = TRUE`,
+      [userId, email, fullName]
+    )
 
-  if (dbError) {
-    if (dbError.code === '23505') { // unique violation
-      console.log('User is already in the admin_users table. Operation successful.')
-    } else {
-       console.error('Error inserting into admin_users:', dbError.message)
-    }
-  } else {
-    console.log('Admin user successfully seeded into admin_users!')
+    await client.query('COMMIT')
+    console.log('\n✓ Admin seeded successfully')
+    console.log(`  Email:    ${email}`)
+    console.log(`  Password: ${password}`)
+  } catch (err) {
+    await client.query('ROLLBACK')
+    console.error('Seed failed:', err.message)
+    process.exitCode = 1
+  } finally {
+    client.release()
+    await pool.end()
   }
 }
 

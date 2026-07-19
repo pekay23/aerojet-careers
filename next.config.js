@@ -3,6 +3,7 @@ const nextConfig = {
   // All pages are served at their natural App Router paths.
   // No rewrites needed - /jobs, /apply/[slug], /register, etc.
   // live at their own directories in /app.
+  allowedDevOrigins: ['192.168.8.202'],
 
   images: {
     remotePatterns: [

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>API Reference · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">API Reference</h1>
+  <p class="he-deck">All endpoints are Next.js App Router route handlers under <code>app/api/</code>. Admin routes are guarded by <code>proxy.ts</code> (session) plus in-handler <code>verifyRole([...])</code>.</p>
+</header>
+<ul>
+<li>Pagination on list routes uses <code>page</code> + <code>limit</code> query params (limit capped, e.g. 25–100).</li>
+<li>Search on applications/talent uses <code>search</code> and is passed through <code>sanitizeSearch()</code>.</li>
+<li>Write routes that need the created/updated row call <code>.select().single()</code> on the
+query builder to get it back.</li>
+</ul>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#response-conventions">Response conventions</a></li>
+    <li class="he-toc__l2"><a href="#auth">Auth</a></li>
+    <li class="he-toc__l2"><a href="#public">Public</a></li>
+    <li class="he-toc__l2"><a href="#admin-recruitment">Admin — recruitment</a></li>
+    <li class="he-toc__l2"><a href="#admin-people-org-hr">Admin — people, org &amp; HR</a></li>
+    <li class="he-toc__l2"><a href="#admin-documents-settings-analytics">Admin — documents, settings, analytics</a></li>
+    <li class="he-toc__l2"><a href="#storage-files">Storage / files</a></li>
+    <li class="he-toc__l2"><a href="#notes">Notes</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

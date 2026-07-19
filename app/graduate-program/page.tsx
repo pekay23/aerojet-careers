@@ -39,6 +39,7 @@ export default function GraduateProgramPage() {
             style={{
               padding: '2rem',
               marginBottom: '2rem',
+              background: 'var(--bg-light)',
             }}
           >
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Overview</h2>
@@ -62,7 +63,7 @@ export default function GraduateProgramPage() {
               marginBottom: '2rem',
             }}
           >
-            <div className="card" style={{ padding: '1.75rem' }}>
+            <div className="card" style={{ padding: '1.75rem', background: 'var(--bg-light)' }}>
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Who this is for</h3>
               <p style={{ color: 'var(--muted)', lineHeight: 1.7, margin: 0 }}>
                 Recent graduates and early-career applicants with strong academic foundations,
@@ -71,7 +72,7 @@ export default function GraduateProgramPage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem' }}>
+            <div className="card" style={{ padding: '1.75rem', background: 'var(--bg-light)' }}>
               <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Experience level</h3>
               <p style={{ color: 'var(--muted)', lineHeight: 1.7, margin: 0 }}>
                 Intended primarily for candidates with less than 3 years of work experience.
@@ -81,7 +82,7 @@ export default function GraduateProgramPage() {
             </div>
           </div>
 
-          <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+          <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'var(--bg-light)' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Program Areas</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1.25rem' }}>
               As positions become available, graduate opportunities may be opened in the following
@@ -102,7 +103,7 @@ export default function GraduateProgramPage() {
                     border: '1px solid var(--border)',
                     borderRadius: 8,
                     padding: '0.95rem 1rem',
-                    background: '#fff',
+                    background: 'var(--bg-light)',
                     fontWeight: 600,
                     color: 'var(--navy)',
                   }}
@@ -113,7 +114,7 @@ export default function GraduateProgramPage() {
             </div>
           </div>
 
-          <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+          <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'var(--bg-light)' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Current Status</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1rem' }}>
               This page currently serves as a placeholder for the Graduate Program intake pathway.
@@ -134,34 +135,22 @@ export default function GraduateProgramPage() {
               marginTop: '2rem',
             }}
           >
-            <Link
-              href="/register"
-              style={{
-                background: 'var(--blue)',
-                color: 'white',
-                textDecoration: 'none',
-                padding: '0.9rem 1.6rem',
-                borderRadius: 6,
-                fontWeight: 700,
-              }}
-            >
+            <Link href="/register" className="btn btn-blue btn-lg">
               Register General Interest
             </Link>
 
             <Link
               href="/jobs"
+              className="btn btn-lg"
               style={{
                 background: 'white',
-                color: 'var(--navy)',
-                textDecoration: 'none',
-                padding: '0.9rem 1.6rem',
-                borderRadius: 6,
-                fontWeight: 700,
-                border: '1px solid var(--border)',
+                color: 'var(--aero-blue-700)',
+                border: '2px solid var(--aero-blue-700)',
               }}
             >
               View Current Vacancies
             </Link>
+
           </div>
         </div>
       </section>

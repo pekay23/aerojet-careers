@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Setup Guide · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Guides</p>
+  <h1 class="he-title">Setup Guide</h1>
+  <p class="he-deck">Create <code>.env.local</code>:</p>
+</header>
+
+<section class="he-section" id="prerequisites">
+  <div class="he-section__num">01 · Prerequisites</div>
+  <h2 class="he-section__title">Prerequisites</h2><ul>
+<li>Node.js &gt;= 20</li>
+<li>A PostgreSQL database (Neon recommended)</li>
+<li>Package manager: <code>bun</code> (preferred) or <code>npm</code> — both lockfiles exist</li>
+</ul>
+
+<section class="he-section" id="installation">
+  <div class="he-section__num">02 · Installation</div>
+  <h2 class="he-section__title">Installation</h2><pre><code class="language-bash">git clone https://github.com/pekay23/aerojet-careers.git
+cd aerojet-careers
+bun install     # or: npm install
+</code></pre>
+
+<section class="he-section" id="environment-configuration">
+  <div class="he-section__num">03 · Environment configuration</div>
+  <h2 class="he-section__title">Environment configuration</h2><p>Create <code>.env.local</code>:</p>
+<pre><code># Neon (primary database)
+DATABASE_URL=&quot;postgresql://&lt;user&gt;:&lt;pass&gt;@&lt;neon-host&gt;/&lt;db&gt;?sslmode=require&quot;
+
+# Local auth — signs the JWT session cookie. Keep secret.
+AUTH_SECRET=&quot;&lt;random 48+ byte string&gt;&quot;
+
+# App
+EMAIL_FROM=&quot;careers@aerojet-aviation.com&quot;
+NEXT_PUBLIC_APP_URL=&quot;https://careers.aerojet-aviation.com&quot;
+RESEND_API_KEY=&quot;&lt;resend key&gt;&quot;
+</code></pre>
+<p>Generate a secret:</p>
+<pre><code class="language-bash">node -e &quot;console.log(require(&#39;crypto&#39;).randomBytes(48).toString(&#39;base64url&#39;))&quot;
+</code></pre>
+<p>The legacy <code>NEXT_PUBLIC_SUPABASE_*</code> / <code>SUPABASE_SERVICE_ROLE_KEY</code> values are not used
+at runtime; keep them only if you still need to export data from the paused Supabase
+project (see the <a href="./neon-migration.html">Neon migration guide</a>).</p>
+
+<section class="he-section" id="database-setup">
+  <div class="he-section__num">04 · Database setup</div>
+  <h2 class="he-section__title">Database setup</h2><p>Apply the schema (idempotent — safe to re-run):</p>
+<pre><code class="language-bash">psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
+# or paste db/neon-schema.sql into the Neon SQL editor
+</code></pre>
+<p>Seed the initial admin:</p>
+<pre><code class="language-bash">node seed-admin.js
+</code></pre>
+<p>Defaults: <code>admin@aerojet-aviation.com</code> / <code>Admin@2026</code>
+(override with <code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code>).</p>
+
+<section class="he-section" id="development">
+  <div class="he-section__num">05 · Development</div>
+  <h2 class="he-section__title">Development</h2><pre><code class="language-bash">bun run dev          # dev server → http://localhost:3000
+bun run lint         # ESLint
+bun run type-check   # tsc --noEmit
+bun run build        # production build (next build)
+bun start            # run the production build
+</code></pre>
+
+<section class="he-section" id="verifying-the-db-connection">
+  <div class="he-section__num">06 · Verifying the DB connection</div>
+  <h2 class="he-section__title">Verifying the DB connection</h2><p>A quick sanity check that the schema and admin exist:</p>
+<pre><code class="language-bash">node -e &quot;const{Pool}=require(&#39;pg&#39;);const p=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});p.query(&#39;select count(*) from admin_users&#39;).then(r=&gt;{console.log(r.rows);return p.end()})&quot;
+</code></pre>
+
+<section class="he-section" id="demo-credentials-after-seeding">
+  <div class="he-section__num">07 · Demo credentials (after seeding)</div>
+  <h2 class="he-section__title">Demo credentials (after seeding)</h2><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Email</th>
+<th>Password</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Admin</td>
+<td><a href="mailto:admin@aerojet-aviation.com">admin@aerojet-aviation.com</a></td>
+<td>Admin@2026</td>
+</tr>
+</tbody></table>
+<p>Change this password after first login.</p>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#prerequisites">Prerequisites</a></li>
+    <li class="he-toc__l2"><a href="#installation">Installation</a></li>
+    <li class="he-toc__l2"><a href="#environment-configuration">Environment configuration</a></li>
+    <li class="he-toc__l2"><a href="#database-setup">Database setup</a></li>
+    <li class="he-toc__l2"><a href="#development">Development</a></li>
+    <li class="he-toc__l2"><a href="#verifying-the-db-connection">Verifying the DB connection</a></li>
+    <li class="he-toc__l2"><a href="#demo-credentials-after-seeding">Demo credentials (after seeding)</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

@@ -10,18 +10,73 @@
  */
 
 :root {
-  /* ── Aerojet Brand Palette ─────────────────────────────────────────── */
-  --aero-blue: #003366;
-  --aero-sky: #00AEEF;
+  /* ═══════════════════════════════════════════════════════════════════
+     AEROJET COLOR SYSTEM
+     Built from the two brand anchors — deep navy (#003366) and sky (#00AEEF).
+     Full tonal scales (50→900) for consistent, accessible tints/shades.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  /* ── Brand: Navy scale (primary) ─────────────────────────────────────── */
+  --aero-blue-50:  #EAF2FA;
+  --aero-blue-100: #CBDDEF;
+  --aero-blue-200: #9BBBDA;
+  --aero-blue-300: #6693C2;
+  --aero-blue-400: #3A6DA5;
+  --aero-blue-500: #1C4F87;
+  --aero-blue-600: #0E3F70;
+  --aero-blue-700: #003366;  /* ← primary brand navy */
+  --aero-blue-800: #002A5C;
+  --aero-blue-900: #001F45;
+
+  /* ── Brand: Sky scale (accent) ───────────────────────────────────────── */
+  --aero-sky-50:  #E7F7FE;
+  --aero-sky-100: #C3EBFC;
+  --aero-sky-200: #8FD9F8;
+  --aero-sky-300: #5AC6F3;
+  --aero-sky-400: #26B4EF;
+  --aero-sky-500: #00AEEF;  /* ← accent sky */
+  --aero-sky-600: #0090C7;
+  --aero-sky-700: #00729E;
+  --aero-sky-800: #005576;
+  --aero-sky-900: #003C54;
+
+  /* ── Neutral scale (navy-tinted slate) ───────────────────────────────── */
+  --neutral-0:   #FFFFFF;
+  --neutral-50:  #F5F8FB;
+  --neutral-100: #EDF2F8;
+  --neutral-200: #DCE5EF;
+  --neutral-300: #C2D0DF;
+  --neutral-400: #93A5B9;
+  --neutral-500: #647A91;
+  --neutral-600: #47586B;
+  --neutral-700: #33455A;
+  --neutral-800: #1E2A3A;
+  --neutral-900: #0F172A;
+
+  /* ── Brand aliases (backward compatible) ─────────────────────────────── */
+  --aero-blue: var(--aero-blue-700);
+  --aero-sky: var(--aero-sky-500);
   --aero-light: #2E7EB3;
-  --aero-soft-blue: #0066FF;
-  --aero-slate: #2C3E50;
+  --aero-soft-blue: #0055D4;   /* Accessible accent for text on light bg (4.5:1) */
+  --aero-slate: var(--neutral-800);
   --aero-offwhite: #F9F9F9;
 
   /* Public-site palette */
-  --public-primary: #002A5C;
+  --public-primary: var(--aero-blue-800);
   --public-secondary: #1F7AD6;
-  --public-dark: #1E2A3A;
+  --public-dark: var(--neutral-800);
+
+  /* ── Surface tokens (cards, sections & panels) ───────────────────────── */
+  --surface: #FFFFFF;
+  --surface-subtle: var(--aero-blue-50);
+  --surface-muted: #EDF3FA;
+  --surface-accent-soft: #E8F4FD;
+  --surface-inverse: var(--aero-blue-700);
+
+  /* ── Gradients ───────────────────────────────────────────────────────── */
+  --gradient-brand: linear-gradient(135deg, var(--aero-blue-800) 0%, var(--aero-blue-700) 55%, var(--aero-blue-600) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--aero-sky-500) 0%, var(--aero-sky-600) 100%);
+
 
   /* ── shadcn/ui Semantic Palette (light) ────────────────────────────── */
   --background: #FFFFFF;
@@ -58,8 +113,9 @@
   --paper: #F7F3EC;
   --paper-dark: #EFE8DC;
   --ink: #1B2430;
-  --bg-light: #F6F6F8;
+  --bg-light: var(--surface-subtle);   /* Branded soft-blue surface (was cold #F6F6F8) */
   --bg-dark: #101622;
+
 
   /* Semantic status */
   --success: #788C5D;
@@ -127,42 +183,9 @@
   --z-toast: 800;
 }
 
-/* ── Dark mode ──────────────────────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0F172A;
-    --foreground: #F8FAFC;
-    --card: #1E293B;
-    --card-foreground: #F8FAFC;
-    --popover: #1E293B;
-    --popover-foreground: #F8FAFC;
-    --primary: #F8FAFC;
-    --primary-foreground: #0F172A;
-    --secondary: #1E293B;
-    --secondary-foreground: #F8FAFC;
-    --muted: #1E293B;
-    --muted-foreground: #94A3B8;
-    --accent: #1E293B;
-    --accent-foreground: #F8FAFC;
-    --destructive: #EF4444;
-    --destructive-foreground: #F8FAFC;
-    --border: #334155;
-    --input: #334155;
-    --ring: #F8FAFC;
-
-    --sidebar-background: #0F172A;
-    --sidebar-foreground: #F8FAFC;
-    --sidebar-primary: #60A5FA;
-    --sidebar-primary-foreground: #0F172A;
-    --sidebar-accent: #1E293B;
-    --sidebar-accent-foreground: #F8FAFC;
-    --sidebar-border: #334155;
-    --sidebar-ring: #60A5FA;
-
-    --bg-light: #1E293B;
-    --bg-dark: #0F172A;
-  }
-}
+/* Light-only site (no theme switch): the palette above applies in all
+   conditions. The former `prefers-color-scheme: dark` override was removed
+   because it flipped surfaces to dark and hid headers. */
 
 /* ── Base reset ─────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
@@ -170,7 +193,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  color-scheme: light;
 }
+
 
 body {
   margin: 0;

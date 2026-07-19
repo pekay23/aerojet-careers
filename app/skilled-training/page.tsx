@@ -1,8 +1,10 @@
 import Link from 'next/link'
+import { Wrench, Plane, ArrowRight } from 'lucide-react'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero, NoticeBanner } from '@/components/ui'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'Skilled Training Program',
@@ -48,12 +50,14 @@ export default function SkilledTrainingPage() {
           {/* Two tracks */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '4rem' }}>
             {[
-              { id: 'eng', title: 'Engineering Technicians & Mechanics', sub: 'Hands-on aircraft maintenance training with a pathway to AME Licence', icon: '🔧', desc: 'Join Aerojet\'s structured apprenticeship programme for aircraft maintenance. You\'ll train alongside qualified LAEs, work on real aircraft, and progress towards an EASA / GCAA Part-66 licence.', roles: ENG_ROLES },
-              { id: 'ramp', title: 'Ground Handling & Ramp Operatives', sub: 'Airside operations training with IATA-recognised certifications', icon: '✈️', desc: 'Start your aviation career on the ramp. Our training covers aircraft marshalling, towing, pushback, servicing, dangerous goods, and airside safety — with IATA Dangerous Goods certification included.', roles: RAMP_ROLES },
+              { id: 'eng', title: 'Engineering Technicians & Mechanics', sub: 'Hands-on aircraft maintenance training with a pathway to AME Licence', Icon: Wrench, desc: 'Join Aerojet\'s structured apprenticeship programme for aircraft maintenance. You\'ll train alongside qualified LAEs, work on real aircraft, and progress towards an EASA / GCAA Part-66 licence.', roles: ENG_ROLES },
+              { id: 'ramp', title: 'Ground Handling & Ramp Operatives', sub: 'Airside operations training with IATA-recognised certifications', Icon: Plane, desc: 'Start your aviation career on the ramp. Our training covers aircraft marshalling, towing, pushback, servicing, dangerous goods, and airside safety — with IATA Dangerous Goods certification included.', roles: RAMP_ROLES },
+
             ].map(track => (
-              <div key={track.id} className="card" style={{ overflow: 'hidden' }}>
+              <div key={track.id} className="card" style={{ overflow: 'hidden', background: 'var(--bg-light)' }}>
                 <div style={{ background: 'var(--navy)', padding: '1.25rem 1.5rem' }}>
-                  <div style={{ fontSize: 22, marginBottom: 8 }}>{track.icon}</div>
+                  <track.Icon size={26} aria-hidden="true" style={{ color: 'var(--aero-sky)', marginBottom: 8 }} />
+
                   <h3 style={{ color: 'white', fontSize: '1.1rem', marginBottom: '0.35rem' }}>{track.title}</h3>
                   <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: 0 }}>{track.sub}</p>
                 </div>
@@ -69,9 +73,10 @@ export default function SkilledTrainingPage() {
                       </div>
                     ))}
                   </div>
-                  <Link href="/register" className="btn btn-blue" style={{ width: '100%', textAlign: 'center' }}>
-                    Apply for This Track →
+                  <Link href="/register" className="btn btn-blue" style={{ width: '100%', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                    Apply for This Track <ArrowRight size={15} aria-hidden="true" />
                   </Link>
+
                 </div>
               </div>
             ))}
@@ -84,7 +89,7 @@ export default function SkilledTrainingPage() {
               { title: 'Engineering Technicians Track', items: ['Minimum WAEC/WASSCE passes in Mathematics and Physics (Grade C or above)','OND in Mechanical, Electrical or Aeronautical Engineering preferred','Less than 3 years formal employment (trainees welcome)','Strong numerical and mechanical aptitude','Must be able to work shifts and pass a medical assessment','Willing to be based full-time in Accra, Ghana'] },
               { title: 'Ground Handling & Ramp Track', items: ['Minimum WAEC/WASSCE passes including English','Valid driving licence (light vehicle minimum)','No prior aviation experience required — full training provided','Good physical fitness for an active outdoor ramp environment','Must pass airside security clearance and medical assessment','Willing to work shifts including nights, weekends and public holidays'] },
             ].map(box => (
-              <div key={box.title} className="card" style={{ padding: '1.5rem' }}>
+              <div key={box.title} className="card" style={{ padding: '1.5rem', background: 'var(--bg-light)' }}>
                 <h4 style={{ marginBottom: '0.875rem', paddingBottom: '0.5rem', borderBottom: '2px solid var(--blue)', fontSize: '0.95rem' }}>{box.title}</h4>
                 <ul style={{ paddingLeft: '1.25rem', margin: 0 }}>
                   {box.items.map(item => <li key={item} style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: 1.8 }}>{item}</li>)}

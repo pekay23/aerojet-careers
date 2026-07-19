@@ -1,28 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { createServerClient } from '@supabase/ssr'
+import { getServerUser } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 
 export async function PATCH(req: NextRequest) {
   try {
-    // We need to identify the user from the session first
-    const response = NextResponse.next()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) { return req.cookies.get(name)?.value },
-          set(name: string, value: string, options: any) { }, // No-op for read-only check
-          remove(name: string, options: any) { },
-        },
-      }
-    )
-
-    const { data: { user } } = await supabase.auth.getUser()
+    // Identify the user from the JWT session cookie
+    const user = await getServerUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
 
     const updates = await req.json()
     

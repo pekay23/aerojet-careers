@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Neon Migration Runbook · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Guides</p>
+  <h1 class="he-title">Neon Migration Runbook</h1>
+  <p class="he-deck">This project was migrated off Supabase (Auth + Postgres + Storage) onto a plain <strong>Neon</strong> PostgreSQL database.</p>
+</header>
+<ul>
+<li>All access control is enforced in the app layer (<code>verifyRole</code>, <code>proxy.ts</code>).
+There is no Row Level Security on Neon, so never expose the <code>DATABASE_URL</code>
+connection to the browser.</li>
+<li><code>/api/files</code> requires a valid session; every bucket in this app holds private
+HR data.</li>
+</ul>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#what-changed">What changed</a></li>
+    <li class="he-toc__l2"><a href="#key-files">Key files</a></li>
+    <li class="he-toc__l2"><a href="#environment-variables">Environment variables</a></li>
+    <li class="he-toc__l2"><a href="#first-time-setup-on-a-fresh-neon-database">First-time setup on a fresh Neon database</a></li>
+    <li class="he-toc__l2"><a href="#migrating-existing-data-out-of-supabase-when-unpaused">Migrating existing data out of Supabase (when unpaused)</a></li>
+    <li class="he-toc__l3"><a href="#users-passwords">Users &amp; passwords</a></li>
+    <li class="he-toc__l3"><a href="#storage-files">Storage files</a></li>
+    <li class="he-toc__l2"><a href="#notes">Notes</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Documentation · Aerojet Careers</title>
+<link rel="stylesheet" href="./design-tokens.css">
+<link rel="stylesheet" href="./docs.css">
+</head>
+<body>
+<div class="he-shell ">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="./index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="./index.html">Index</a>
+    <a href="./architecture/system-overview.html">Architecture</a>
+    <a href="./guides/setup.html">Guides</a>
+  </div>
+</nav>
+
+<main>
+<header>
+  <p class="he-eyebrow">Aerojet Careers · docs</p>
+  <h1 class="he-title">Documentation</h1>
+  <p class="he-deck">All project documentation, organised by purpose. Markdown sources live in <code>docs/architecture</code> and <code>docs/guides</code>.</p>
+</header>
+
+<div class="he-kpis">
+  <div class="he-kpi"><div class="he-kpi__value">8</div><div class="he-kpi__label">Generated pages</div></div>
+  <div class="he-kpi"><div class="he-kpi__value">2</div><div class="he-kpi__label">Sections</div></div>
+</div>
+
+<section class="he-index-section" id="architecture">
+  <div class="he-index-section__head">
+    <h2>Architecture</h2>
+    <p class="he-index-section__blurb">System reference — overview, database, security, API.</p>
+  </div>
+  <div class="he-grid">
+    <a class="he-card" href="./architecture/api.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>API Reference</h3>
+      <p>All endpoints are Next.js App Router route handlers under `app/api/`. Admin routes are guarded by `proxy.ts` (session) plus in-handler `verifyRole([...])`.</p>
+      <div class="he-card__meta"><span>docs/architecture/api.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/database.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>Database Schema</h3>
+      <p>PostgreSQL on **Neon**.</p>
+      <div class="he-card__meta"><span>docs/architecture/database.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/security-model.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>Security Model</h3>
+      <p>Authentication and authorization are handled entirely in the application layer (no Supabase Auth, no Row Level Security).</p>
+      <div class="he-card__meta"><span>docs/architecture/security-model.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/system-overview.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>System Architecture Overview</h3>
+      <p>The public marketing/careers site and the authenticated admin portal live under the same App Router tree.</p>
+      <div class="he-card__meta"><span>docs/architecture/system-overview.md</span></div>
+    </a>
+  </div>
+</section>
+
+<section class="he-index-section" id="guides">
+  <div class="he-index-section__head">
+    <h2>Guides</h2>
+    <p class="he-index-section__blurb">Operational how-tos — setup, deployment, migration, handover.</p>
+  </div>
+  <div class="he-grid">
+    <a class="he-card" href="./guides/deployment.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Deployment Guide</h3>
+      <p>The portal deploys to **Vercel** (framework auto-detected as Next.js, region `lhr1` per `vercel.json`).</p>
+      <div class="he-card__meta"><span>docs/guides/deployment.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/handover.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Developer Handover</h3>
+      <p>Onboarding notes for anyone taking over the Aerojet Careers portal.</p>
+      <div class="he-card__meta"><span>docs/guides/handover.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/neon-migration.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Neon Migration Runbook</h3>
+      <p>This project was migrated off Supabase (Auth + Postgres + Storage) onto a plain **Neon** PostgreSQL database.</p>
+      <div class="he-card__meta"><span>docs/guides/neon-migration.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/setup.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Setup Guide</h3>
+      <p>Create `.env.local`:</p>
+      <div class="he-card__meta"><span>docs/guides/setup.md</span></div>
+    </a>
+  </div>
+</section>
+
+</main>
+
+
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

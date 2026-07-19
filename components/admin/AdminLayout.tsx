@@ -53,7 +53,8 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
           .select('role, full_name')
           .eq('auth_user_id', session.user.id)
           .maybeSingle()
-          .then(({ data }) => {
+          .then(({ data }: { data: any }) => {
+
             if (data) {
               setUserRole(data.role)
               setUserName(data.full_name || session.user.email?.split('@')[0] || 'User')
@@ -242,7 +243,7 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute bottom-full left-4 right-4 mb-2 bg-[#1e293b] border border-sidebar-border rounded-xl shadow-2xl shadow-black/40 overflow-hidden z-50"
+                className="absolute bottom-full left-4 right-4 mb-2 bg-sidebar-background border border-sidebar-border rounded-xl shadow-2xl shadow-black/40 overflow-hidden z-50"
               >
                 <div className="p-2 space-y-0.5">
                   <Link
@@ -295,7 +296,7 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
               !isSidebarOpen && "opacity-0"
             )}
           >
-            <div className="h-9 w-9 shrink-0 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-sm uppercase text-xs">
+            <div className="h-9 w-9 shrink-0 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-sm uppercase text-xs">
               {userName[0]}
             </div>
             {isSidebarOpen && (

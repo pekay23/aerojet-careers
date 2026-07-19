@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
-import { PageHero, NoticeBanner } from '@/components/ui'
+import { PageHero } from '@/components/ui'
+import { CTAButtons } from '@/components/ui/CTAButtons'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -71,9 +72,10 @@ export default function HomePage() {
 
       <section style={{ background: 'white', padding: '2rem 1rem' }}>
         <div className="max-w-content mx-auto">
-          <NoticeBanner>
+          <div style={{ background: 'var(--surface-accent-soft)', borderLeft: '4px solid var(--aero-sky)', borderRadius: '3px', padding: '0.875rem 1.25rem', fontSize: '13px', color: 'var(--aero-blue)', lineHeight: 1.6 }}>
+
             <strong>Note:</strong> Aerojet Aviation is actively building its team ahead of the operational launch of our Accra MRO facility. We welcome applications from qualified professionals and early-career talent who share our vision.
-          </NoticeBanner>
+          </div>
         </div>
       </section>
 
@@ -82,8 +84,8 @@ export default function HomePage() {
           className="max-w-content mx-auto"
           style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto' }}
         >
-          <h2 style={{ fontSize: '1.875rem', marginBottom: '1rem' }}>Find Your Place at Aerojet</h2>
-          <p style={{ color: 'var(--muted)', fontSize: '1rem', lineHeight: 1.7, margin: 0 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.875rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '1rem' }}>Find Your Place at Aerojet</h2>
+          <p style={{ color: 'var(--muted-foreground)', fontSize: '1rem', lineHeight: 1.7, margin: 0 }}>
             Whether you are an experienced aviation professional or just starting your career, Aerojet Aviation
             offers pathways to grow with a company building something extraordinary — a world-class MRO facility
             at the heart of Africa&apos;s aviation future.
@@ -91,7 +93,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section style={{ background: 'var(--bg)', padding: '2rem 1rem 4rem' }}>
+      <section style={{ background: 'white', padding: '2rem 1rem 4rem' }}>
         <div className="max-w-content mx-auto">
           <div
             style={{
@@ -107,7 +109,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div style={{ background: 'var(--navy)', padding: '3rem 1rem' }}>
+      <div style={{ background: 'var(--aero-blue)', padding: '3rem 1rem' }}>
         <div
           className="max-w-content mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
         >
@@ -116,7 +118,7 @@ export default function HomePage() {
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
                 {s.value}
               </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>{s.label}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -124,13 +126,13 @@ export default function HomePage() {
 
       <section style={{ background: 'white', padding: '4rem 1rem' }}>
         <div className="max-w-content mx-auto">
-          <h2 style={{ textAlign: 'center', fontSize: '1.75rem', marginBottom: '0.75rem' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', textAlign: 'center', fontSize: '1.75rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '0.75rem' }}>
             Why Join Aerojet Aviation?
           </h2>
           <p
             style={{
               textAlign: 'center',
-              color: 'var(--muted)',
+              color: 'var(--muted-foreground)',
               maxWidth: 600,
               margin: '0 auto 3rem',
               fontSize: '0.95rem',
@@ -160,9 +162,10 @@ export default function HomePage() {
                 body: "Your work will directly reduce Africa's reliance on overseas MRO — a mission with lasting regional significance.",
               },
             ].map((v) => (
-              <div key={v.title} className="card" style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
-                <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>{v.title}</h4>
-                <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.65, margin: 0 }}>
+              <div key={v.title} className="card" style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'var(--surface-subtle)', border: '1px solid var(--aero-blue-100)' }}>
+                <h4 style={{ fontFamily: 'var(--font-display)', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 700, color: 'var(--aero-blue)' }}>{v.title}</h4>
+
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', lineHeight: 1.65, margin: 0 }}>
                   {v.body}
                 </p>
               </div>
@@ -171,44 +174,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div style={{ background: 'var(--blue)', padding: '4rem 1rem', textAlign: 'center' }}>
-        <h2 style={{ color: 'white', fontSize: '1.875rem', marginBottom: '0.75rem' }}>
+      <div style={{ background: 'var(--gradient-brand)', padding: '4rem 1rem', textAlign: 'center' }}>
+        <h2 style={{ color: 'white', fontSize: '1.875rem', fontWeight: 800, marginBottom: '0.75rem', fontFamily: 'var(--font-display)' }}>
           Ready to Take Off With Us?
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: '1.05rem', marginBottom: '2rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.05rem', marginBottom: '2rem' }}>
+
           Explore opportunities or get in touch to learn more about life at Aerojet Aviation
         </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link
-            href="/jobs"
-            style={{
-              background: 'white',
-              color: 'var(--blue)',
-              padding: '0.8rem 2rem',
-              borderRadius: 4,
-              fontWeight: 700,
-              textDecoration: 'none',
-              fontSize: '0.95rem',
-            }}
-          >
-            View All Vacancies
-          </Link>
-          <a
-            href="https://aerojet-aviation.com/contact.html"
-            style={{
-              background: 'transparent',
-              color: 'white',
-              border: '2px solid white',
-              padding: '0.8rem 2rem',
-              borderRadius: 4,
-              fontWeight: 700,
-              textDecoration: 'none',
-              fontSize: '0.95rem',
-            }}
-          >
-            Contact Us
-          </a>
-        </div>
+        <CTAButtons />
       </div>
 
       <SiteFooter />
@@ -218,14 +192,14 @@ export default function HomePage() {
 
 function TrackCard({ track }: { track: (typeof TRACKS)[number] }) {
   return (
-    <div className="card" style={{ overflow: 'hidden' }}>
-      <div style={{ background: 'var(--navy)', padding: '1.5rem 1.75rem' }}>
+    <div className="card" style={{ overflow: 'hidden', background: 'white' }}>
+      <div style={{ background: 'var(--aero-blue)', padding: '1.5rem 1.75rem' }}>
         <h3 style={{ color: 'white', fontSize: '1.2rem', marginBottom: '0.35rem' }}>{track.title}</h3>
-        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.85rem', margin: 0 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', margin: 0 }}>
           {track.subtitle}
         </p>
       </div>
-      <div>
+      <div style={{ background: 'white' }}>
         {track.options.map((opt, i) => (
           <Link
             key={opt.href}
@@ -239,7 +213,6 @@ function TrackCard({ track }: { track: (typeof TRACKS)[number] }) {
               padding: '1.25rem 1.75rem',
               textDecoration: 'none',
               borderBottom: i < track.options.length - 1 ? '1px solid var(--border)' : 'none',
-              background: 'white',
               transition: 'background 0.15s',
             }}
           >
@@ -247,20 +220,20 @@ function TrackCard({ track }: { track: (typeof TRACKS)[number] }) {
               <div
                 style={{
                   fontWeight: 600,
-                  color: 'var(--navy)',
+                  color: 'var(--aero-blue)',
                   fontSize: '0.95rem',
                   marginBottom: '0.3rem',
                 }}
               >
                 {opt.label}
               </div>
-              <div style={{ color: 'var(--muted)', fontSize: '0.82rem', lineHeight: 1.55 }}>
+              <div style={{ color: 'var(--muted-foreground)', fontSize: '0.82rem', lineHeight: 1.55 }}>
                 {opt.desc}
               </div>
             </div>
             <span
               style={{
-                color: 'var(--blue)',
+                color: 'var(--aero-sky)',
                 fontSize: '1.25rem',
                 fontWeight: 700,
                 flexShrink: 0,

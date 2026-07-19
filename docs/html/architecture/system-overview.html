@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>System Architecture Overview · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">System Architecture Overview</h1>
+  <p class="he-deck">The public marketing/careers site and the authenticated admin portal live under the same App Router tree.</p>
+</header>
+
+<section class="he-section" id="stack">
+  <div class="he-section__num">01 · Stack</div>
+  <h2 class="he-section__title">Stack</h2><ul>
+<li><strong>Frontend:</strong> Next.js 16 App Router (React Server Components), React 19, Tailwind CSS v4, shadcn/ui + Radix, Framer Motion</li>
+<li><strong>Backend:</strong> Next.js API routes (serverless)</li>
+<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong>, primary) via <code>pg</code> Pool; <strong>Supabase</strong> retained as a secondary/backup source for a one-time data migration</li>
+<li><strong>Query layer:</strong> a Supabase-compatible query builder (<code>lib/db.ts</code>) so existing <code>.from().select()...</code> call-sites work unchanged against plain Postgres</li>
+<li><strong>Auth:</strong> local bcrypt password hashing + JWT session in an httpOnly cookie (<code>lib/auth.ts</code>) — replaced Supabase Auth</li>
+<li><strong>Files:</strong> <code>storage_objects</code> table (BYTEA), served through <code>/api/files</code> — replaced Supabase Storage</li>
+<li><strong>Email:</strong> Resend</li>
+<li><strong>Hosting:</strong> Vercel (region <code>lhr1</code>) with edge <code>proxy.ts</code> (Next 16 replacement for <code>middleware.ts</code>)</li>
+</ul>
+
+<section class="he-section" id="route-layout">
+  <div class="he-section__num">02 · Route layout</div>
+  <h2 class="he-section__title">Route layout</h2><p>The public marketing/careers site and the authenticated admin portal live under
+the same App Router tree.</p>
+<pre><code>app/(public)/     → Legal pages (privacy, terms, cookies)
+app/              → Public careers site (home, jobs, apply/[slug], register,
+                    graduate-program, skilled-training)
+app/admin/        → Authenticated HR/admin portal (dashboard, applications, jobs,
+                    talent, people, organization, documents, settings, my-info)
+app/api/          → REST API (auth, admin/*, public applications, uploads, files)
+</code></pre>
+
+<section class="he-section" id="auth-enforcement-three-layers">
+  <div class="he-section__num">03 · Auth enforcement (three layers)</div>
+  <h2 class="he-section__title">Auth enforcement (three layers)</h2><ol>
+<li><strong>Edge proxy</strong> at <code>proxy.ts</code> — verifies the JWT session cookie (<code>aj_session</code>) for
+every <code>/admin/*</code> page and <code>/api/admin/*</code> route. Unauthenticated users are
+redirected to <code>/admin/login?redirect=…</code> (pages) or get 401 JSON (API). The
+<code>/admin/login</code> page itself is exempt.</li>
+<li><strong>API role checks</strong> — route handlers call <code>verifyRole([...])</code> from
+<code>lib/api-utils.ts</code>, which resolves the session user, looks up their
+<code>admin_users.role</code>, and allows/denies (with <code>super_admin</code> bypassing all checks).</li>
+<li><strong>File access</strong> — <code>/api/files</code> re-checks the session before serving any stored
+object, since every bucket holds private HR data.</li>
+</ol>
+<p>A missed check in any one layer is caught by the next.</p>
+
+<section class="he-section" id="neon-backed-compatibility-shims">
+  <div class="he-section__num">04 · Neon-backed compatibility shims</div>
+  <h2 class="he-section__title">Neon-backed compatibility shims</h2><p>To migrate off Supabase without rewriting ~30 API routes and components, the three
+Supabase client objects were re-implemented against Neon while keeping their
+original surface:</p>
+<ul>
+<li><code>lib/supabase-admin.ts</code> — <code>supabaseAdmin.from()</code> / <code>.storage</code> / <code>.auth.admin.*</code> (service-role equivalent)</li>
+<li><code>lib/supabase-server.ts</code> — <code>createSupabaseServer()</code> with <code>.auth.getUser()</code> + <code>.from()</code></li>
+<li><code>lib/supabase.ts</code> — the browser client; routes auth/storage calls through <code>/api/auth/*</code> and <code>/api/storage/upload</code></li>
+</ul>
+<p>All three delegate to <code>lib/db.ts</code> (query builder), <code>lib/auth.ts</code> (sessions), and
+<code>lib/storage.ts</code> (files).</p>
+
+<section class="he-section" id="key-design-decisions">
+  <div class="he-section__num">05 · Key design decisions</div>
+  <h2 class="he-section__title">Key design decisions</h2><ol>
+<li><strong>Compatibility shims over a rewrite</strong> — the query builder mimics the subset of
+the supabase-js/PostgREST API the app uses (<code>eq/neq/in/ilike/or/contains/range</code>,
+nested embeds, <code>count</code>, <code>upsert</code>), so call-sites stayed intact.</li>
+<li><strong>Stateless JWT sessions</strong> — signed with <code>AUTH_SECRET</code> (jose, HS256), stored in an
+httpOnly cookie; verifiable at the edge without a DB round-trip.</li>
+<li><strong>App-layer authorization</strong> — Neon has no Row Level Security, so access control is
+enforced entirely by <code>proxy.ts</code> + <code>verifyRole</code>. The <code>DATABASE_URL</code> must never reach
+the browser.</li>
+<li><strong>Files in Postgres</strong> — small HR documents are stored as BYTEA and gated behind a
+session-checked route rather than a public CDN URL.</li>
+<li><strong>Neon primary, Supabase secondary</strong> — Supabase stays as a backup so its data can be
+exported into Neon once it is unpaused (see the <a href="../guides/neon-migration.html">Neon migration guide</a>).</li>
+</ol>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#stack">Stack</a></li>
+    <li class="he-toc__l2"><a href="#route-layout">Route layout</a></li>
+    <li class="he-toc__l2"><a href="#auth-enforcement-three-layers">Auth enforcement (three layers)</a></li>
+    <li class="he-toc__l2"><a href="#neon-backed-compatibility-shims">Neon-backed compatibility shims</a></li>
+    <li class="he-toc__l2"><a href="#key-design-decisions">Key design decisions</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

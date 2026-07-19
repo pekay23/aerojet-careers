@@ -19,8 +19,8 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { supabase } from '@/lib/supabase'
 import AddStaffModal from './AddStaffModal'
+
 
 interface StaffMember {
   id: string
@@ -44,46 +44,43 @@ export default function PeopleDirectory() {
   const [currentUser, setCurrentUser] = useState<any>(null)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setCurrentUser(data.user))
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then(({ user }) => setCurrentUser(user))
+      .catch(() => setCurrentUser(null))
   }, [])
 
   const [officialDepts, setOfficialDepts] = useState<string[]>([])
 
   const fetchPeople = async () => {
     setIsLoading(true)
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select(`
-        id,
-        role,
-        status,
-        staff_profiles (
-          first_name,
-          last_name,
-          job_title,
-          department,
-          email,
-          phone,
-          avatar_url
-        )
-      `)
-    
-    if (data) {
-      const transformed = data.map((d: any) => ({
-        id: d.id,
-        role: d.role,
-        status: d.status,
-        full_name: d.staff_profiles ? `${d.staff_profiles.first_name} ${d.staff_profiles.last_name}` : 'Unnamed Employee',
-        job_title: d.staff_profiles?.job_title || 'No Title',
-        department: d.staff_profiles?.department || 'General',
-        email: d.staff_profiles?.email || d.email || '',
-        phone: d.staff_profiles?.phone || '',
-        photo_url: d.staff_profiles?.avatar_url
-      }))
-      setMembers(transformed)
+    try {
+      const res = await fetch('/api/admin/people')
+      const { data } = await res.json()
+
+      if (data) {
+        const transformed = data.map((d: any) => ({
+          id: d.auth_user_id || d.id,
+          role: d.role,
+          status: d.is_active ? 'active' : 'inactive',
+          auth_user_id: d.auth_user_id,
+          full_name: d.staff_profiles
+            ? `${d.staff_profiles.first_name} ${d.staff_profiles.last_name}`
+            : d.full_name || 'Unnamed Employee',
+          job_title: d.staff_profiles?.job_title || 'No Title',
+          department: d.staff_profiles?.department || 'General',
+          email: d.staff_profiles?.email || d.email || '',
+          phone: d.staff_profiles?.phone || '',
+          photo_url: d.staff_profiles?.avatar_url,
+        }))
+        setMembers(transformed)
+      }
+    } catch (err) {
+      console.error('Failed to load people:', err)
     }
     setIsLoading(false)
   }
+
 
   useEffect(() => {
     fetchPeople()
@@ -248,7 +245,7 @@ export default function PeopleDirectory() {
 
               <div className="flex items-start gap-4 mb-6">
                 <div className="relative">
-                  <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white shadow-md flex items-center justify-center font-bold text-xl text-slate-400 uppercase overflow-hidden">
+                  <div className="h-16 w-16 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 border-2 border-white shadow-md flex items-center justify-center font-bold text-xl text-slate-400 uppercase overflow-hidden">
                     {member.photo_url ? (
                       <img src={member.photo_url} alt={member.full_name} className="h-full w-full object-cover" />
                     ) : (

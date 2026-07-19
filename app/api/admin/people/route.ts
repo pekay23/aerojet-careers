@@ -18,12 +18,18 @@ export async function GET(req: NextRequest) {
         is_active,
         staff_profiles (
         id,
+        first_name,
+        last_name,
         job_title,
         department,
+        email,
+        phone,
+        avatar_url,
         employment_status
         )
       `)
       .order('full_name')
+
 
     if (error) throw error
     return ApiResponse.success(data)

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deployment Guide · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Guides</p>
+  <h1 class="he-title">Deployment Guide</h1>
+  <p class="he-deck">The portal deploys to <strong>Vercel</strong> (framework auto-detected as Next.js, region <code>lhr1</code> per <code>vercel.json</code>).</p>
+</header>
+<ol>
+<li>Visit <code>/jobs</code> — open roles render (public read path).</li>
+<li>Visit <code>/admin/login</code>, sign in with the seeded admin — you should reach <code>/admin/dashboard</code>.</li>
+<li>Hit <code>/api/admin/applications</code> while logged out — expect <code>401</code>.</li>
+</ol>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#environment-variables-vercel-project-settings-environment-variables">Environment variables (Vercel → Project → Settings → Environment Variables)</a></li>
+    <li class="he-toc__l2"><a href="#first-deploy-against-a-fresh-neon-database">First deploy against a fresh Neon database</a></li>
+    <li class="he-toc__l2"><a href="#build">Build</a></li>
+    <li class="he-toc__l2"><a href="#domains-headers">Domains &amp; headers</a></li>
+    <li class="he-toc__l2"><a href="#post-deploy-smoke-test">Post-deploy smoke test</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

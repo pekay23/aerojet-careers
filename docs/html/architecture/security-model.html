@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Security Model · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">Security Model</h1>
+  <p class="he-deck">Authentication and authorization are handled entirely in the application layer (no Supabase Auth, no Row Level Security).</p>
+</header>
+<ul>
+<li><strong>Input sanitisation</strong> — <code>sanitizeSearch()</code> strips PostgREST/ILIKE special
+characters before building <code>or()</code> filters; the query builder always uses
+parameterised queries (<code>$1, $2, …</code>), never string interpolation of values.</li>
+<li><strong>Security headers</strong> — <code>/admin/*</code> sends <code>X-Frame-Options: DENY</code>,
+<code>X-Content-Type-Options: nosniff</code>, <code>Referrer-Policy: strict-origin-when-cross-origin</code>
+(set in both <code>next.config.js</code> and <code>vercel.json</code>).</li>
+<li><strong>Secrets</strong> — <code>DATABASE_URL</code> and <code>AUTH_SECRET</code> are server-only and must never be
+exposed to the browser; there is no RLS fallback if the connection string leaks.</li>
+</ul>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#session-lifecycle">Session lifecycle</a></li>
+    <li class="he-toc__l2"><a href="#layer-1-edge-route-guard-proxyts">Layer 1 — edge route guard (`proxy.ts`)</a></li>
+    <li class="he-toc__l2"><a href="#layer-2-role-checks-verifyrole">Layer 2 — role checks (`verifyRole`)</a></li>
+    <li class="he-toc__l3"><a href="#role-capability">Role → capability</a></li>
+    <li class="he-toc__l2"><a href="#layer-3-file-access">Layer 3 — file access</a></li>
+    <li class="he-toc__l2"><a href="#other-measures">Other measures</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

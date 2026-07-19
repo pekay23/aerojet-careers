@@ -88,7 +88,7 @@ export default function RegisterPage() {
           </div>
 
           {submitted ? (
-            <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+            <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center', background: 'var(--bg-light)' }}>
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
                 <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="5,14 11,20 23,8" />
@@ -104,12 +104,24 @@ export default function RegisterPage() {
             <>
               <FormCard title="Your details" subtitle="Tell us about yourself and the kind of role you are looking for.">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  {[['first_name','First name',true,'Given name'],['last_name','Last name',true,'Family name'],['email','Email address',true,'you@example.com'],['phone','Phone / WhatsApp',false,'+233…']].map(([k,l,req,ph]) => (
+                  {[['first_name','First name',true,'Given name','given-name'],['last_name','Last name',true,'Family name','family-name'],['email','Email address',true,'you@example.com','email'],['phone','Phone / WhatsApp',false,'+233…','tel']].map(([k,l,req,ph,ac]) => (
                     <div key={k as string} className="field">
-                      <label className="field-label">{l as string}{req && <span style={{ color: 'var(--blue)', marginLeft: 2 }}>*</span>}</label>
-                      <input type={k === 'email' ? 'email' : k === 'phone' ? 'tel' : 'text'} value={data[k as string] ?? ''} onChange={e => set(k as string)(e.target.value)} placeholder={ph as string} className="field-input transition-all focus:border-blue-400" />
+                      <label className="field-label" htmlFor={`reg-${k}`}>{l as string}{req && <span style={{ color: 'var(--blue)', marginLeft: 2 }}>*</span>}</label>
+                      <input
+                        id={`reg-${k}`}
+                        name={k as string}
+                        type={k === 'email' ? 'email' : k === 'phone' ? 'tel' : 'text'}
+                        autoComplete={ac as string}
+                        inputMode={k === 'email' ? 'email' : k === 'phone' ? 'tel' : undefined}
+                        spellCheck={k === 'email' ? false : undefined}
+                        value={data[k as string] ?? ''}
+                        onChange={e => set(k as string)(e.target.value)}
+                        placeholder={ph as string}
+                        className="field-input transition-all focus:border-blue-400"
+                      />
                     </div>
                   ))}
+
                   <div className="field">
                     <label className="field-label">Nationality <span style={{ color: 'var(--blue)' }}>*</span></label>
                     <select value={data.nationality ?? ''} onChange={e => set('nationality')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }}>

@@ -1,37 +1,55 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { FaBars, FaTimes } from 'react-icons/fa'
+import Image from 'next/image'
+
+const MAIN_SITE = 'https://www.aerojet-aviation.com'
 
 const NAV_LINKS = [
-  { href: 'https://aerojet-aviation.com', label: 'Home' },
-  { href: 'https://aerojet-aviation.com/planned-capabilities.html', label: 'Planned Capabilities' },
-  { href: 'https://aerojet-aviation.com/consultancy.html', label: 'Consultancy' },
-  { href: 'https://aerojet-aviation.com/training.html', label: 'Training' },
-  { href: 'https://aerojet-aviation.com/accra-mro.html', label: 'Accra MRO' },
-  { href: 'https://aerojet-aviation.com/newsroom.html', label: 'Newsroom' },
+  { href: MAIN_SITE, label: 'Home' },
+  { href: `${MAIN_SITE}/planned-capabilities`, label: 'Planned Capabilities' },
+  { href: `${MAIN_SITE}/consultancy`, label: 'Consultancy' },
+  { href: `${MAIN_SITE}/training`, label: 'Training' },
+  { href: `${MAIN_SITE}/accra-mro`, label: 'Accra MRO' },
+  { href: `${MAIN_SITE}/newsroom`, label: 'Newsroom' },
   { href: '/', label: 'Careers', internal: true },
-  { href: 'https://aerojet-aviation.com/contact.html', label: 'Contact' },
+  { href: `${MAIN_SITE}/contact`, label: 'Contact' },
 ]
+
 
 export default function SiteNav({ activePath = '' }: { activePath?: string }) {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const linkColor = scrolled ? 'var(--aero-blue)' : 'white'
+  const activeLinkColor = scrolled ? 'var(--aero-sky)' : 'var(--aero-sky)'
+  const mobileLinkColor = scrolled ? 'var(--foreground)' : 'white'
 
   return (
     <nav
       style={{
-        background: 'var(--background)',
-        boxShadow: 'var(--shadow-sm)',
+        background: scrolled ? 'rgba(255,255,255,0.98)' : 'transparent',
+        boxShadow: scrolled ? 'var(--shadow-md)' : 'none',
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100%',
         zIndex: 1000,
+        transition: 'background 0.3s ease, box-shadow 0.3s ease',
+        backdropFilter: scrolled ? 'blur(10px)' : 'none',
       }}
     >
       <div
         style={{
-          maxWidth: 1200,
+          maxWidth: 'var(--container-wide)',
           margin: '0 auto',
           padding: '0 2rem',
           height: 70,
@@ -41,14 +59,20 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
         }}
       >
         <Link
-          href="https://aerojet-aviation.com"
-          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+          href={MAIN_SITE}
+          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginRight: '-1.5rem' }}
         >
-          <img
-            src="/images/aalogo-TUj_x_h8.png"
-            alt="Aerojet Aviation"
-            style={{ height: 40, width: 'auto', display: 'block' }}
-          />
+
+          <div style={{ position: 'relative', height: 40, width: 160 }}>
+            <Image
+              src={scrolled ? "/logos/logo-navbar.png" : "/logos/aerojetaviationlogonoBG.png"}
+              alt="Aerojet Aviation"
+              fill
+              sizes="160px"
+              style={{ objectFit: 'contain', objectPosition: 'left' }}
+              priority
+            />
+          </div>
         </Link>
 
         <ul
@@ -76,7 +100,8 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
               textDecoration: 'none',
               fontSize: '0.95rem',
               fontWeight: 500,
-              color: isActive ? 'var(--aero-sky)' : 'var(--foreground)',
+              color: isActive ? activeLinkColor : linkColor,
+              transition: 'color 0.2s ease',
             }
 
             return (
@@ -97,30 +122,41 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
 
         <button
           onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls="mobile-nav-menu"
           className="mobile-nav-toggle"
           style={{
             background: 'none',
             border: 'none',
             fontSize: '1.5rem',
-            color: 'var(--foreground)',
+            color: linkColor,
             cursor: 'pointer',
             display: 'none',
           }}
         >
-          ☰
+          {open ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
         </button>
       </div>
 
       {open && (
         <div
+          id="mobile-nav-menu"
           className="mobile-nav-menu"
+
           style={{
-            borderTop: '1px solid var(--border)',
-            background: 'var(--background)',
+            borderTop: `1px solid ${scrolled ? 'var(--border)' : 'rgba(255,255,255,0.2)'}`,
+            background: scrolled ? 'var(--background)' : 'var(--aero-blue)',
             padding: '1rem 2rem',
+            animation: 'slideDown 0.3s ease',
           }}
         >
+          <style jsx>{`
+            @keyframes slideDown {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
           <ul
             style={{
               listStyle: 'none',
@@ -136,7 +172,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
                 {link.internal ? (
                   <Link
                     href={link.href}
-                    style={{ textDecoration: 'none', color: 'var(--foreground)', fontSize: '0.95rem' }}
+                    style={{ textDecoration: 'none', color: mobileLinkColor, fontSize: '0.95rem' }}
                     onClick={() => setOpen(false)}
                   >
                     {link.label}
@@ -144,7 +180,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
                 ) : (
                   <a
                     href={link.href}
-                    style={{ textDecoration: 'none', color: 'var(--foreground)', fontSize: '0.95rem' }}
+                    style={{ textDecoration: 'none', color: mobileLinkColor, fontSize: '0.95rem' }}
                   >
                     {link.label}
                   </a>

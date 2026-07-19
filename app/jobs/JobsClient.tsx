@@ -1,7 +1,9 @@
 'use client'
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { MapPin, Clock, Users, ArrowRight } from 'lucide-react'
 import { StatusPill } from '@/components/ui'
+
 import type { Job } from '@/types'
 
 export default function JobsClient({ initialJobs }: { initialJobs: Job[] }) {
@@ -32,7 +34,9 @@ export default function JobsClient({ initialJobs }: { initialJobs: Job[] }) {
       {/* Filters */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '2rem' }}>
         <input
-          type="text"
+          type="search"
+          name="search"
+          aria-label="Search roles"
           placeholder="Search roles…"
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -42,9 +46,11 @@ export default function JobsClient({ initialJobs }: { initialJobs: Job[] }) {
         <select
           value={dept}
           onChange={e => setDept(e.target.value)}
+          aria-label="Filter by department"
           className="field-input"
           style={{ width: 200 }}
         >
+
           <option value="">All Departments</option>
           {departments.map(d => <option key={d}>{d}</option>)}
         </select>
@@ -92,9 +98,10 @@ function JobRow({ job }: { job: Job }) {
           </div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '0.5rem' }}>{job.title}</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: 13, color: 'var(--muted)', marginBottom: '0.75rem' }}>
-            <span>📍 {job.location}</span>
-            <span>⏰ {job.employment_type.replace(/_/g, ' ')}</span>
-            {job.target_count && <span>👥 {job.target_count} {job.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><MapPin size={15} aria-hidden="true" /> {job.location}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {job.employment_type.replace(/_/g, ' ')}</span>
+            {job.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {job.target_count} {job.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+
           </div>
           {job.tags && job.tags.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
@@ -111,7 +118,8 @@ function JobRow({ job }: { job: Job }) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', flexShrink: 0 }}>
           <StatusPill status="open" />
-          <span style={{ color: 'var(--blue)', fontWeight: 700, fontSize: '1.25rem', marginTop: '0.5rem' }}>→</span>
+          <ArrowRight size={20} aria-hidden="true" style={{ color: 'var(--blue)', marginTop: '0.5rem' }} />
+
         </div>
       </div>
     </Link>

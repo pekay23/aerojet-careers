@@ -116,21 +116,24 @@ const DeployCard = ({ id, icon, iconColor, title, sub, active, onClick }: any) =
     no:    { border: 'var(--error)',   bg: '#fef2f2' },
   }
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
+      aria-pressed={active}
       style={{
         border: `2px solid ${active ? colors[id].border : 'var(--border)'}`,
         borderRadius: 4, padding: '1rem 0.875rem', cursor: 'pointer',
         textAlign: 'center', background: active ? colors[id].bg : '#fafbfc',
-        transition: 'all 0.15s',
+        transition: 'border-color 0.15s, background 0.15s', width: '100%',
       }}
     >
-      <span style={{ fontSize: 20, display: 'block', marginBottom: 6, color: iconColor }}>{icon}</span>
+      <span style={{ fontSize: 20, display: 'block', marginBottom: 6, color: iconColor }} aria-hidden="true">{icon}</span>
       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', display: 'block', lineHeight: 1.3 }}>{title}</span>
       <span style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, display: 'block', lineHeight: 1.4 }}>{sub}</span>
-    </div>
+    </button>
   )
 }
+
 
 const FileZone = ({ label, sub, chosen, onFile }: { label: string; sub: string; chosen?: string; onFile: (f: File) => void }) => (
   <div style={{
@@ -321,19 +324,21 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
       </div>
 
       {error && (
-        <div style={{ background: 'var(--error-bg)', border: '1px solid #f0bfbf', color: 'var(--error)', padding: '0.75rem 1rem', borderRadius: 3, fontSize: 13, marginBottom: '1rem' }}>
+        <div role="alert" aria-live="polite" style={{ background: 'var(--error-bg)', border: '1px solid #f0bfbf', color: 'var(--error)', padding: '0.75rem 1rem', borderRadius: 3, fontSize: 13, marginBottom: '1rem' }}>
           {error}
         </div>
       )}
+
 
       {/* ── Step 1: Personal ─────────────────────────────────────────────── */}
       {step === 1 && (
         <FormCard title="Personal details" subtitle="Tell us who you are and how to reach you. All information is treated in strict confidence.">
           <Grid>
-            <Field label="First name" required><I value={data.first_name} onChange={set('first_name')} placeholder="Given name" /></Field>
-            <Field label="Last name" required><I value={data.last_name} onChange={set('last_name')} placeholder="Family name" /></Field>
-            <Field label="Email address" required><I type="email" value={data.email} onChange={set('email')} placeholder="you@example.com" /></Field>
-            <Field label="Phone / WhatsApp" required><I type="tel" value={data.phone} onChange={set('phone')} placeholder="+233 or +254…" /></Field>
+            <Field label="First name" required><I name="given-name" autoComplete="given-name" value={data.first_name} onChange={set('first_name')} placeholder="Given name" /></Field>
+            <Field label="Last name" required><I name="family-name" autoComplete="family-name" value={data.last_name} onChange={set('last_name')} placeholder="Family name" /></Field>
+            <Field label="Email address" required><I type="email" name="email" autoComplete="email" inputMode="email" spellCheck={false} value={data.email} onChange={set('email')} placeholder="you@example.com" /></Field>
+            <Field label="Phone / WhatsApp" required><I type="tel" name="tel" autoComplete="tel" inputMode="tel" value={data.phone} onChange={set('phone')} placeholder="+233 or +254…" /></Field>
+
             <Field label="Nationality" required>
               <Sel value={data.nationality} onChange={set('nationality')} options={['Ethiopian','Kenyan','Ghanaian','Nigerian','Senegal','South African','Other African','Other']} />
             </Field>

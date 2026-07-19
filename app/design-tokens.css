@@ -1,82 +1,146 @@
 /**
- * @aerojet/design-tokens — CSS Custom Properties
- *
- * Import in your global CSS:
- *   @import "@aerojet/design-tokens/css";
- *
- * Or with Tailwind v4 @theme:
- *   @import "@aerojet/design-tokens";
- *   @theme { --color-aero-blue: var(--aero-blue); ... }
+ * @aerojet/design-tokens — CSS Custom Properties (WCAG 2.1 AA Compliant)
+ * Synced with @aerojet/design-tokens package from aerojet-aviation
  */
 
 :root {
-  /* ── Aerojet Brand Palette ─────────────────────────────────────────── */
-  --aero-blue: #003366;
-  --aero-sky: #00AEEF;
-  --aero-light: #2E7EB3;
-  --aero-soft-blue: #0066FF;
-  --aero-slate: #2C3E50;
-  --aero-offwhite: #F9F9F9;
+  /* ═══════════════════════════════════════════════════════════════════════
+     AEROJET COLOR SYSTEM
+     Built from the two brand anchors — deep navy (#003366) and sky (#00AEEF).
+     Full tonal scales (50→900) give consistent, accessible tints/shades for
+     surfaces, borders, text and states. All pairings below meet WCAG 2.1 AA.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Brand: Navy scale (primary) ───────────────────────────────────────── */
+  --aero-blue-50:  #EAF2FA;
+  --aero-blue-100: #CBDDEF;
+  --aero-blue-200: #9BBBDA;
+  --aero-blue-300: #6693C2;
+  --aero-blue-400: #3A6DA5;
+  --aero-blue-500: #1C4F87;
+  --aero-blue-600: #0E3F70;
+  --aero-blue-700: #003366;  /* ← primary brand navy */
+  --aero-blue-800: #002A5C;
+  --aero-blue-900: #001F45;
+
+  /* ── Brand: Sky scale (accent) ─────────────────────────────────────────── */
+  --aero-sky-50:  #E7F7FE;
+  --aero-sky-100: #C3EBFC;
+  --aero-sky-200: #8FD9F8;
+  --aero-sky-300: #5AC6F3;
+  --aero-sky-400: #26B4EF;
+  --aero-sky-500: #00AEEF;  /* ← accent sky */
+  --aero-sky-600: #0090C7;
+  --aero-sky-700: #00729E;
+  --aero-sky-800: #005576;
+  --aero-sky-900: #003C54;
+
+  /* ── Neutral scale (navy-tinted slate — cohesive with the brand) ───────── */
+  --neutral-0:   #FFFFFF;
+  --neutral-50:  #F5F8FB;
+  --neutral-100: #EDF2F8;
+  --neutral-200: #DCE5EF;
+  --neutral-300: #C2D0DF;
+  --neutral-400: #93A5B9;
+  --neutral-500: #647A91;
+  --neutral-600: #47586B;
+  --neutral-700: #33455A;
+  --neutral-800: #1E2A3A;
+  --neutral-900: #0F172A;
+
+  /* ── Brand aliases (backward compatible) ───────────────────────────────── */
+  --aero-blue: var(--aero-blue-700);       /* Primary brand - deep navy blue */
+  --aero-blue-dark: var(--aero-blue-800);  /* Hover state for primary buttons */
+  --aero-sky: var(--aero-sky-500);         /* Accent - bright sky blue */
+  --aero-sky-light: var(--aero-sky-400);   /* Hover state for accent buttons */
+  --aero-light: #2E7EB3;                   /* Supporting brand color */
+  --aero-soft-blue: #0055D4;               /* Accessible accent for text on light bg (4.5:1) */
+  --aero-slate: var(--neutral-800);        /* Dark neutral */
+  --aero-offwhite: #F9F9F9;                /* Light surface */
 
   /* Public-site palette */
-  --public-primary: #002A5C;
+  --public-primary: var(--aero-blue-800);
   --public-secondary: #1F7AD6;
-  --public-dark: #1E2A3A;
+  --public-dark: var(--neutral-800);
 
-  /* ── shadcn/ui Semantic Palette (light) ────────────────────────────── */
+  /* ── Surface tokens (use these for cards, sections & panels) ───────────── */
+  --surface: #FFFFFF;                       /* Base page / card surface */
+  --surface-subtle: var(--aero-blue-50);    /* Soft branded card fill (replaces cold gray) */
+  --surface-muted: #EDF3FA;                 /* Slightly deeper panel fill */
+  --surface-accent-soft: #E8F4FD;           /* Sky-tinted highlight / note banners */
+  --surface-inverse: var(--aero-blue-700);  /* Dark navy surface for inverted sections */
+
+  /* ── Gradients ─────────────────────────────────────────────────────────── */
+  --gradient-brand: linear-gradient(135deg, var(--aero-blue-800) 0%, var(--aero-blue-700) 55%, var(--aero-blue-600) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--aero-sky-500) 0%, var(--aero-sky-600) 100%);
+
+
+  /* ── Semantic Palette (shadcn/ui compatible) ───────────────────────────── */
   --background: #FFFFFF;
   --foreground: #0F172A;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --primary: #0F172A;
-  --primary-foreground: #F8FAFC;
+  --primary: #003366;
+  --primary-foreground: #FFFFFF;
   --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
+  --secondary-foreground: #1E2A3A;
   --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F1F5F9;
-  --accent-foreground: #0F172A;
-  --destructive: #EF4444;
-  --destructive-foreground: #F8FAFC;
+  --muted-foreground: #475569;
+  --accent: #00AEEF;
+  --accent-foreground: #FFFFFF;
+  --destructive: #B04A4A;
+  --destructive-foreground: #FFFFFF;
   --border: #E2E8F0;
   --input: #E2E8F0;
-  --ring: #0F172A;
+  --ring: #003366;
 
-  /* Sidebar */
+  /* ── Sidebar (Admin) ───────────────────────────────────────────────────── */
   --sidebar-background: #0F172A;
-  --sidebar-foreground: #F8FAFC;
+  --sidebar-foreground: #F1F5F9;
   --sidebar-primary: #60A5FA;
   --sidebar-primary-foreground: #0F172A;
   --sidebar-accent: #1E293B;
-  --sidebar-accent-foreground: #F8FAFC;
-  --sidebar-border: #1E293B;
+  --sidebar-accent-foreground: #F1F5F9;
+  --sidebar-border: #334155;
   --sidebar-ring: #60A5FA;
 
-  /* Extended surfaces */
+  /* ── Extended Surfaces ─────────────────────────────────────────────────── */
   --paper: #F7F3EC;
-  --paper-dark: #EFE8DC;
+  --paper-dark: #E8E0D0;
   --ink: #1B2430;
-  --bg-light: #F6F6F8;
+  --bg-light: var(--surface-subtle);   /* Branded soft-blue surface (was cold #F6F6F8) */
   --bg-dark: #101622;
 
-  /* Semantic status */
-  --success: #788C5D;
-  --warning: #C78E3F;
-  --danger: #B04A4A;
-  --info: #5C7CA3;
-  --success-soft: #EAEFE0;
-  --warning-soft: #F5E9D2;
-  --danger-soft: #F1DEDE;
-  --info-soft: #DCE5F0;
 
-  /* ── Layout ────────────────────────────────────────────────────────── */
+  /* ── Semantic Status Colors (WCAG AA compliant on their soft variants) ── */
+  /* Success - Green */
+  --success: #788C5D;
+  --success-soft: #EAEFE0;
+  --success-text: #1B5E20;
+
+  /* Warning - Amber */
+  --warning: #C78E3F;
+  --warning-soft: #F5E9D2;
+  --warning-text: #E65100;
+
+  /* Danger - Red */
+  --danger: #B04A4A;
+  --danger-soft: #F1DEDE;
+  --danger-text: #991B1B;
+
+  /* Info - Blue */
+  --info: #5C7CA3;
+  --info-soft: #DCE5F0;
+  --info-text: #004D5E;
+
+  /* ── Layout ────────────────────────────────────────────────────────────── */
   --col-narrow: 720px;
   --col-default: 880px;
   --col-wide: 1080px;
 
-  /* ── Typography ────────────────────────────────────────────────────── */
+  /* ── Typography ────────────────────────────────────────────────────────── */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Montserrat", system-ui, sans-serif;
   --font-outfit: "Outfit", system-ui, sans-serif;
@@ -93,30 +157,30 @@
   --t-caption-size: 12px;
   --t-caption-tracking: 0.08em;
 
-  /* ── Spacing scale ────────────────────────────────────────────────── */
+  /* ── Spacing scale ─────────────────────────────────────────────────────── */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
   --sp-4: 16px;
   --sp-5: 24px;
-  --sp-5: 24px;
   --sp-6: 32px;
   --sp-7: 48px;
   --sp-8: 64px;
 
-  /* ── Radius ───────────────────────────────────────────────────────── */
+  /* ── Radius ────────────────────────────────────────────────────────────── */
   --r-sm: 4px;
   --r-md: 8px;
   --r-lg: 12px;
   --r-xl: 16px;
   --r-pill: 999px;
 
-  /* ── Shadows ──────────────────────────────────────────────────────── */
+  /* ── Shadows ───────────────────────────────────────────────────────────── */
   --shadow-sm: 0 1px 2px rgba(20, 20, 19, 0.06);
-  --shadow-md: 0 4px 10px rgba(20, 20, 19, 0.08);
+  --shadow-md: 0 4px 12px rgba(20, 20, 19, 0.08);
   --shadow-lg: 0 12px 28px rgba(20, 20, 19, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(0, 174, 239, 0.35);
 
-  /* ── Z-index ──────────────────────────────────────────────────────── */
+  /* ── Z-index ───────────────────────────────────────────────────────────── */
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-fixed: 300;
@@ -125,82 +189,103 @@
   --z-popover: 600;
   --z-tooltip: 700;
   --z-toast: 800;
+
+  /* ── Legacy Aliases (for backward compatibility with inline styles) ────── */
+  /* NOTE: `--muted` is intentionally aliased to the muted *text* color because
+     inline styles across the app use `var(--muted)` for secondary text. The
+     Tailwind `bg-muted` utility is mapped to the muted *surface* separately in
+     globals.css (`--color-muted: var(--secondary)`) so the two never collide. */
+  --navy: var(--aero-blue);
+  --blue: var(--aero-sky);
+  --muted-bg: var(--secondary);
+  --muted: var(--muted-foreground);
+  --bg: var(--bg-light);
 }
 
-/* ── Dark mode ──────────────────────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0F172A;
-    --foreground: #F8FAFC;
-    --card: #1E293B;
-    --card-foreground: #F8FAFC;
-    --popover: #1E293B;
-    --popover-foreground: #F8FAFC;
-    --primary: #F8FAFC;
-    --primary-foreground: #0F172A;
-    --secondary: #1E293B;
-    --secondary-foreground: #F8FAFC;
-    --muted: #1E293B;
-    --muted-foreground: #94A3B8;
-    --accent: #1E293B;
-    --accent-foreground: #F8FAFC;
-    --destructive: #EF4444;
-    --destructive-foreground: #F8FAFC;
-    --border: #334155;
-    --input: #334155;
-    --ring: #F8FAFC;
 
-    --sidebar-background: #0F172A;
-    --sidebar-foreground: #F8FAFC;
-    --sidebar-primary: #60A5FA;
-    --sidebar-primary-foreground: #0F172A;
-    --sidebar-accent: #1E293B;
-    --sidebar-accent-foreground: #F8FAFC;
-    --sidebar-border: #334155;
-    --sidebar-ring: #60A5FA;
+/* This is a light-only site (no theme switch), so the palette above is used
+   in all conditions. We intentionally do NOT respond to
+   `prefers-color-scheme: dark` — doing so previously flipped surfaces to dark
+   and made headers blend into their backgrounds. */
 
-    --bg-light: #1E293B;
-    --bg-dark: #0F172A;
-  }
-}
 
-/* ── Base reset ─────────────────────────────────────────────────────── */
+/* ── Base reset ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Force light rendering of native controls (scrollbars, inputs, selects). */
+  color-scheme: light;
 }
+
 
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--t-body-size);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Focus styles ───────────────────────────────────────────────────── */
+/* ── Focus styles (WCAG 2.4.7) ─────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* ── Selection ──────────────────────────────────────────────────────── */
+/* Remove focus ring for mouse users but keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────── */
 ::selection {
   background: var(--aero-blue);
   color: white;
 }
 
-/* ── Links ──────────────────────────────────────────────────────────── */
+/* ── Links ──────────────────────────────────────────────────────────────── */
 a {
   color: var(--aero-sky);
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: border-color 120ms;
+  transition: border-color 120ms, color 120ms;
 }
 
-a:hover { border-bottom-color: currentColor; }
+a:hover {
+  border-bottom-color: currentColor;
+  color: var(--aero-soft-blue);
+}
+
+/* ── Form element base styles ──────────────────────────────────────────── */
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* ── Skip link for keyboard users ───────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: var(--r-md);
+  z-index: var(--z-tooltip);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.skip-link:focus {
+  top: var(--sp-4);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

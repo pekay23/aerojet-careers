@@ -109,7 +109,8 @@ export default async function AdminDashboardPage() {
               
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                  <div className="divide-y divide-slate-50">
-                    {recentApps?.map((app) => (
+                    {recentApps?.map((app: any) => (
+
                       <div key={app.id} className="p-6 hover:bg-slate-50 transition-colors group flex items-center justify-between">
                          <div className="flex items-center gap-4">
                             <div className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center font-bold text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all text-[10px]">
