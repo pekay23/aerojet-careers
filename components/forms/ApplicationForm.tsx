@@ -142,9 +142,11 @@ const TA = ({ value, onChange, ...p }: { value: any; onChange: (v: string) => vo
     className="field-input" style={{ resize: 'vertical', minHeight: 80, lineHeight: 1.6 }} />
 )
 
+// Two-up on wider screens, single column on phones (auto-fit collapse).
 const Grid = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>{children}</div>
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>{children}</div>
 )
+
 
 const Field = ({ label, required, children, span, hint }: { label: string; required?: boolean; children: React.ReactNode; span?: boolean; hint?: string }) => (
   <div className="field" style={span ? { gridColumn: '1 / -1' } : {}}>
@@ -395,37 +397,56 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
 
   return (
     <div ref={topRef}>
-      {/* Progress bar */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+      {/* Progress bar — completed steps are keyboard-focusable buttons that
+          jump back; the current/future steps are inert. Step counter above
+          keeps orientation clear on small screens. */}
+      <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>
+        Step {step} of {STEPS.length} — {STEPS[step - 1]}
+      </p>
+      <nav aria-label="Application progress" style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '2rem' }}>
         {STEPS.map((label, i) => {
           const n = i + 1; const done = n < step; const active = n === step
+          const dot = (
+            <span style={{
+              width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 600, transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+              background: done ? 'var(--blue)' : active ? 'var(--navy)' : 'white',
+              border: `2px solid ${done ? 'var(--blue)' : active ? 'var(--navy)' : 'var(--border)'}`,
+              color: (done || active) ? 'white' : 'var(--muted)',
+              position: 'relative', zIndex: 2,
+            }}>
+              {done ? <Check size={14} strokeWidth={3} aria-hidden="true" /> : n}
+            </span>
+          )
+          const labelEl = (
+            <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', color: active ? 'var(--navy)' : 'var(--muted)', fontWeight: active ? 600 : 400 }}>
+              {label}
+            </span>
+          )
           return (
             <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < STEPS.length - 1 ? 1 : 'none' }}>
-              <div
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: done ? 'pointer' : 'default' }}
-                onClick={() => done && goTo(n)}
-              >
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 600, transition: 'all 0.2s',
-                  background: done ? 'var(--blue)' : active ? 'var(--navy)' : 'white',
-                  border: `2px solid ${done ? 'var(--blue)' : active ? 'var(--navy)' : 'var(--border)'}`,
-                  color: (done || active) ? 'white' : 'var(--muted)',
-                  position: 'relative', zIndex: 2,
-                }}>
-                  {done ? <Check size={14} strokeWidth={3} /> : n}
+              {done ? (
+                <button
+                  type="button"
+                  onClick={() => goTo(n)}
+                  aria-label={`Go back to step ${n}: ${label}`}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                >
+                  {dot}{labelEl}
+                </button>
+              ) : (
+                <div aria-current={active ? 'step' : undefined} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                  {dot}{labelEl}
                 </div>
-                <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap', color: active ? 'var(--navy)' : 'var(--muted)', fontWeight: active ? 600 : 400 }}>
-                  {label}
-                </span>
-              </div>
+              )}
               {i < STEPS.length - 1 && (
-                <div style={{ flex: 1, height: 1, background: done ? 'var(--blue)' : 'var(--border)', margin: '0 4px', marginTop: -18, zIndex: 1 }} />
+                <div aria-hidden="true" style={{ flex: 1, height: 2, background: done ? 'var(--blue)' : 'var(--border)', margin: '0 4px', marginTop: 13, zIndex: 1 }} />
               )}
             </div>
           )
         })}
-      </div>
+      </nav>
+
 
       {error && (
         <div role="alert" aria-live="polite" style={{ background: 'var(--error-bg)', border: '1px solid #f0bfbf', color: 'var(--error)', padding: '0.75rem 1rem', borderRadius: 8, fontSize: 13, marginBottom: '1rem' }}>

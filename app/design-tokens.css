@@ -200,7 +200,12 @@
   --muted-bg: var(--secondary);
   --muted: var(--muted-foreground);
   --bg: var(--bg-light);
+  /* Error aliases — inline styles (e.g. ApplicationForm) use `--error` /
+     `--error-bg`; map them to the semantic danger tokens so they resolve. */
+  --error: var(--danger);
+  --error-bg: var(--danger-soft);
 }
+
 
 
 /* This is a light-only site (no theme switch), so the palette above is used
@@ -256,10 +261,14 @@ a {
   transition: border-color 120ms, color 120ms;
 }
 
-a:hover {
+/* Underline/darken on hover for content links only — never for button-style
+   anchors (`.btn`, `.btn-white`, `.btn-secondary`, …), which otherwise get a
+   stray colored line painted across their bottom edge on hover. */
+a:not([class*="btn"]):hover {
   border-bottom-color: currentColor;
   color: var(--aero-soft-blue);
 }
+
 
 /* ── Form element base styles ──────────────────────────────────────────── */
 input, textarea, select {

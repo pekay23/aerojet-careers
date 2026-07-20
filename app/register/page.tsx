@@ -103,7 +103,8 @@ export default function RegisterPage() {
           ) : (
             <>
               <FormCard title="Your details" subtitle="Tell us about yourself and the kind of role you are looking for.">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+
                   {[['first_name','First name',true,'Given name','given-name'],['last_name','Last name',true,'Family name','family-name'],['email','Email address',true,'you@example.com','email'],['phone','Phone / WhatsApp',false,'+233…','tel']].map(([k,l,req,ph,ac]) => (
                     <div key={k as string} className="field">
                       <label className="field-label" htmlFor={`reg-${k}`}>{l as string}{req && <span style={{ color: 'var(--blue)', marginLeft: 2 }}>*</span>}</label>

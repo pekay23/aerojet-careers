@@ -497,9 +497,12 @@
     border-bottom: 1px solid transparent;
     transition: all 0.12s ease;
   }
-  a:hover {
+  /* Content links only — exclude button-style anchors so hover doesn't paint
+     a stray line across the bottom of `.btn*` buttons. */
+  a:not([class*="btn"]):hover {
     border-bottom-color: currentColor;
   }
+
 
   /* Selection */
   ::selection {
@@ -767,8 +770,24 @@
    ============================================ */
 
 @layer utilities {
+  /* ── Responsive site navigation ──────────────────────────────────────────
+     SiteNav renders a horizontal `.desktop-nav` list and a `.mobile-nav-toggle`
+     hamburger (inline `display:none`). These rules do the viewport swap that
+     was previously missing entirely, so the 8-link nav no longer overflows on
+     phones. Breakpoint: 900px. */
+  @media (max-width: 900px) {
+    .desktop-nav { display: none !important; }
+    .mobile-nav-toggle { display: inline-flex !important; align-items: center; justify-content: center; }
+    /* Comfortable 44px touch target for the hamburger. */
+    .mobile-nav-toggle { min-width: 44px; min-height: 44px; }
+  }
+  @media (min-width: 901px) {
+    .mobile-nav-menu { display: none !important; }
+  }
+
   /* Respect users who prefer reduced motion — disable transitions/animations. */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {

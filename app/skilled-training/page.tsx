@@ -48,7 +48,8 @@ export default function SkilledTrainingPage() {
           </div>
 
           {/* Two tracks */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
+
             {[
               { id: 'eng', title: 'Engineering Technicians & Mechanics', sub: 'Hands-on aircraft maintenance training with a pathway to AME Licence', Icon: Wrench, desc: 'Join Aerojet\'s structured apprenticeship programme for aircraft maintenance. You\'ll train alongside qualified LAEs, work on real aircraft, and progress towards an EASA / GCAA Part-66 licence.', roles: ENG_ROLES },
               { id: 'ramp', title: 'Ground Handling & Ramp Operatives', sub: 'Airside operations training with IATA-recognised certifications', Icon: Plane, desc: 'Start your aviation career on the ramp. Our training covers aircraft marshalling, towing, pushback, servicing, dangerous goods, and airside safety — with IATA Dangerous Goods certification included.', roles: RAMP_ROLES },
@@ -84,7 +85,8 @@ export default function SkilledTrainingPage() {
 
           {/* Entry requirements */}
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1.25rem', textAlign: 'center' }}>Entry Requirements</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+
             {[
               { title: 'Engineering Technicians Track', items: ['Minimum WAEC/WASSCE passes in Mathematics and Physics (Grade C or above)','OND in Mechanical, Electrical or Aeronautical Engineering preferred','Less than 3 years formal employment (trainees welcome)','Strong numerical and mechanical aptitude','Must be able to work shifts and pass a medical assessment','Willing to be based full-time in Accra, Ghana'] },
               { title: 'Ground Handling & Ramp Track', items: ['Minimum WAEC/WASSCE passes including English','Valid driving licence (light vehicle minimum)','No prior aviation experience required — full training provided','Good physical fitness for an active outdoor ramp environment','Must pass airside security clearance and medical assessment','Willing to work shifts including nights, weekends and public holidays'] },
