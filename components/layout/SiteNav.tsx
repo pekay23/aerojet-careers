@@ -51,17 +51,19 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
         style={{
           maxWidth: 'var(--container-wide)',
           margin: '0 auto',
-          padding: '0 2rem',
+          padding: '0 1.5rem',
           height: 70,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
+        {/* Logo pinned to the far left (matches aerojet-aviation navbar). */}
         <Link
           href={MAIN_SITE}
-          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginRight: '-1.5rem' }}
+          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
         >
+
 
           <div style={{ position: 'relative', height: 40, width: 160 }}>
             <Image
