@@ -40,10 +40,7 @@ export const ApplicationStep3Schema = z.object({
   stations_worked: z.string().optional(),
   notice_period: z.string().optional(),
   motivation: z.string().optional(),
-}).refine(
-  (d) => !d.role_start_date || !d.role_end_date || d.role_end_date >= d.role_start_date,
-  { message: 'End date must be after start date', path: ['role_end_date'] }
-)
+})
 
 export const ApplicationStep4Schema = z.object({
   current_salary: z.union([z.number(), z.nan()]).optional(),
@@ -57,13 +54,7 @@ export const ApplicationStep4Schema = z.object({
   deployment_arrangement: z.string().optional(),
   earliest_start_date: z.string().optional(),
   additional_notes: z.string().optional(),
-}).refine(
-  (d) =>
-    !d.expected_min_usd ||
-    !d.expected_target_usd ||
-    Number(d.expected_target_usd) >= Number(d.expected_min_usd),
-  { message: 'Target must be at least the minimum', path: ['expected_target_usd'] }
-)
+})
 
 export const ApplicationSchema = ApplicationStep1Schema
   .merge(ApplicationStep2Schema.partial())
@@ -76,6 +67,14 @@ export const ApplicationSchema = ApplicationStep1Schema
     availability: z.string().nullable().optional(),
     source: z.string().nullable().optional(),
     has_valid_passport: z.boolean().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.role_start_date && data.role_end_date && data.role_end_date < data.role_start_date) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'End date must be after start date', path: ['role_end_date'] })
+    }
+    if (data.expected_min_usd && data.expected_target_usd && Number(data.expected_target_usd) < Number(data.expected_min_usd)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Target must be at least the minimum', path: ['expected_target_usd'] })
+    }
   })
 
 export const RegistrationSchema = z.object({

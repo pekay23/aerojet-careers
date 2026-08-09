@@ -1,7 +1,4 @@
-'use client'
-
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/ui'
@@ -60,15 +57,19 @@ const STATS_FALLBACK = [
   { value: '1st', label: 'Planned MRO Hub in West Africa' },
 ]
 
-export default function HomePage() {
-  const [stats, setStats] = useState<{ activeJobs: number; departments: number } | null>(null)
+async function fetchStats() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/stats`, { next: { revalidate: 300 } })
+    if (!res.ok) return null
+    const { data } = await res.json()
+    return data
+  } catch {
+    return null
+  }
+}
 
-  useEffect(() => {
-    fetch('/api/stats')
-      .then(r => r.json())
-      .then(({ data }) => setStats(data))
-      .catch(() => setStats(null))
-  }, [])
+export default async function HomePage() {
+  const stats = await fetchStats()
 
   const displayStats = [
     { value: stats ? `${stats.activeJobs}+` : '12+', label: 'Active Vacancies' },
