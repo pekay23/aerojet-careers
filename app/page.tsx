@@ -191,7 +191,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <div style={{ background: 'var(--gradient-brand)', padding: '4rem 1rem', textAlign: 'center' }}>
+      <div style={{ background: 'var(--gradient-brand)', padding: '4rem 1rem 5rem', textAlign: 'center' }}>
         <h2 style={{ color: 'white', fontSize: '1.875rem', fontWeight: 800, marginBottom: '0.75rem', fontFamily: 'var(--font-display)' }}>
           Ready to Take Off With Us?
         </h2>
