@@ -56,6 +56,13 @@ export const ApplicationStep4Schema = z.object({
   additional_notes: z.string().optional(),
 })
 
+export const DepartmentSchema = z.object({
+  name: z.string().min(2, 'Department name is required'),
+  code: z.string().optional(),
+  manager_id: z.string().uuid().nullish(),
+  current_budget: z.number().nonnegative().optional(),
+})
+
 export const ApplicationSchema = ApplicationStep1Schema
   .merge(ApplicationStep2Schema.partial())
   .merge(ApplicationStep3Schema.partial())

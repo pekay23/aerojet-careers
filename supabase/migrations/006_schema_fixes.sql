@@ -163,3 +163,13 @@ CREATE INDEX IF NOT EXISTS idx_pipeline_events_type     ON pipeline_events(event
 CREATE INDEX IF NOT EXISTS idx_pipeline_events_admin    ON pipeline_events(admin_user_id);
 CREATE INDEX IF NOT EXISTS idx_auth_users_email         ON auth_users(LOWER(email));
 CREATE INDEX IF NOT EXISTS idx_talent_pool_email        ON talent_pool(email);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user      ON refresh_tokens(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires   ON refresh_tokens(expires_at);
+
+-- ── 8. Refresh Tokens Table ───────────────────────────────────────
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  token         TEXT PRIMARY KEY,
+  auth_user_id  UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  expires_at    TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

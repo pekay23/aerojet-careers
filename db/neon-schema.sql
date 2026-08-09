@@ -16,6 +16,16 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- ── Refresh token store (for session refresh flow) ─────────────
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  token         TEXT PRIMARY KEY,
+  auth_user_id  UUID NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+  expires_at    TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user   ON refresh_tokens(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires ON refresh_tokens(expires_at);
+
 -- ── Enums (guarded so re-runs don't fail) ─────────────────────
 DO $$ BEGIN
   CREATE TYPE application_status AS ENUM (
