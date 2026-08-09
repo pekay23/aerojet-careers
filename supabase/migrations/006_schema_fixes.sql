@@ -41,6 +41,17 @@ CREATE TABLE IF NOT EXISTS department_budget_history (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Seed departments matching the seeded job postings (migration 001)
+INSERT INTO departments (name, code, current_budget) VALUES
+  ('Engineering',   'ENG',  0),
+  ('Quality',       'QUAL', 0),
+  ('Operations',    'OPS',  0),
+  ('IT',            'IT',   0),
+  ('HR',            'HR',   0),
+  ('Sales',         'SAL',  0),
+  ('Logistics',     'LOG',  0)
+ON CONFLICT DO NOTHING;
+
 -- ── 3. Dashboard Snapshots ────────────────────────────────────
 CREATE TABLE IF NOT EXISTS dashboard_snapshots (
   id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -142,3 +153,13 @@ DROP POLICY IF EXISTS "admin_all_emp_type" ON employment_types;
 CREATE POLICY "admin_all_emp_type" ON employment_types FOR ALL USING (
   EXISTS (SELECT 1 FROM admin_users WHERE auth_user_id = auth.uid() AND role IN ('super_admin', 'admin', 'hr_manager'))
 );
+
+-- ── 7. Performance Indexes ──────────────────────────────────────
+-- Missing indexes identified during second-pass audit
+CREATE INDEX IF NOT EXISTS idx_jobs_department   ON jobs(department);
+CREATE INDEX IF NOT EXISTS idx_admin_users_role  ON admin_users(role);
+CREATE INDEX IF NOT EXISTS idx_admin_users_auth  ON admin_users(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_pipeline_events_type     ON pipeline_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_pipeline_events_admin    ON pipeline_events(admin_user_id);
+CREATE INDEX IF NOT EXISTS idx_auth_users_email         ON auth_users(LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_talent_pool_email        ON talent_pool(email);

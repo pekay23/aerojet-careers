@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       application_id: app.id,
       event_type:     'transferred_from_pool',
       note:           `Candidate fast-tracked from Talent Pool by ${auth.user.email}`,
-      admin_user_id:  auth.user.id
+       admin_user_id:  auth.adminUserId
     })
 
     return ApiResponse.success({ 

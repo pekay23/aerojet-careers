@@ -1,6 +1,18 @@
 import { NextRequest } from 'next/server'
+import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole } from '@/lib/api-utils'
+
+const DepartmentSchema = z.object({
+  name: z.string().min(1, 'Department name is required'),
+  code: z.string().min(1, 'Department code is required').max(20),
+  current_budget: z.number().min(0).optional(),
+  manager_id: z.string().uuid().nullable().optional(),
+})
+
+const DepartmentUpdateSchema = DepartmentSchema.extend({
+  id: z.string().uuid('id must be a valid UUID'),
+})
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,6 +47,14 @@ export async function POST(req: NextRequest) {
 
     if (id) {
       // UPDATE EXISTING
+      const updateParsed = DepartmentUpdateSchema.safeParse({ id, ...rest })
+      if (!updateParsed.success) {
+        return ApiResponse.error(
+          'Validation failed: ' + updateParsed.error.issues.map((i: any) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', '),
+          400
+        )
+      }
+
       // 1. Get current budget for history tracking
       const { data: current } = await supabaseAdmin
         .from('departments')
@@ -45,7 +65,7 @@ export async function POST(req: NextRequest) {
       // 2. Update department
       const { data, error } = await supabaseAdmin
         .from('departments')
-        .update({ ...rest, current_budget, updated_at: new Date().toISOString() })
+        .update({ ...updateParsed.data, current_budget, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
         .single()
@@ -66,9 +86,17 @@ export async function POST(req: NextRequest) {
       return ApiResponse.success(data)
     } else {
       // CREATE NEW
+      const createParsed = DepartmentSchema.safeParse(rest)
+      if (!createParsed.success) {
+        return ApiResponse.error(
+          'Validation failed: ' + createParsed.error.issues.map((i: any) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', '),
+          400
+        )
+      }
+
       const { data, error } = await supabaseAdmin
         .from('departments')
-        .insert(rest)
+        .insert(createParsed.data)
         .select()
         .single()
 

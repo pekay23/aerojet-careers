@@ -2,32 +2,40 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse } from '@/lib/api-utils'
 
+const ALLOWED_DOC_TYPES = ['cv', 'licence_scan', 'passport_scan', 'other'] as const
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-    const file     = formData.get('file')         as File | null
-    const appId    = formData.get('application_id') as string | null
-    const docType  = formData.get('document_type')  as string | null
-
-    if (!file || !appId || !docType) {
-      console.warn('Upload 400: Missing required fields', { file: !!file, appId: !!appId, docType: !!docType })
-      return ApiResponse.error(`Missing fields: ${!file ? 'file ' : ''}${!appId ? 'application_id ' : ''}${!docType ? 'document_type' : ''}`.trim(), 400)
+    const file = formData.get('file') as File | null
+    if (!file) {
+      return ApiResponse.error('file is required', 400)
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    const docType = formData.get('document_type') as string | null
+    if (!docType || !ALLOWED_DOC_TYPES.includes(docType as any)) {
+      return ApiResponse.error(`Invalid document_type. Must be one of: ${ALLOWED_DOC_TYPES.join(', ')}`, 400)
+    }
+
+    const appId = formData.get('application_id') as string | null
+    if (!appId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(appId)) {
+      return ApiResponse.error('Invalid application_id', 400)
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
       return ApiResponse.error(`File too large: ${(file.size / (1024 * 1024)).toFixed(2)} MB. Max allowed is 5 MB.`, 400)
     }
 
-    const allowed = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'image/jpeg',
-      'image/png',
-      'image/webp'
-    ]
-    if (!allowed.includes(file.type)) {
-      console.warn('Upload 400: Invalid file type', { type: file.type, name: file.name })
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       return ApiResponse.error(`Unsupported file type: "${file.type || 'unknown'}". Only PDF, DOC, DOCX and common images are permitted.`, 400)
     }
 
@@ -55,7 +63,6 @@ export async function POST(req: NextRequest) {
     })
 
     return ApiResponse.success({ path })
-
   } catch (err: any) {
     console.error('Upload error:', err)
     return ApiResponse.error(err.message || 'Internal server error', 500)

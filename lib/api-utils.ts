@@ -18,29 +18,29 @@ export class ApiResponse {
 /**
  * Security Auth Guard for RBAC
  * @param allowedRoles List of roles permitted to access the route
- * @returns Object containing user and role if authorized, otherwise null
- */
-export async function verifyRole(allowedRoles: string[]) {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+   * @returns Object containing user, role, and adminUserId if authorized, otherwise null
+   */
+  export async function verifyRole(allowedRoles: string[]) {
+    const supabase = await createSupabaseServer()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return null
+    if (!user) return null
 
-  const { data: adminUser } = await supabaseAdmin
-    .from('admin_users')
-    .select('role')
-    .eq('auth_user_id', user.id)
-    .maybeSingle()
+    const { data: adminUser } = await supabaseAdmin
+      .from('admin_users')
+      .select('id, role')
+      .eq('auth_user_id', user.id)
+      .maybeSingle()
 
-  if (!adminUser) return null
+    if (!adminUser) return null
 
-  // super_admin bypasses all role checks
-  if (adminUser.role === 'super_admin' || allowedRoles.includes(adminUser.role)) {
-    return { user, role: adminUser.role }
+    // super_admin bypasses all role checks
+    if (adminUser.role === 'super_admin' || allowedRoles.includes(adminUser.role)) {
+      return { user, role: adminUser.role, adminUserId: adminUser.id }
+    }
+
+    return null
   }
-
-  return null
-}
 
 /**
  * Input cleaning — trims whitespace from string inputs.

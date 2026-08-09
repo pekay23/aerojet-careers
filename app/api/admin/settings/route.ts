@@ -45,11 +45,17 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
+     const { data: adminRow } = await supabaseAdmin
+      .from('admin_users')
+      .select('id')
+      .eq('auth_user_id', auth.user.id)
+      .maybeSingle()
+
     // Log the configuration update in the audit trail
     await supabaseAdmin.from('pipeline_events').insert({
       event_type:    'system_update',
       note:          `Configuration updated by ${auth.user.email} (${settings.length} parameters)`,
-      admin_user_id: auth.user.id
+      admin_user_id: adminRow?.id
     })
 
     return ApiResponse.success(data)

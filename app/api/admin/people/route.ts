@@ -7,7 +7,13 @@ export async function GET(req: NextRequest) {
     const auth = await verifyRole(['admin', 'hr_manager'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
-    const { data, error } = await supabaseAdmin
+    const p = new URL(req.url).searchParams
+    const page = Math.max(1, parseInt(p.get('page') || '1', 10))
+    const limit = Math.min(100, Math.max(1, parseInt(p.get('limit') || '50', 10)))
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
+    const { data, error, count } = await supabaseAdmin
       .from('admin_users')
       .select(`
         id,
@@ -27,12 +33,12 @@ export async function GET(req: NextRequest) {
         avatar_url,
         employment_status
         )
-      `)
+      `, { count: 'exact' })
       .order('full_name')
-
+      .range(from, to)
 
     if (error) throw error
-    return ApiResponse.success(data)
+    return ApiResponse.success({ data, total: count, page, limit })
   } catch (err: any) {
     return ApiResponse.error(err.message, 500)
   }

@@ -100,7 +100,9 @@ function JobRow({ job }: { job: Job }) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: 13, color: 'var(--muted)', marginBottom: '0.75rem' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><MapPin size={15} aria-hidden="true" /> {job.location}</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {job.employment_type.replace(/_/g, ' ')}</span>
-            {job.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {job.target_count} {job.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {job.target_count ? `${job.target_count} ${job.target_count === 1 ? 'Vacancy' : 'Vacancies'}` : 'Open positions'}</span>
+            {job.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> Closes {new Date(job.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+            {!job.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> No deadline</span>}
 
           </div>
           {job.tags && job.tags.length > 0 && (

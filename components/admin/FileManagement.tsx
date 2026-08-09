@@ -48,6 +48,9 @@ export default function FileManagement({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [filePage, setFilePage] = useState(1)
+  const [fileTotal, setFileTotal] = useState(0)
+  const fileLimit = 50
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -80,15 +83,17 @@ export default function FileManagement({
 
   const fetchFiles = async (folderId: string) => {
     try {
-      const url = staffId 
-        ? `/api/admin/documents?folderId=${folderId}&staffId=${staffId}`
-        : `/api/admin/documents?folderId=${folderId}`
+       const url = staffId 
+         ? `/api/admin/documents?folderId=${folderId}&staffId=${staffId}&page=${filePage}&limit=${fileLimit}`
+         : `/api/admin/documents?folderId=${folderId}&page=${filePage}&limit=${fileLimit}`
       
-      const res = await fetch(url)
-      const data = await res.json()
-      if (data.success) {
-        setFiles(data.data)
-      }
+       const res = await fetch(url)
+       const data = await res.json()
+       if (data.success) {
+         const d = data.data
+         setFiles(d.data || d || [])
+         setFileTotal(d.total || 0)
+       }
     } catch (err: any) {
       console.error('Error fetching files:', err)
     }
@@ -328,10 +333,38 @@ export default function FileManagement({
                       )}
                     </tbody>
                   </table>
+
+                  {/* File Pagination */}
+                  {currentFolder && fileTotal > fileLimit && (
+                    <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/30 flex justify-between items-center">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Showing {((filePage - 1) * fileLimit) + 1} to {Math.min(filePage * fileLimit, fileTotal)} of {fileTotal} files
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setFilePage(p => Math.max(1, p - 1))}
+                          disabled={filePage === 1}
+                          className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 disabled:opacity-30 hover:text-slate-900 transition-all"
+                        >
+                          Previous
+                        </button>
+                        <span className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase">
+                          Page {filePage} of {Math.ceil(fileTotal / fileLimit)}
+                        </span>
+                        <button
+                          onClick={() => setFilePage(p => Math.min(Math.ceil(fileTotal / fileLimit), p + 1))}
+                          disabled={filePage >= Math.ceil(fileTotal / fileLimit)}
+                          className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-blue-600 disabled:opacity-30 hover:border-blue-400 transition-all"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </>
-          )}
+              </>
+            )}
         </motion.div>
       </AnimatePresence>
     </div>

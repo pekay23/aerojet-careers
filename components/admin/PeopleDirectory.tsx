@@ -42,6 +42,9 @@ export default function PeopleDirectory() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const limit = 50
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -55,11 +58,12 @@ export default function PeopleDirectory() {
   const fetchPeople = async () => {
     setIsLoading(true)
     try {
-      const res = await fetch('/api/admin/people')
-      const { data } = await res.json()
+       const res = await fetch(`/api/admin/people?page=${page}&limit=${limit}`)
+       const { data } = await res.json()
 
-      if (data) {
-        const transformed = data.map((d: any) => ({
+       if (data) {
+         setTotal(data.total || 0)
+         const transformed = (data.data || data).map((d: any) => ({
           id: d.auth_user_id || d.id,
           role: d.role,
           status: d.is_active ? 'active' : 'inactive',
@@ -120,6 +124,8 @@ export default function PeopleDirectory() {
     (m.full_name.toLowerCase().includes(search.toLowerCase()) || 
      m.job_title.toLowerCase().includes(search.toLowerCase()))
   )
+
+  const totalPages = Math.ceil(total / limit)
 
   const deptsList = ['all', ...officialDepts]
 
@@ -224,7 +230,7 @@ export default function PeopleDirectory() {
                     <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
                        <MoreVertical size={18} />
                     </button>
-                    <div className="absolute right-0 top-full mt-1 hidden group-hover/menu:block bg-white border border-slate-200 rounded-xl shadow-2xl p-2 min-w-[160px] z-50">
+                    <div className="absolute right-0 top-full mt-1 hidden group-hover/menu:block bg-white border border-slate-200 rounded-xl shadow-2xl p-2 min-w-40 z-50">
                        <button 
                          onClick={() => handleDelete(member.id, 'soft')}
                          className="w-full flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-all"
@@ -293,6 +299,34 @@ export default function PeopleDirectory() {
            <Users size={48} className="mx-auto text-slate-200 mb-4" />
            <p className="text-lg font-bold text-slate-900">No members found</p>
            <p className="text-sm text-slate-400">Try adjusting your filters or search terms.</p>
+       </div>
+       )}
+
+      {/* Pagination */}
+      {!isLoading && totalPages > 1 && (
+        <div className="px-4 py-6 border-t border-slate-100 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} staff
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 disabled:opacity-30 hover:text-slate-900 transition-all"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-blue-600 disabled:opacity-30 hover:border-blue-400 transition-all"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

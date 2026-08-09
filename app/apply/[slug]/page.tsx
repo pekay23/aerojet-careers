@@ -68,6 +68,9 @@ export default async function ApplyPage({ params }: Props) {
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Building2 size={15} aria-hidden="true" /> {j.department}</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {j.employment_type?.replace(/_/g, ' ')}</span>
             {j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {j.target_count} {j.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+            {!j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> Open positions</span>}
+            {j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+            {!j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> No deadline</span>}
           </div>
         </div>
       </div>

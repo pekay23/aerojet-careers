@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/ui'
@@ -52,14 +55,27 @@ const TRACKS = [
   },
 ]
 
-const STATS = [
-  { value: '12+', label: 'Active Vacancies' },
+const STATS_FALLBACK = [
   { value: 'KIA', label: 'Kotoka Intl Airport, Accra' },
-  { value: '7', label: 'Departments Hiring' },
   { value: '1st', label: 'Planned MRO Hub in West Africa' },
 ]
 
 export default function HomePage() {
+  const [stats, setStats] = useState<{ activeJobs: number; departments: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(({ data }) => setStats(data))
+      .catch(() => setStats(null))
+  }, [])
+
+  const displayStats = [
+    { value: stats ? `${stats.activeJobs}+` : '12+', label: 'Active Vacancies' },
+    ...STATS_FALLBACK,
+    { value: stats ? `${stats.departments}` : '7', label: 'Departments Hiring' },
+  ]
+
   return (
     <>
       <SiteNav activePath="/" />
@@ -113,7 +129,7 @@ export default function HomePage() {
         <div
           className="max-w-content mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
         >
-          {STATS.map((s) => (
+          {displayStats.map((s) => (
             <div key={s.value}>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
                 {s.value}
