@@ -139,6 +139,7 @@
   --col-narrow: 720px;
   --col-default: 880px;
   --col-wide: 1080px;
+  --col-max: 1200px;
 
   /* ── Typography ────────────────────────────────────────────────────────── */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;

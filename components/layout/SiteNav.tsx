@@ -49,9 +49,9 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
     >
       <div
         style={{
-          maxWidth: 'var(--container-wide)',
-          margin: '0 auto',
-          padding: '0 1.5rem',
+           maxWidth: 'var(--container-max)',
+           margin: '0 auto',
+           padding: '0 var(--sp-4)',
           height: 70,
           display: 'flex',
           alignItems: 'center',

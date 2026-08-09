@@ -191,16 +191,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <div style={{ background: 'var(--gradient-brand)', padding: '4rem 1rem 5rem', textAlign: 'center' }}>
-        <h2 style={{ color: 'white', fontSize: '1.875rem', fontWeight: 800, marginBottom: '0.75rem', fontFamily: 'var(--font-display)' }}>
+      <section className="cta-section">
+        <h2 className="cta-title">
           Ready to Take Off With Us?
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.05rem', marginBottom: '2rem' }}>
-
+        <p className="cta-subtitle">
           Explore opportunities or get in touch to learn more about life at Aerojet Aviation
         </p>
         <CTAButtons />
-      </div>
+      </section>
 
       <SiteFooter />
     </>
