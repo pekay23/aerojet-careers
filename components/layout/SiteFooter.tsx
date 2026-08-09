@@ -2,10 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Mail, Phone } from 'lucide-react';
-
-
-const MAIN_SITE = 'https://www.aerojet-aviation.com';
+import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaPaperPlane } from 'react-icons/fa';
+import { MAIN_SITE } from '@/lib/domain-config';
 
 const footerLinks = {
   careers: [
@@ -31,174 +29,130 @@ const footerLinks = {
   ],
 };
 
-
 export default function SiteFooter() {
   return (
-    <footer className="site-footer">
-      <div className="footer-container">
-        {/* Main Grid: Brand | Careers | Company | Legal | Contact */}
-        <div className="footer-grid">
-          {/* Column 1: Brand */}
-          <div className="footer-col" style={{ paddingTop: 'var(--sp-1)' }}>
-            <div style={{ position: 'relative', height: 48, width: 192, marginBottom: '1.5rem' }}>
-              <Image
-                src="/logos/logo-footer.png"
-                alt="Aerojet Aviation Footer Logo"
-                fill
-                sizes="192px"
-                style={{ objectFit: 'contain', objectPosition: 'left' }}
-              />
-            </div>
-            <p style={{ opacity: 0.8, lineHeight: 1.7, fontSize: '0.875rem', marginBottom: 'var(--sp-6)', maxWidth: 280 }}>
-              Building West Africa's premier MRO facility — delivering world-class maintenance capabilities.
+    <footer className="bg-aero-blue text-white pt-16 pb-6">
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-10 items-start">
+
+        {/* Column 1: Brand */}
+        <div className="py-4">
+          <div className="relative h-12 w-48 mb-6">
+            <Image
+              src="/logos/logo-footer.png"
+              alt="Aerojet Aviation Footer Logo"
+              fill
+              sizes="192px"
+              className="object-contain object-left"
+            />
+          </div>
+          <p className="opacity-80 leading-relaxed text-sm mb-8">
+            Building West Africa's premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
+          </p>
+
+          {/* Explore Openings CTA */}
+          <div className="border-t border-white/10 pt-6">
+            <h4 className="text-lg font-bold text-aero-accent mb-2">Explore Openings</h4>
+            <p className="text-sm opacity-80 mb-4">
+              Browse current vacancies or register your profile for future opportunities.
             </p>
-
-            {/* Explore Openings CTA — standalone element in Brand column */}
-            <div style={{
-              borderTop: '1px solid rgba(255,255,255,0.1)',
-              paddingTop: 'var(--sp-5)',
-            }}>
-              <h4 style={{
-                fontSize: '1.125rem',
-                fontWeight: 'bold',
-                color: 'var(--aero-sky)',
-                marginBottom: 'var(--sp-2)',
-              }}>
-                Explore Openings
-              </h4>
-              <p style={{ fontSize: '0.875rem', opacity: 0.8, marginBottom: 'var(--sp-4)' }}>
-                Browse current vacancies or register your profile for future opportunities.
-              </p>
-              <div style={{ display: 'flex', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
-                <Link
-                  href="/jobs"
-                  className="btn btn-sky btn-md"
-                  style={{ transition: 'all 0.2s ease' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--aero-sky-700)';
-                    e.currentTarget.style.borderColor = 'var(--aero-sky-700)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--aero-sky-600)';
-                    e.currentTarget.style.borderColor = 'var(--aero-sky-600)';
-                  }}
-                >
-                  View Vacancies
-                </Link>
-                <Link
-                  href="/register"
-                  className="btn btn-ghost btn-md"
-                  style={{
-                    border: '1px solid rgba(255,255,255,0.35)',
-                    color: 'white',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                    e.currentTarget.style.borderColor = 'var(--aero-sky)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)';
-                  }}
-                >
-                  Register
-                </Link>
-              </div>
+            <div className="flex gap-2 flex-wrap">
+              <Link
+                href="/jobs"
+                className="btn-primary text-sm py-2 px-5"
+              >
+                View Vacancies
+              </Link>
+              <Link
+                href="/register"
+                className="btn-secondary text-sm py-2 px-5"
+              >
+                Register
+              </Link>
             </div>
           </div>
+        </div>
 
-          {/* Column 2: Careers */}
-          <div className="footer-col">
-            <h4>Careers</h4>
-            <ul>
-              {footerLinks.careers.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href}>{link.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Column 2: Careers */}
+        <div className="py-4">
+          <h4 className="text-lg font-bold text-aero-accent mb-4">Careers</h4>
+          <ul className="space-y-2 text-sm opacity-90">
+            {footerLinks.careers.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="hover:text-aero-accent transition">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {/* Column 3: Company */}
-          <div className="footer-col">
-            <h4>Company</h4>
-            <ul>
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    target={link.href.startsWith('http') ? '_blank' : undefined}
-                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Column 3: Company */}
+        <div className="py-4">
+          <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
+          <ul className="space-y-2 text-sm opacity-90">
+            {footerLinks.company.map((link) => (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  target={link.href.startsWith('http') ? '_blank' : undefined}
+                  rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="hover:text-aero-accent transition"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {/* Column 4: Legal */}
-          <div className="footer-col">
-            <h4>Legal</h4>
-            <ul>
+        {/* Column 4: Legal + Contact */}
+        <div className="py-4">
+          <div className="mb-6">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Legal</h4>
+            <ul className="space-y-2 text-sm opacity-90">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href}>{link.label}</Link>
+                  <Link href={link.href} className="hover:text-aero-accent transition">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 5: Contact (standalone, beside Legal) */}
-          <div className="footer-col footer-contact">
-            <h4>Contact</h4>
-            <ul>
-              <li>
-                <MapPin size={16} aria-hidden="true" />
-                <span>Kotoka International Airport<br/>Accra, Ghana</span>
+          <div>
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Contact</h4>
+            <ul className="space-y-3 text-sm opacity-90">
+              <li className="flex items-center gap-3">
+                <FaMapMarkerAlt />
+                <span>Kotoka International Airport, Accra, Ghana</span>
               </li>
               <li>
-                <a href="mailto:careers@aerojet-aviation.com">
-                  <Mail size={16} aria-hidden="true" />
+                <a
+                  href="mailto:careers@aerojet-aviation.com"
+                  className="flex items-center gap-3 hover:text-aero-accent transition-colors"
+                >
+                  <FaEnvelope />
                   careers@aerojet-aviation.com
                 </a>
               </li>
               <li>
-                <a href="tel:+233209848423">
-                  <Phone size={16} aria-hidden="true" />
+                <a
+                  href="tel:+233209848423"
+                  className="flex items-center gap-3 hover:text-aero-accent transition-colors"
+                >
+                  <FaPhoneAlt />
                   +233-20-984-8423
                 </a>
               </li>
             </ul>
           </div>
         </div>
+      </div>
 
-        {/* Divider */}
-        <div className="footer-divider" />
-
-        {/* Bottom Row: Copyright + Legal Links */}
-        <div className="footer-bottom">
-          <p>
-            &copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.
-          </p>
-          <div className="footer-legal-links">
-            {footerLinks.legal.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <a
-              href={MAIN_SITE}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              aerojet-aviation.com
-            </a>
-          </div>
-        </div>
+      {/* Copyright */}
+      <div className="text-center pt-6 text-xs opacity-60">
+        <p>&copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.</p>
       </div>
     </footer>
   );
