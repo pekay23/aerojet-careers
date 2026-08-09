@@ -22,7 +22,7 @@ export default async function JobsPage() {
 
   return (
     <>
-      <SiteNav activePath="/jobs" />
+      <SiteNav />
 
       <PageHero
         title="Current Vacancies"

@@ -24,7 +24,7 @@ const PROGRAM_AREAS = [
 export default function GraduateProgramPage() {
   return (
     <>
-      <SiteNav activePath="/graduate-program" />
+        <SiteNav />
 
       <PageHero
         title="Aerojet Graduate Program"

@@ -5,7 +5,7 @@ import SiteFooter from '@/components/layout/SiteFooter'
 export default function NotFound() {
   return (
     <>
-      <SiteNav activePath="" />
+      <SiteNav />
       <div className="min-h-[70vh] bg-white flex items-center justify-center p-8 font-medium">
         <div className="max-w-xl w-full text-center">
           <div className="relative w-20 h-20 mx-auto mb-8">

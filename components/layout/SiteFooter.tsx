@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaPaperPlane } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
 import { MAIN_SITE } from '@/lib/domain-config';
 
 const footerLinks = {
@@ -58,13 +58,13 @@ export default function SiteFooter() {
             <div className="flex gap-2 flex-wrap">
               <Link
                 href="/jobs"
-                className="btn-primary text-sm py-2 px-5"
+                className="btn-primary text-white text-sm py-2 px-5"
               >
                 View Vacancies
               </Link>
               <Link
                 href="/register"
-                className="btn-secondary text-sm py-2 px-5"
+                className="btn-secondary text-white text-sm py-2 px-5"
               >
                 Register
               </Link>
@@ -78,7 +78,7 @@ export default function SiteFooter() {
           <ul className="space-y-2 text-sm opacity-90">
             {footerLinks.careers.map((link) => (
               <li key={link.label}>
-                <Link href={link.href} className="hover:text-aero-accent transition">
+                <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
                   {link.label}
                 </Link>
               </li>
@@ -96,7 +96,7 @@ export default function SiteFooter() {
                   href={link.href}
                   target={link.href.startsWith('http') ? '_blank' : undefined}
                   rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="hover:text-aero-accent transition"
+                  className="text-white hover:text-aero-accent transition-colors"
                 >
                   {link.label}
                 </a>
@@ -112,7 +112,7 @@ export default function SiteFooter() {
             <ul className="space-y-2 text-sm opacity-90">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="hover:text-aero-accent transition">
+                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -124,24 +124,24 @@ export default function SiteFooter() {
             <h4 className="text-lg font-bold text-aero-accent mb-4">Contact</h4>
             <ul className="space-y-3 text-sm opacity-90">
               <li className="flex items-center gap-3">
-                <FaMapMarkerAlt />
-                <span>Kotoka International Airport, Accra, Ghana</span>
+                <FaMapMarkerAlt className="text-white" />
+                <span className="text-white">Kotoka International Airport, Accra, Ghana</span>
               </li>
               <li>
                 <a
                   href="mailto:careers@aerojet-aviation.com"
-                  className="flex items-center gap-3 hover:text-aero-accent transition-colors"
+                  className="flex items-center gap-3 text-white hover:text-aero-accent transition-colors"
                 >
-                  <FaEnvelope />
+                  <FaEnvelope className="text-white" />
                   careers@aerojet-aviation.com
                 </a>
               </li>
               <li>
                 <a
                   href="tel:+233209848423"
-                  className="flex items-center gap-3 hover:text-aero-accent transition-colors"
+                  className="flex items-center gap-3 text-white hover:text-aero-accent transition-colors"
                 >
-                  <FaPhoneAlt />
+                  <FaPhoneAlt className="text-white" />
                   +233-20-984-8423
                 </a>
               </li>

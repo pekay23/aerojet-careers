@@ -408,15 +408,67 @@
   .site-footer .footer-col a,
   .site-footer .footer-col a:visited {
     opacity: 0.9;
-    color: #ffffff;
+    color: #ffffff !important;
     text-decoration: none;
     border-bottom: none;
     transition: color 0.2s;
   }
 
   .site-footer .footer-col a:hover {
-    color: var(--aero-sky);
+    color: var(--aero-sky) !important;
     opacity: 1;
+  }
+
+  .site-footer .footer-contact a {
+    color: #ffffff !important;
+  }
+
+  .site-footer .footer-contact a:hover {
+    color: var(--aero-sky) !important;
+  }
+
+  /* Footer buttons — override global `a` color that sits outside @layer */
+  .site-footer .btn-primary,
+  .site-footer .btn-secondary {
+    color: #ffffff !important;
+  }
+
+  .site-footer .btn-primary:hover {
+    color: #ffffff !important;
+  }
+
+  .site-footer .btn-secondary:hover {
+    color: var(--aero-blue) !important;
+  }
+
+  /* ── Nav ──────────────────────────────────────────────────────────────── */
+  /* Override global `a { color: var(--aero-sky) }` from design-tokens.css
+     (declared outside @layer, so it has higher cascade priority than Tailwind
+     text-white/text-aero-blue utilities). */
+  .site-nav a,
+  .site-nav a:visited,
+  .site-nav .nav-link {
+    color: #ffffff !important;
+  }
+
+  .site-nav.scrolled a,
+  .site-nav.scrolled a:visited,
+  .site-nav.scrolled .nav-link {
+    color: var(--aero-blue) !important;
+  }
+
+  .site-nav a:hover,
+  .site-nav .nav-link:hover {
+    color: var(--aero-sky) !important;
+  }
+
+  .site-nav-mobile .nav-link {
+    color: var(--aero-blue) !important;
+  }
+
+  .site-nav-mobile .nav-link:hover,
+  .site-nav-mobile .nav-link:focus {
+    color: var(--aero-sky) !important;
   }
 
   .site-footer .footer-contact li {

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <>
-      <SiteNav activePath="/terms" />
+        <SiteNav />
       
       <div style={{ background: 'var(--bg)', paddingTop: '70px' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto', padding: '3rem 1.5rem' }}>

@@ -39,7 +39,7 @@ export default async function ApplyPage({ params }: Props) {
 
   return (
     <>
-      <SiteNav activePath={`/apply/${slug}`} />
+        <SiteNav />
 
       {/* Hero */}
       <div

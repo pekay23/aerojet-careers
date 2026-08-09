@@ -28,7 +28,7 @@ const RAMP_ROLES = [
 export default function SkilledTrainingPage() {
   return (
     <>
-      <SiteNav activePath="/skilled-training" />
+        <SiteNav />
       <PageHero title="Skilled Training Program" subtitle="For Engineering Technicians, Mechanics and Ramp Operatives" image="/images/2-DEJI4YEv.jpg" height={360} />
 
       <section style={{ background: 'white', padding: '3rem 1rem' }}>

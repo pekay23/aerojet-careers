@@ -7,7 +7,7 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
 import { MAIN_SITE, CAREERS_INTERNAL_LINKS } from '@/lib/domain-config';
 
-export default function SiteNav({ activePath = '' }: { activePath?: string }) {
+export default function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -40,8 +40,8 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
   const hoverColor = 'hover:text-aero-accent';
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'
+    <nav className={`site-nav fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      scrolled ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
     }`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
 
@@ -57,21 +57,21 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
           />
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-10">
-          <div className="flex items-center gap-7">
-            {menuItems.map((item, index) => (
-              <div key={item.name} className="relative">
-                <Link
-                  href={item.href}
-                  target={item.external ? '_blank' : undefined}
-                  rel={item.external ? 'noopener noreferrer' : undefined}
-                  className={`font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
-                  onMouseEnter={() => handleMouseEnter(index)}
-                  onMouseLeave={() => handleMouseLeave(index)}
-                >
-                  {item.name}
-                </Link>
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-10">
+            <div className="flex items-center gap-7">
+              {menuItems.map((item, index) => (
+                <div key={item.name} className="relative">
+                  <Link
+                    href={item.href}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noopener noreferrer' : undefined}
+                    className={`nav-link font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
+                    onMouseEnter={() => handleMouseEnter(index)}
+                    onMouseLeave={() => handleMouseLeave(index)}
+                  >
+                    {item.name}
+                  </Link>
                 {/* Animated underline */}
                 <div
                   ref={(el) => { underlineRefs.current[index] = el; }}
@@ -84,7 +84,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
 
           <Link
             href="/jobs"
-            className="btn-primary text-sm py-2 px-6 tracking-widest"
+            className="btn-primary text-white text-sm py-2 px-6 tracking-widest"
           >
             View All Jobs
           </Link>
@@ -101,14 +101,14 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden">
+         <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden site-nav-mobile">
           {menuItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noopener noreferrer' : undefined}
-              className={`font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+               className={`nav-link font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}
@@ -116,7 +116,7 @@ export default function SiteNav({ activePath = '' }: { activePath?: string }) {
           ))}
           <Link
             href="/jobs"
-            className="btn-primary text-sm py-3 px-10 tracking-widest"
+            className="btn-primary text-white text-sm py-3 px-10 tracking-widest"
             onClick={() => setMobileMenuOpen(false)}
           >
             View All Jobs

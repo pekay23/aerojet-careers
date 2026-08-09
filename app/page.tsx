@@ -79,7 +79,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <SiteNav activePath="/" />
+      <SiteNav />
 
       <PageHero
         title="Careers at Aerojet Aviation"
