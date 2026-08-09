@@ -36,12 +36,12 @@ export default function SiteFooter() {
   return (
     <footer style={{ background: 'var(--aero-blue)', color: 'white' }}>
       <div style={{ maxWidth: 'var(--container-wide)', margin: '0 auto', padding: '3rem 1.5rem 2rem' }}>
-        {/* Main Grid: Brand (wide) | Careers | Company | Legal + Contact (side-by-side) */}
+        {/* Main Grid: 5 equal columns — Brand | Careers | Company | Legal | Contact */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1.25fr repeat(2, 1fr) 1fr',
+          gridTemplateColumns: 'repeat(5, 1fr)',
           gap: '2.5rem',
-          marginBottom: '3rem'
+          marginBottom: '3rem',
         }}>
           {/* Column 1: Brand */}
           <div style={{ paddingTop: '0.5rem' }}>
@@ -156,56 +156,53 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          {/* Column 4: Legal + Contact (side by side) */}
-          <div style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap' }}>
-            {/* Legal */}
-            <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Legal
-              </h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                {footerLinks.legal.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      style={{ opacity: 0.9, fontSize: '0.875rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none', display: 'block' }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Contact
-              </h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.875rem', opacity: 0.9, lineHeight: 1.6 }}>
-                  <MapPin size={16} aria-hidden="true" style={{ marginTop: 2, flexShrink: 0 }} />
-                  <span>Kotoka International Airport<br/>Accra, Ghana</span>
-
+          {/* Column 4: Legal */}
+          <div>
+            <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Legal
+            </h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+              {footerLinks.legal.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    style={{ opacity: 0.9, fontSize: '0.875rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none', display: 'block' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+                  >
+                    {link.label}
+                  </Link>
                 </li>
-                <li style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-                  <a href="mailto:careers@aerojet-aviation.com" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'} onMouseLeave={(e) => e.currentTarget.style.color = 'white'}>
-                    <Mail size={16} aria-hidden="true" />
-                    careers@aerojet-aviation.com
+              ))}
+            </ul>
+          </div>
 
-                  </a>
-                </li>
-                <li style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-                  <a href="tel:+233209848423" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'} onMouseLeave={(e) => e.currentTarget.style.color = 'white'}>
-                    <Phone size={16} aria-hidden="true" />
-                    +233-20-984-8423
+          {/* Column 5: Contact */}
+          <div>
+            <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Contact
+            </h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.875rem', opacity: 0.9, lineHeight: 1.6 }}>
+                <MapPin size={16} aria-hidden="true" style={{ marginTop: 2, flexShrink: 0 }} />
+                <span>Kotoka International Airport<br/>Accra, Ghana</span>
 
-                  </a>
-                </li>
-              </ul>
-            </div>
+              </li>
+              <li style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+                <a href="mailto:careers@aerojet-aviation.com" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'} onMouseLeave={(e) => e.currentTarget.style.color = 'white'}>
+                  <Mail size={16} aria-hidden="true" />
+                  careers@aerojet-aviation.com
+
+                </a>
+              </li>
+              <li style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+                <a href="tel:+233209848423" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'} onMouseLeave={(e) => e.currentTarget.style.color = 'white'}>
+                  <Phone size={16} aria-hidden="true" />
+                  +233-20-984-8423
+
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
