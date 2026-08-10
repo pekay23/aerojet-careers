@@ -6,7 +6,6 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { toast } from '@/lib/toast'
 import type { Application, RecruiterNote } from '@/types'
-import { supabase } from '@/lib/supabase'
 import { 
   User, 
   FileText, 
@@ -56,9 +55,14 @@ export default function ApplicationDetailPage() {
   const [activeTab, setActiveTab] = useState('profile')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) setCurrentUser(data.session.user.email?.split('@')[0] || 'Recruiter')
-    })
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then(({ user }) => {
+        if (user) {
+          setCurrentUser(user.email?.split('@')[0] || 'Recruiter')
+        }
+      })
+      .catch(() => {})
     fetch(`/api/admin/application/${id}`)
       .then(r => r.json())
       .then(d => {
