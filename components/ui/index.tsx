@@ -10,6 +10,7 @@
 export { StatusPill } from './StatusPill'
 export { PageHero } from './PageHero'
 export { NoticeBanner } from './NoticeBanner'
+export { CookieBanner } from './CookieBanner'
 export { FormCard } from './FormCard'
 export { EmptyState } from './EmptyState'
 export { CTAButtons } from './CTAButtons'

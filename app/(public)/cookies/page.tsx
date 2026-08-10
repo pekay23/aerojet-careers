@@ -5,7 +5,7 @@ import SiteFooter from '@/components/layout/SiteFooter'
 
 export const metadata: Metadata = { 
   title: 'Cookie Policy | Aerojet Aviation Careers',
-  description: 'How Aerojet Aviation uses cookies and similar technologies on the careers portal.'
+  description: 'How Aerojet Aviation uses cookies on the careers portal.'
 }
 
 export default function CookiePolicyPage() {
@@ -23,22 +23,29 @@ export default function CookiePolicyPage() {
               <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', lineHeight: 1.2 }}>
                 Cookie Policy
               </h1>
-              <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic' }}>Last updated: July 2026</p>
+              <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic' }}>Last updated: August 2026</p>
             </div>
 
             <div style={{ color: '#334155', lineHeight: 1.7 }}>
               <p style={{ fontSize: '1.125rem', marginBottom: '1.5rem' }}>
-                This Cookie Policy explains how <strong>Aerojet Aviation</strong> ("we", "us", "our") uses cookies and similar technologies on 
+                This Cookie Policy explains how <strong>Aerojet Aviation</strong> ("we", "us", "our") uses cookies and similar technologies on{' '}
                 <Link href="/" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
                   careers.aerojet-aviation.com
                 </Link>
-                ("the Portal").
+                {" ("}the Portal{"."}
+              </p>
+
+              <p style={{ marginBottom: '1.5rem' }}>
+                Like most websites, we use cookies to remember your preferences, keep you logged in while you browse
+                protected areas, and understand how the site is used. This helps us provide a smoother, more secure
+                experience for careers candidates and hiring teams alike.
               </p>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>What Are Cookies</h3>
               <p style={{ marginBottom: '1.5rem' }}>
-                Cookies are small text files placed on your device when you visit a website. They help the site
-                remember your actions and preferences (such as login, language, font size) over a period of time.
+                Cookies are small text files stored on your device when you visit a website. They help the site
+                remember your actions and preferences (such as login status, language, or accessibility settings)
+                over time. We also use similar technologies such as local storage for the same purposes.
               </p>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Categories We Use</h3>
@@ -46,30 +53,30 @@ export default function CookiePolicyPage() {
               
               <h4 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>1. Strictly Necessary Cookies</h4>
               <p style={{ marginBottom: '1rem' }}>
-                These cookies are essential for the Portal to function and cannot be switched off. They are
-                usually set in response to actions you take, such as logging in, filling forms, or setting
-                privacy preferences. They include session authentication, CSRF protection, and security headers.
+                These cookies are essential for the Portal to function. They are set in response to actions you
+                take, such as logging into the admin area or submitting an application. Without these cookies,
+                core functionality (login, application forms, security checks) will not work.
               </p>
 
               <h4 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>2. Performance & Analytics Cookies</h4>
               <p style={{ marginBottom: '1rem' }}>
                 These cookies help us understand how visitors interact with the Portal by collecting anonymous
-                information. We may use privacy-respecting analytics to measure page views, navigation paths,
-                and error rates to improve the website. You can opt out of non-essential analytics.
+                information about page views and navigation paths. This data is aggregated and used to improve
+                website performance and user experience.
               </p>
 
               <h4 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>3. Functional Cookies</h4>
               <p style={{ marginBottom: '1rem' }}>
-                These enable enhanced functionality and personalisation, such as remembering your preferred
-                language or region. They may be set by us or by third-party providers whose services we use.
+                These cookies enable enhanced functionality and personalisation, such as remembering your
+                cookie preferences or the state of expanded content sections.
               </p>
 
               <h4 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>4. Targeting / Advertising Cookies</h4>
               <p style={{ marginBottom: '1rem' }}>
-                We do not currently use targeting or advertising cookies on the careers portal.
+                We do not use targeting or advertising cookies on the careers portal.
               </p>
 
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Specific Cookies</h3>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Cookies We Use</h3>
               <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', fontSize: '0.875rem' }}>
                 <thead>
                   <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--border)' }}>
@@ -81,37 +88,42 @@ export default function CookiePolicyPage() {
                 </thead>
                 <tbody>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>session_id</td>
-                    <td style={{ padding: '0.75rem' }}>User session authentication</td>
+                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>aj_session</td>
+                    <td style={{ padding: '0.75rem' }}>Keeps you logged in while you browse the admin portal and career applications.</td>
                     <td style={{ padding: '0.75rem' }}>Strictly Necessary</td>
-                    <td style={{ padding: '0.75rem' }}>Session</td>
+                    <td style={{ padding: '0.75rem' }}>7 days</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>csrf_token</td>
-                    <td style={{ padding: '0.75rem' }}>Cross-site request forgery protection</td>
+                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>refresh_token</td>
+                    <td style={{ padding: '0.75rem' }}>Silently extends your login session so you do not need to sign in again every few days.</td>
                     <td style={{ padding: '0.75rem' }}>Strictly Necessary</td>
-                    <td style={{ padding: '0.75rem' }}>Session</td>
+                    <td style={{ padding: '0.75rem' }}>30 days</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>preferred_language</td>
-                    <td style={{ padding: '0.75rem' }}>Remembers language preference</td>
-                    <td style={{ padding: '0.75rem' }}>Functional</td>
-                    <td style={{ padding: '0.75rem' }}>1 year</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>analytics_consent</td>
-                    <td style={{ padding: '0.75rem' }}>Remembers analytics opt-in/out choice</td>
+                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>cookie_preferences</td>
+                    <td style={{ padding: '0.75rem' }}>Remembers your cookie consent preferences.</td>
                     <td style={{ padding: '0.75rem' }}>Functional</td>
                     <td style={{ padding: '0.75rem' }}>1 year</td>
                   </tr>
                   <tr>
                     <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>_ga / _gid</td>
-                    <td style={{ padding: '0.75rem' }}>Google Analytics (if enabled)</td>
+                    <td style={{ padding: '0.75rem' }}>Google Analytics (if enabled) — measures how visitors use the site to help us improve it.</td>
                     <td style={{ padding: '0.75rem' }}>Analytics</td>
-                    <td style={{ padding: '0.75rem' }}>13 months / 24h</td>
+                    <td style={{ padding: '0.75rem' }}>13 months / 24 hours</td>
                   </tr>
                 </tbody>
               </table>
+
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>How You Can Control Cookies</h3>
+              <p style={{ marginBottom: '1rem' }}>
+                You can manage your cookie preferences at any time by clicking the "Cookie Settings" link in the
+                footer of any page on the Portal. From there you can accept or reject non-essential cookies.
+              </p>
+              <p style={{ marginBottom: '1.5rem' }}>
+                You can also control cookies through your browser settings. Most browsers let you view, delete, or
+                block cookies. Please note that disabling strictly necessary cookies will prevent you from logging
+                in and using core Portal functionality.
+              </p>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Third-Party Providers</h3>
               <p style={{ marginBottom: '1.5rem' }}>
@@ -123,27 +135,6 @@ export default function CookiePolicyPage() {
               </ul>
               <p style={{ marginBottom: '1.5rem' }}>
                 These providers have their own privacy policies. We encourage you to review them.
-              </p>
-
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Managing Cookies</h3>
-              <p style={{ marginBottom: '1rem' }}>
-                You can control cookies through your browser settings:
-              </p>
-              <ul style={{ listStyle: 'disc', paddingLeft: '1.5rem', marginBottom: '1.5rem' }}>
-                <li>Accept or reject all cookies</li>
-                <li>Block third-party cookies</li>
-                <li>Delete existing cookies</li>
-                <li>Set preferences per site</li>
-              </ul>
-              <p style={{ marginBottom: '1.5rem' }}>
-                Please note that disabling strictly necessary cookies will break core Portal functionality
-                (login, application forms, security).
-              </p>
-
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Consent</h3>
-              <p style={{ marginBottom: '1.5rem' }}>
-                On your first visit, we will ask for your consent to set non-essential cookies. You can
-                withdraw or change your consent at any time via the cookie banner or your browser settings.
               </p>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Changes to This Policy</h3>
