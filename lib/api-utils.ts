@@ -32,7 +32,12 @@ export class ApiResponse {
       .eq('auth_user_id', user.id)
       .maybeSingle()
 
-    if (!adminUser) return null
+    if (!adminUser) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[verifyRole] No admin_users record for auth_user_id:', user.id, '(role:', allowedRoles, ')')
+      }
+      return null
+    }
 
     // super_admin bypasses all role checks
     if (adminUser.role === 'super_admin' || (allowedRoles && allowedRoles.includes(adminUser.role))) {
