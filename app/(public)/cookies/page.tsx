@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
+import { CookieSettingsButton } from '@/components/ui/CookieSettingsButton'
 
 export const metadata: Metadata = { 
   title: 'Cookie Policy | Aerojet Aviation Careers',
@@ -115,14 +116,14 @@ export default function CookiePolicyPage() {
               </table>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>How You Can Control Cookies</h3>
-              <p style={{ marginBottom: '1rem' }}>
-                You can manage your cookie preferences at any time by clicking the "Cookie Settings" link in the
-                footer of any page on the Portal. From there you can accept or reject non-essential cookies.
-              </p>
               <p style={{ marginBottom: '1.5rem' }}>
-                You can also control cookies through your browser settings. Most browsers let you view, delete, or
-                block cookies. Please note that disabling strictly necessary cookies will prevent you from logging
-                in and using core Portal functionality.
+                You can manage your cookie preferences at any time. Click the button below to reopen the cookie
+                consent banner and adjust your choices. You can also control cookies through your browser settings.
+              </p>
+              <CookieSettingsButton />
+              <p style={{ marginBottom: '1.5rem', fontSize: '0.875rem', color: '#64748b' }}>
+                Note: Disabling strictly necessary cookies will prevent you from logging in and using core Portal
+                functionality.
               </p>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>Third-Party Providers</h3>
