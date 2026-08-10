@@ -7,8 +7,9 @@
  * Includes deduplication for document_folders to prevent duplicate entries.
  *
  * Usage:
- *   bun scripts/apply-schema.mjs
- *   bun scripts/apply-schema.mjs --url=<prod-connection-string>
+ *   bun scripts/apply-schema.mjs              # apply to dev/local (DATABASE_URL)
+ *   bun scripts/apply-schema.mjs --prod      # apply to prod (DATABASE_URL_PROD)
+ *   bun scripts/apply-schema.mjs --url=<cs>  # apply to custom connection string
  *
  * The --url flag allows targeting a specific Neon branch (e.g. prod).
  */
@@ -29,9 +30,16 @@ function loadEnv(file) {
 loadEnv('.env.local')
 
 const urlArg = process.argv.find((a) => a.startsWith('--url='))
-const DATABASE_URL = urlArg ? urlArg.slice(6) : process.env.DATABASE_URL
+const prodFlag = process.argv.includes('--prod')
+const DATABASE_URL = urlArg
+  ? urlArg.slice(6)
+  : prodFlag
+    ? process.env.DATABASE_URL_PROD
+    : process.env.DATABASE_URL
 if (!DATABASE_URL) {
-  console.error('Missing DATABASE_URL. Set it in .env.local or pass --url=<connection-string>')
+  console.error('Missing DATABASE_URL. Set it in .env.local, set DATABASE_URL_PROD, or pass --url=<connection-string>')
+  console.error('  dev:  bun scripts/apply-schema.mjs')
+  console.error('  prod: bun scripts/apply-schema.mjs --prod')
   process.exit(1)
 }
 
@@ -87,6 +95,19 @@ async function checkDuplicateFolders(client) {
   return parseInt(res.rows[0]?.dups ?? '0', 10)
 }
 
+async function deduplicateFolders(client) {
+  const dupCount = await checkDuplicateFolders(client)
+  if (dupCount === 0) {
+    console.log('  ✓ No duplicate document_folders found')
+  } else {
+    console.log(`  ! Found ${dupCount} duplicate folder name groups`)
+    const res = await client.query(
+      'DELETE FROM document_folders WHERE ctid NOT IN (SELECT MIN(ctid) FROM document_folders GROUP BY name)'
+    )
+    console.log(`  ✓ Removed ${res.rowCount} duplicate folders (kept newest by ctid)`)
+  }
+}
+
 async function main() {
   console.log(`Connecting to ${DATABASE_URL.includes('pooler') ? 'Neon (pooled)' : 'Neon'}...`)
 
@@ -94,12 +115,7 @@ async function main() {
   try {
     await cleanupJobs(client)
 
-    const dupCount = await checkDuplicateFolders(client)
-    if (dupCount > 0) {
-      console.log(`  ! Found ${dupCount} duplicate document_folders sets`)
-    } else {
-      console.log('  ✓ No duplicate document_folders found')
-    }
+    await deduplicateFolders(client)
 
     await applySchema(client)
 
