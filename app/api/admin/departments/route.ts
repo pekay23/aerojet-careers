@@ -5,7 +5,7 @@ import { ApiResponse, verifyRole } from '@/lib/api-utils'
 
 const DepartmentSchema = z.object({
   name: z.string().min(1, 'Department name is required'),
-  code: z.string().min(1, 'Department code is required').max(20).optional(),
+  code: z.string().min(1, 'Department code is required').max(20).nullish(),
   current_budget: z.number().min(0).optional(),
   manager_id: z.string().uuid().nullable().optional(),
 })
@@ -72,10 +72,15 @@ export async function POST(req: NextRequest) {
         .eq('id', id)
         .single()
 
-      // 2. Update department
+      // 2. Update department — only include current_budget if provided in body
+      const updateData: any = { ...updateParsed.data, updated_at: new Date().toISOString() }
+      if (current_budget !== undefined) {
+        updateData.current_budget = current_budget
+      }
+
       const { data, error } = await supabaseAdmin
         .from('departments')
-        .update({ ...updateParsed.data, current_budget, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single()
@@ -83,7 +88,7 @@ export async function POST(req: NextRequest) {
       if (error) throw error
 
       // 3. Log budget change if amount changed
-      if (current_budget !== current?.current_budget) {
+      if (current_budget !== undefined && current_budget !== current?.current_budget) {
         await supabaseAdmin.from('department_budget_history').insert({
           department_id: id,
           amount: current_budget,
@@ -95,8 +100,13 @@ export async function POST(req: NextRequest) {
 
       return ApiResponse.success(data)
     } else {
-       // CREATE NEW
-       const createParsed = DepartmentSchema.safeParse(rest)
+       // CREATE NEW — strip empty/null code so auto-generation kicks in
+       const cleanRest = { ...rest }
+       if (!cleanRest.code || cleanRest.code === '') {
+         delete cleanRest.code
+       }
+
+       const createParsed = DepartmentSchema.safeParse(cleanRest)
        if (!createParsed.success) {
          return ApiResponse.error(
            'Validation failed: ' + createParsed.error.issues.map((i: any) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', '),
@@ -104,7 +114,9 @@ export async function POST(req: NextRequest) {
          )
        }
 
-       const deptData = { ...createParsed.data }
+       const deptData: any = { ...createParsed.data }
+
+       // Auto-generate code if none provided
        if (!deptData.code) {
          let code = generateDeptCode(deptData.name)
          const existing = await supabaseAdmin
@@ -119,14 +131,19 @@ export async function POST(req: NextRequest) {
          deptData.code = code
        }
 
+       // Strip null/undefined fields before insert
+       Object.keys(deptData).forEach((k) => {
+         if (deptData[k] === null || deptData[k] === undefined) delete deptData[k]
+       })
+
        const { data, error } = await supabaseAdmin
          .from('departments')
          .insert(deptData)
          .select()
          .single()
 
-      if (error) throw error
-      return ApiResponse.success(data)
+       if (error) throw error
+       return ApiResponse.success(data)
     }
   } catch (err: any) {
     return ApiResponse.error(err.message, 500)

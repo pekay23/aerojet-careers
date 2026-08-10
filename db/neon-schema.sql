@@ -593,6 +593,16 @@ WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE slug = s.slug);
 
 DROP TABLE seed_jobs;
 
+-- ── Seed: admin_users (idempotent) ───────────────────────────────────────────
+-- Links admin_users records to existing auth_users by email.
+-- Only creates records for auth_users rows that already exist — safe to run
+-- multiple times (ON CONFLICT DO UPDATE).
+INSERT INTO admin_users (auth_user_id, email, full_name, role, is_active)
+SELECT au.id, au.email, 'Admin User', 'super_admin', TRUE
+FROM auth_users au
+WHERE au.email = 'admin@aerojet-aviation.com'
+ON CONFLICT (email) DO UPDATE SET role = 'super_admin', is_active = TRUE;
+
 -- ── Indexes (performance) ─────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_jobs_department    ON jobs(department);
 CREATE INDEX IF NOT EXISTS idx_jobs_status        ON jobs(status);

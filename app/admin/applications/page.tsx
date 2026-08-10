@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Filter
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
@@ -94,14 +93,16 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     const checkRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: adminUser } = await supabase
-          .from('admin_users')
-          .select('role')
-          .eq('auth_user_id', user.id)
-          .maybeSingle()
-        setUserRole(adminUser?.role || 'employee')
+      try {
+        const res = await fetch('/api/auth/me')
+        const { user, admin } = await res.json()
+        if (admin) {
+          setUserRole(admin.role)
+        } else if (user) {
+          setUserRole('employee')
+        }
+      } catch {
+        setUserRole('employee')
       }
     }
     checkRole()

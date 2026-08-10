@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import OrgChart from '@/components/admin/OrgChart'
 import BudgetManager from '@/components/admin/BudgetManager'
-import { 
-  Network, 
-  DollarSign, 
+import {
+  Network,
+  DollarSign,
   Zap,
   Lock,
   ArrowRight,
@@ -14,7 +14,6 @@ import {
   Building2,
   RefreshCw
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
 export default function OrganizationPage() {
@@ -37,14 +36,16 @@ export default function OrganizationPage() {
   }
 
   const fetchUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data } = await supabase
-        .from('admin_users')
-        .select('role')
-        .eq('auth_user_id', user.id)
-        .single()
-      if (data) setUserRole(data.role)
+    try {
+      const res = await fetch('/api/auth/me')
+      const { user, admin } = await res.json()
+      if (admin) {
+        setUserRole(admin.role)
+      } else if (user) {
+        setUserRole('employee')
+      }
+    } catch {
+      setUserRole('employee')
     }
   }
 
