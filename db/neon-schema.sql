@@ -327,11 +327,6 @@ CREATE TABLE IF NOT EXISTS document_folders (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_document_folders_name ON document_folders(name);
 
--- Deduplicate any existing duplicate folders before seeding
-DELETE FROM document_folders WHERE id NOT IN (
-  SELECT MIN(id) FROM document_folders GROUP BY name
-);
-
 INSERT INTO document_folders (name, description, icon) VALUES
   ('Personal', 'ID scans, Passports, and personal IDs', 'user'),
   ('Qualifications', 'Certificates, Licences, and EASA ratings', 'award'),
