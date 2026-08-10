@@ -13,6 +13,12 @@ export default function SiteNav() {
   const pathname = usePathname();
   const underlineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  const LIGHT_BG_PATHS = [
+    '/jobs', '/register', '/graduate-program', '/skilled-training',
+    '/cookies', '/terms', '/privacy',
+  ];
+  const forceOpaque = LIGHT_BG_PATHS.includes(pathname);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
@@ -36,19 +42,20 @@ export default function SiteNav() {
     { name: 'Contact', href: `${MAIN_SITE}/contact`, external: true },
   ];
 
-  const linkColor = scrolled ? 'text-aero-blue' : 'text-white';
+  const isOpaque = scrolled || forceOpaque;
+  const linkColor = isOpaque ? 'text-aero-blue' : 'text-white';
   const hoverColor = 'hover:text-aero-accent';
 
   return (
     <nav className={`site-nav fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
+      isOpaque ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
     }`}>
       <div className="mx-auto px-6 flex justify-between items-center">
 
         {/* Logo — transparent version when over hero, dark version when scrolled */}
         <Link href="/" className="relative h-10 w-40">
           <Image
-            src={scrolled ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
+            src={isOpaque ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
             alt="Aerojet Aviation"
             fill
             sizes="160px"
