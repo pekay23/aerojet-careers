@@ -43,7 +43,7 @@ export default function SiteNav() {
     <nav className={`site-nav fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
       scrolled ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
     }`}>
-      <div className="container mx-auto px-6 flex justify-between items-center">
+      <div className="mx-auto px-6 flex justify-between items-center">
 
         {/* Logo — transparent version when over hero, dark version when scrolled */}
         <Link href="/" className="relative h-10 w-40">
@@ -59,14 +59,14 @@ export default function SiteNav() {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-10">
-            <div className="flex items-center gap-7">
+            <div className="flex justify-center items-center gap-7 flex-1">
               {menuItems.map((item, index) => (
                 <div key={item.name} className="relative">
                   <Link
                     href={item.href}
                     target={item.external ? '_blank' : undefined}
                     rel={item.external ? 'noopener noreferrer' : undefined}
-                    className={`nav-link font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
+                    className={`font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
                     onMouseEnter={() => handleMouseEnter(index)}
                     onMouseLeave={() => handleMouseLeave(index)}
                   >
@@ -84,7 +84,7 @@ export default function SiteNav() {
 
           <Link
             href="/jobs"
-            className="btn-primary text-white text-sm py-2 px-6 tracking-widest"
+            className="btn-primary text-sm py-2 px-6 tracking-widest"
           >
             View All Jobs
           </Link>
@@ -101,14 +101,14 @@ export default function SiteNav() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-         <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden site-nav-mobile">
+         <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden">
           {menuItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noopener noreferrer' : undefined}
-               className={`nav-link font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+               className={`font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}

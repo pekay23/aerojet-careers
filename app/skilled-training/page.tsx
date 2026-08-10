@@ -32,7 +32,7 @@ export default function SkilledTrainingPage() {
       <PageHero title="Skilled Training Program" subtitle="For Engineering Technicians, Mechanics and Ramp Operatives" image="/images/2-DEJI4YEv.jpg" height={360} />
 
       <section style={{ background: 'white', padding: '3rem 1rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <div style={{ marginBottom: '2rem' }}>
             <NoticeBanner>
               <strong>Program status:</strong> The Aerojet Skilled Training Program is accepting expressions of interest ahead of our Accra facility launch. Formal cohorts will be confirmed once our operational timeline is set.

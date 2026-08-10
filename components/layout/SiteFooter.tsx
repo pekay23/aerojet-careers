@@ -31,83 +31,62 @@ const footerLinks = {
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-aero-blue text-white pt-16 pb-6">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-10 items-start">
+    <footer className="site-footer">
+      <div className="footer-container">
+        {/* Main Grid: Brand | Careers | Company | Legal | Explore Openings | Contact */}
+        <div className="footer-grid">
 
-        {/* Column 1: Brand */}
-        <div className="py-4">
-          <div className="relative h-12 w-48 mb-6">
-            <Image
-              src="/logos/logo-footer.png"
-              alt="Aerojet Aviation Footer Logo"
-              fill
-              sizes="192px"
-              className="object-contain object-left"
-            />
-          </div>
-          <p className="opacity-80 leading-relaxed text-sm mb-8">
-            Building West Africa's premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
-          </p>
-
-          {/* Explore Openings CTA */}
-          <div className="border-t border-white/10 pt-6">
-            <h4 className="text-lg font-bold text-aero-accent mb-2">Explore Openings</h4>
-            <p className="text-sm opacity-80 mb-4">
-              Browse current vacancies or register your profile for future opportunities.
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              <Link
-                href="/jobs"
-                className="btn-primary text-white text-sm py-2 px-5"
-              >
-                View Vacancies
-              </Link>
-              <Link
-                href="/register"
-                className="btn-secondary text-white text-sm py-2 px-5"
-              >
-                Register
-              </Link>
+          {/* Column 1: Brand */}
+          <div className="footer-col py-4">
+             <div className="relative h-12 w-40 mb-6">
+               <Image
+                 src="/logos/logo-footer.png"
+                 alt="Aerojet Aviation Footer Logo"
+                 fill
+                 sizes="160px"
+                 className="object-contain object-left"
+               />
             </div>
+            <p className="opacity-80 leading-relaxed text-sm">
+              Building West Africa's premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
+            </p>
           </div>
-        </div>
 
-        {/* Column 2: Careers */}
-        <div className="py-4">
-          <h4 className="text-lg font-bold text-aero-accent mb-4">Careers</h4>
-          <ul className="space-y-2 text-sm opacity-90">
-            {footerLinks.careers.map((link) => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Column 2: Careers */}
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Careers</h4>
+            <ul className="space-y-2 text-sm opacity-90">
+              {footerLinks.careers.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Column 3: Company */}
-        <div className="py-4">
-          <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
-          <ul className="space-y-2 text-sm opacity-90">
-            {footerLinks.company.map((link) => (
-              <li key={link.label}>
-                <a
-                  href={link.href}
-                  target={link.href.startsWith('http') ? '_blank' : undefined}
-                  rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="text-white hover:text-aero-accent transition-colors"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Column 3: Company */}
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
+            <ul className="space-y-2 text-sm opacity-90">
+              {footerLinks.company.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="text-white hover:text-aero-accent transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Column 4: Legal + Contact */}
-        <div className="py-4">
-          <div className="mb-6">
+          {/* Column 4: Legal */}
+          <div className="footer-col py-4">
             <h4 className="text-lg font-bold text-aero-accent mb-4">Legal</h4>
             <ul className="space-y-2 text-sm opacity-90">
               {footerLinks.legal.map((link) => (
@@ -120,9 +99,32 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          <div>
+          {/* Column 5: Explore Openings */}
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Explore Openings</h4>
+            <p className="text-sm opacity-80 mb-4">
+              Browse current vacancies or register your profile for future opportunities.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <Link
+                href="/jobs"
+                className="btn-primary text-white text-sm py-2 px-5"
+              >
+                View Vacancies
+              </Link>
+              <Link
+                href="/register"
+                className="btn-secondary text-sm py-2 px-5"
+              >
+                Register
+              </Link>
+            </div>
+          </div>
+
+          {/* Column 6: Contact */}
+          <div className="footer-col py-4">
             <h4 className="text-lg font-bold text-aero-accent mb-4">Contact</h4>
-            <ul className="space-y-3 text-sm opacity-90">
+            <ul className="footer-contact space-y-3 text-sm opacity-90">
               <li className="flex items-center gap-3">
                 <FaMapMarkerAlt className="text-white" />
                 <span className="text-white">Kotoka International Airport, Accra, Ghana</span>
@@ -148,11 +150,11 @@ export default function SiteFooter() {
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* Copyright */}
-      <div className="text-center pt-6 text-xs opacity-60">
-        <p>&copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.</p>
+        {/* Copyright */}
+        <div className="text-center pt-6 border-t border-white/10 text-xs opacity-60">
+          <p>&copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.</p>
+        </div>
       </div>
     </footer>
   );

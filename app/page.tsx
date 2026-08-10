@@ -88,7 +88,7 @@ export default async function HomePage() {
       />
 
       <section style={{ background: 'white', padding: '2rem 1rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <div style={{ background: 'var(--surface-accent-soft)', borderLeft: '4px solid var(--aero-sky)', borderRadius: '3px', padding: '0.875rem 1.25rem', fontSize: '13px', color: 'var(--aero-blue)', lineHeight: 1.6 }}>
 
             <strong>Note:</strong> Aerojet Aviation is actively building its team ahead of the operational launch of our Accra MRO facility. We welcome applications from qualified professionals and early-career talent who share our vision.
@@ -98,7 +98,7 @@ export default async function HomePage() {
 
       <section style={{ background: 'white', padding: '3rem 1rem 2rem' }}>
         <div
-          className="max-w-content mx-auto"
+          className="container-max mx-auto"
           style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto' }}
         >
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.875rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '1rem' }}>Find Your Place at Aerojet</h2>
@@ -111,7 +111,7 @@ export default async function HomePage() {
       </section>
 
       <section style={{ background: 'white', padding: '2rem 1rem 4rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <div
             style={{
               display: 'grid',
@@ -128,7 +128,7 @@ export default async function HomePage() {
 
       <div style={{ background: 'var(--aero-blue)', padding: '3rem 1rem' }}>
         <div
-          className="max-w-content mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
+          className="container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
         >
           {displayStats.map((s) => (
             <div key={s.value}>
@@ -142,7 +142,7 @@ export default async function HomePage() {
       </div>
 
       <section style={{ background: 'white', padding: '4rem 1rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <h2 style={{ fontFamily: 'var(--font-display)', textAlign: 'center', fontSize: '1.75rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '0.75rem' }}>
             Why Join Aerojet Aviation?
           </h2>

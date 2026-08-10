@@ -282,6 +282,7 @@ CREATE TABLE IF NOT EXISTS branding_config (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_branding_config_key ON branding_config(key);
 INSERT INTO branding_config (key, value) VALUES
   ('org_name',         'Aerojet Aviation'),
   ('careers_url',      'careers.aerojet-aviation.com'),
@@ -354,6 +355,7 @@ CREATE TABLE IF NOT EXISTS system_settings (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_system_settings_key ON system_settings(setting_key);
 INSERT INTO system_settings (setting_key, setting_value) VALUES
   ('company_name', 'Aerojet Aviation Group'),
   ('portal_status', 'Operational'),
@@ -365,11 +367,13 @@ ON CONFLICT (setting_key) DO NOTHING;
 CREATE TABLE IF NOT EXISTS departments (
   id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name            TEXT NOT NULL,
-  code            TEXT,
+  code            TEXT UNIQUE,
   manager_id      UUID REFERENCES admin_users(id),
   current_budget  NUMERIC(14,2),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_departments_code ON departments(code);
 
 CREATE TABLE IF NOT EXISTS department_budget_history (
   id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -417,6 +421,7 @@ CREATE TABLE IF NOT EXISTS employment_types (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_job_categories_value ON job_categories(value);
 INSERT INTO job_categories (value, label) VALUES
   ('experienced_professional', 'Experienced Professional'),
   ('graduate_program', 'Graduate Program'),
@@ -424,6 +429,7 @@ INSERT INTO job_categories (value, label) VALUES
   ('general_application', 'General Application')
 ON CONFLICT (value) DO NOTHING;
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_employment_types_value ON employment_types(value);
 INSERT INTO employment_types (value, label) VALUES
   ('full_time', 'Full Time'),
   ('part_time', 'Part Time'),
@@ -534,10 +540,14 @@ DO $$ BEGIN
     FOR EACH ROW EXECUTE FUNCTION log_status_change();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- ── Seed: initial job postings (only if jobs table is empty) ──
--- Only 5 core positions seeded as 'open' (publicly visible).
+-- ── Seed: upsert job postings (update existing, insert new) ──────────
+-- Uses temp table + UPDATE/INSERT to avoid requiring ON CONFLICT
+-- (which needs a unique constraint that may not exist on legacy data).
+-- 5 core positions seeded as 'open' (publicly visible).
 -- All others are 'draft' (hidden from candidates).
-INSERT INTO jobs (title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at)
+-- Existing jobs are updated by slug (preserving their IDs and ref_codes).
+
+CREATE TEMP TABLE seed_jobs AS
 SELECT * FROM (VALUES
   ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional', 'full_time', 'open',  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2025-12-31'::date),
   ('Aircraft Mechanics (AME)',            'aircraft-mechanics',              'Engineering', 'experienced_professional', 'full_time', 'open',  15, 'Experienced aircraft maintenance engineers for line and base maintenance operations.',            ARRAY['Line Maintenance','A-Checks','Defect Rectification'],                           '2025-12-31'),
@@ -556,8 +566,30 @@ SELECT * FROM (VALUES
   ('Graduate Operations Analyst',         'graduate-operations-analyst',     'Operations',  'graduate_program',         'full_time', 'draft',  3, 'Graduate placement in MRO operations, production control and regulatory compliance.',          ARRAY['Graduate','Operations','MRO Planning'],                                         NULL),
   ('Trainee Aircraft Mechanics',          'trainee-aircraft-mechanics',      'Engineering', 'skilled_training',         'trainee',   'draft', 10, 'Apprentice aircraft mechanics programme with Category A licence pathway.',                      ARRAY['Trainee','Cat A Pathway','Line Maintenance','Apprenticeship'],                  NULL),
   ('Ground Handling Trainees',            'trainee-ground-handling',         'Operations',  'skilled_training',         'trainee',   'draft', 10, 'Entry-level ramp operative training with IATA Dangerous Goods certification included.',         ARRAY['Trainee','IATA DG','Ramp Operations','Entry Level'],                            NULL)
- ) AS seed
- WHERE NOT EXISTS (SELECT 1 FROM jobs);
+) AS v(title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at);
+
+-- Update existing seed jobs (preserves IDs and ref_codes)
+UPDATE jobs SET
+  title = s.title,
+  department = s.department,
+  category = s.category::job_category,
+  employment_type = s.employment_type::employment_type,
+  status = s.status::job_status,
+  target_count = s.target_count,
+  summary = s.summary,
+  tags = s.tags,
+  closes_at = s.closes_at,
+  updated_at = NOW()
+FROM seed_jobs s
+WHERE jobs.slug = s.slug;
+
+-- Insert new seed jobs (those that don't exist yet)
+INSERT INTO jobs (title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at)
+SELECT s.title, s.slug, s.department, s.category::job_category, s.employment_type::employment_type, s.status::job_status, s.target_count, s.summary, s.tags, s.closes_at
+FROM seed_jobs s
+WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE slug = s.slug);
+
+DROP TABLE seed_jobs;
 
 -- ── Indexes (performance) ─────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_jobs_department    ON jobs(department);
@@ -574,3 +606,6 @@ CREATE INDEX IF NOT EXISTS idx_apps_status        ON applications(status);
 CREATE INDEX IF NOT EXISTS idx_apps_job           ON applications(job_id);
 CREATE INDEX IF NOT EXISTS idx_apps_email         ON applications(email);
 CREATE INDEX IF NOT EXISTS idx_docs_app           ON application_documents(application_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_created_at   ON jobs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_apps_created_at   ON applications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_apps_deleted_at   ON applications(deleted_at) WHERE deleted_at IS NULL;

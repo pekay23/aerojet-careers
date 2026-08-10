@@ -23,7 +23,7 @@ interface MeResponse {
 
 async function fetchMe(): Promise<MeResponse> {
   try {
-    const res = await fetch('/api/auth/me', { cache: 'no-store' })
+    const res = await fetch('/api/auth/me')
     if (!res.ok) return { user: null, admin: null }
     return (await res.json()) as MeResponse
   } catch {

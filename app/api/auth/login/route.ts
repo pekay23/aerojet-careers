@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/api',
+      path: '/',
       maxAge: SESSION_MAX_AGE,
     })
     res.cookies.set('refresh_token', refreshId, {

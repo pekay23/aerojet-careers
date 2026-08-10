@@ -136,8 +136,8 @@ export default function TalentPoolPage() {
                 >
                    <option value="all">All Interests</option>
                    {officialDepts.map(d => (
-                     <option key={d.id} value={d.name}>{d.name.toUpperCase()}</option>
-                   ))}
+                      <option key={d.code} value={d.name}>{d.name.toUpperCase()}</option>
+                    ))}
                 </select>
              </div>
              <button 

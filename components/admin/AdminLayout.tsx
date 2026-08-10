@@ -20,7 +20,6 @@ import {
   HelpCircle,
   ExternalLink,
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import ToastContainer from '@/components/ui/ToastContainer'
 
@@ -57,23 +56,17 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
     const saved = typeof window !== 'undefined' ? localStorage.getItem('admin-sidebar-open') : null
     if (saved !== null) setSidebarOpen(JSON.parse(saved))
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        supabase
-          .from('admin_users')
-          .select('role, full_name')
-          .eq('auth_user_id', session.user.id)
-          .maybeSingle()
-          .then(({ data }: { data: any }) => {
-            if (data) {
-              setUserRole(data.role)
-              setUserName(data.full_name || session.user.email?.split('@')[0] || 'User')
-            } else {
-              setUserName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User')
-            }
-          })
-      }
-    })
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then(({ user, admin }) => {
+        if (admin) {
+          setUserRole(admin.role)
+          setUserName(admin.full_name || user?.email?.split('@')[0] || 'Admin User')
+        } else if (user) {
+          setUserName(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin User')
+        }
+      })
+      .catch(() => {})
 
     fetch('/api/admin/settings')
       .then((res) => res.json())
@@ -123,7 +116,7 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
   ]
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/admin/login')
   }
 
@@ -342,13 +335,15 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
             <div>
-              <nav className="mb-0.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
-                <span className="uppercase tracking-widest">Portal</span>
-                <ChevronRight size={10} />
-                <span className="uppercase tracking-widest text-slate-700">
-                  {breadcrumb || pathname.split('/').pop()?.replace(/-/g, ' ')}
-                </span>
-              </nav>
+              {breadcrumb && (
+                <nav className="mb-0.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+                  <span className="uppercase tracking-widest">Portal</span>
+                  <ChevronRight size={10} />
+                  <span className="uppercase tracking-widest text-slate-700">
+                    {breadcrumb}
+                  </span>
+                </nav>
+              )}
               <h1 className="text-xl font-bold uppercase tracking-tight text-slate-900">{title || 'Dashboard'}</h1>
             </div>
           </div>

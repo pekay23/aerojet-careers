@@ -53,7 +53,7 @@ export default async function ApplyPage({ params }: Props) {
           backgroundSize: 'cover', backgroundPosition: 'center',
           opacity: 0.18,
         }} />
-        <div className="max-w-content mx-auto px-8" style={{ position: 'relative', zIndex: 1, paddingTop: '3rem' }}>
+        <div className="container-max mx-auto px-8" style={{ position: 'relative', zIndex: 1, paddingTop: '3rem' }}>
           {/* Breadcrumb */}
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: '1.25rem' }}>
             <Link href="/jobs" style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>Careers</Link>

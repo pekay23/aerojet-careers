@@ -72,8 +72,6 @@ export const ALLOWED_UPDATE_KEYS = [
   'location',
   'status',
   'target_count',
-  'open_positions',
-  'indefinite_deadline',
   'summary',
   'responsibilities',
   'requirements',

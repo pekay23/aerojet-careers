@@ -1,10 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Briefcase } from 'lucide-react'
+import type { Job } from '@/types'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Briefcase, AlertCircle } from 'lucide-react'
-import type { Job } from '@/types'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { toast } from '@/lib/toast'
 
 
 // Metadata state
@@ -31,14 +33,35 @@ export default function JobsAdminPage() {
   const [statusF, setStatusF] = useState('')
   const [meta,    setMeta]    = useState<Metadata>({ departments: [], categories: [], employment_types: [] })
   const [baseLoc, setBaseLoc] = useState('Accra Base, GH')
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [newDeptMode, setNewDeptMode] = useState(false)
   const [newDeptName, setNewDeptName] = useState('')
   const [creatingDept, setCreatingDept] = useState(false)
   const [pageInfo, setPageInfo] = useState<{ total: number; page: number; limit: number }>({ total: 0, page: 1, limit: 50 })
   const [sortCol, setSortCol] = useState('created_at')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmConfig, setConfirmConfig] = useState<{
+    title: string
+    description?: string
+    confirmLabel?: string
+    variant?: 'danger' | 'default'
+    onConfirm: () => void
+  } | null>(null)
+
+  const openConfirm = (config: {
+    title: string
+    description?: string
+    confirmLabel?: string
+    variant?: 'danger' | 'default'
+    onConfirm: () => void
+  }) => {
+    setConfirmConfig(config)
+    setConfirmOpen(true)
+  }
+  const closeConfirm = () => {
+    setConfirmOpen(false)
+    setConfirmConfig(null)
+  }
 
   const load = async (pg: number = pageInfo.page) => {
     setLoading(true)
@@ -104,16 +127,13 @@ export default function JobsAdminPage() {
 
   const sf = (k: string) => (v: any) => setForm(f => ({ ...f, [k]: v }))
 
-   const openNew  = () => { 
-     setForm({ ...EMPTY_JOB, location: baseLoc })
-     setModal('new')
-      setErrorMsg(null)
-      setNewDeptMode(false)
-      setPageInfo(p => ({ ...p, page: 1 }))
-    }
+  const openNew  = () => { 
+    setForm({ ...EMPTY_JOB, location: baseLoc })
+    setModal('new')
+    setPageInfo(p => ({ ...p, page: 1 }))
+  }
   const openEdit = (j: Job) => {
-    setErrorMsg(null)
-    setNewDeptMode(false)
+    setNewDeptName('')
     setForm({
       ...j,
       tags: (j.tags || []).join(', '),
@@ -127,12 +147,13 @@ export default function JobsAdminPage() {
 
   const save = async (publishNow?: boolean) => {
     if (form.department === '__add_new__') {
-      setErrorMsg('Please select or create a department before saving.'); return
+      toast.error('Please select or create a department before saving.')
+      return
     }
     if (!form.title?.trim() || !form.department) {
-      setErrorMsg('Title and department are required.'); return
+      toast.error('Title and department are required.')
+      return
     }
-    setErrorMsg(null)
     setSaving(true)
     const payload = {
       title: form.title.trim(),
@@ -159,14 +180,15 @@ export default function JobsAdminPage() {
       })
       const d = await res.json()
        if (!res.ok) {
-         setErrorMsg(d.error || 'Failed to save job posting.')
-       } else {
-         setModal(null)
-         setPageInfo(p => ({ ...p, page: 1 }))
-         load(1)
-       }
+        toast.error(d.error || 'Failed to save job posting.')
+      } else {
+        setModal(null)
+        setPageInfo(p => ({ ...p, page: 1 }))
+        load(1)
+        toast.success(publishNow ? 'Job published' : 'Job saved as draft')
+      }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Network error — could not save job posting.')
+      toast.error(err.message || 'Network error — could not save job posting.')
     } finally {
       setSaving(false)
     }
@@ -183,86 +205,105 @@ export default function JobsAdminPage() {
       })
       const d = await res.json()
       if (!res.ok) {
-        setErrorMsg(d.error || 'Could not create department.')
+        toast.error(d.error || 'Could not create department.')
       } else {
         setMeta((m) => ({
           ...m,
           departments: [...m.departments, d.data],
         }))
         sf('department')(newDeptName.trim())
-        setNewDeptMode(false)
         setNewDeptName('')
+        toast.success('Department created')
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Network error — could not create department.')
+      toast.error(err.message || 'Network error — could not create department.')
     } finally {
       setCreatingDept(false)
     }
   }
 
   const cancelNewDept = () => {
-    setNewDeptMode(false)
     setNewDeptName('')
   }
 
   const toggleVisibility = async (j: Job) => {
     const newStatus = j.status === 'open' ? 'draft' : 'open'
-    if (!confirm(`Mark "${j.title}" as ${newStatus === 'open' ? 'published (visible on careers page)' : 'draft (hidden from careers page)'}?`)) return
-    try {
-      const res = await fetch('/api/admin/jobs', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: j.id, status: newStatus }),
-      })
-      if (!res.ok) {
-        const d = await res.json()
-        alert(d.error || 'Failed to update visibility')
-      } else {
-        load()
-      }
-    } catch (err: any) {
-      alert(err.message || 'Network error')
-    }
+    const action = newStatus === 'open' ? 'publish' : 'unpublish'
+    openConfirm({
+      title: `${action === 'publish' ? 'Publish' : 'Unpublish'} job posting?`,
+      description: `"${j.title}" will be ${newStatus === 'open' ? 'visible on the careers page' : 'hidden from the careers page'}.`,
+      confirmLabel: newStatus === 'open' ? 'Publish' : 'Hide',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/admin/jobs', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: j.id, status: newStatus }),
+          })
+          if (!res.ok) {
+            const d = await res.json()
+            toast.error(d.error || 'Failed to update visibility')
+          } else {
+            toast.success(`Job ${newStatus === 'open' ? 'published' : 'moved to draft'}`)
+            load()
+          }
+        } catch (err: any) {
+          toast.error(err.message || 'Network error')
+        }
+      },
+    })
   }
 
   const toggleStatus = async (j: Job) => {
     const statuses = ['draft', 'open', 'paused', 'closed', 'filled']
     const idx = statuses.indexOf(j.status)
     const newStatus = statuses[(idx + 1) % statuses.length]
-    if (!confirm(`Set "${j.title}" to ${newStatus}?`)) return
-    try {
-      const res = await fetch('/api/admin/jobs', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: j.id, status: newStatus }),
-      })
-      if (!res.ok) {
-        const d = await res.json()
-        alert(d.error || 'Failed to update status')
-      } else {
-        load()
-      }
-    } catch (err: any) {
-      alert(err.message || 'Network error')
-    }
+      openConfirm({
+      title: `Change status to ${newStatus}?`,
+      description: `"${j.title}" will move from "${j.status}" to "${newStatus}".`,
+      confirmLabel: 'Update',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/admin/jobs', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: j.id, status: newStatus }),
+          })
+          if (!res.ok) {
+            const d = await res.json()
+            toast.error(d.error || 'Failed to update status')
+          } else {
+            toast.success(`Status changed to ${newStatus}`)
+            load()
+          }
+        } catch (err: any) {
+          toast.error(err.message || 'Network error')
+        }
+      },
+    })
   }
 
   const handleDelete = async (j: Job) => {
-    if (!confirm(`Are you sure you want to delete "${j.title}"?`)) return
-    
-    setSaving(true)
-    try {
-      const res = await fetch(`/api/admin/jobs?id=${j.id}`, { method: 'DELETE' })
-      if (res.ok) {
-        load()
-      } else {
-        const d = await res.json()
-        alert(d.error || 'Failed to delete job')
-      }
-    } catch (err: any) {
-      alert(err.message || 'Network error')
-    }
-    setSaving(false)
+    openConfirm({
+      title: 'Delete job posting?',
+      description: `"${j.title}" will be permanently removed and no longer visible.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/jobs?id=${j.id}`, { method: 'DELETE' })
+          if (res.ok) {
+            toast.success('Job posting deleted')
+            load()
+          } else {
+            const d = await res.json()
+            toast.error(d.error || 'Failed to delete job')
+          }
+        } catch (err: any) {
+          toast.error(err.message || 'Network error')
+        }
+      },
+    })
   }
 
   return (
@@ -417,7 +458,7 @@ export default function JobsAdminPage() {
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" 
-             onClick={() => !saving && (setModal(null), setErrorMsg(null), setNewDeptMode(false), setNewDeptName(''))}
+             onClick={() => !saving && (setModal(null), setNewDeptName(''))}
           />
           <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] font-medium">
             <div className="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -428,23 +469,16 @@ export default function JobsAdminPage() {
                 <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.2em]">{modal === 'new' ? 'Draft Posting' : 'Reference: ' + (form.ref_code || 'N/A')}</p>
               </div>
                <button 
-                 onClick={() => { setModal(null); setErrorMsg(null); setNewDeptMode(false); setNewDeptName('') }} 
+                 onClick={() => { setModal(null); setNewDeptName('') }} 
                  className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>
-             </div>
-             
-             {errorMsg && (
-               <div className="mx-10 -mt-2 p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-red-600">
-                 <AlertCircle size={14} />
-                 {errorMsg}
-               </div>
-             )}
+              </div>
 
-             <div className="p-10 overflow-y-auto space-y-8">
+              <div className="p-10 overflow-y-auto space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Job title *</label>
@@ -563,7 +597,7 @@ export default function JobsAdminPage() {
             </div>
             
             <div className="p-8 border-t border-slate-100 bg-slate-50 flex flex-wrap gap-4 justify-end shrink-0">
-                <button onClick={() => { setModal(null); setErrorMsg(null); setNewDeptMode(false); setNewDeptName('') }} className="px-8 py-3.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all">Cancel</button>
+                <button onClick={() => { setModal(null); setNewDeptName('') }} className="px-8 py-3.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all">Cancel</button>
               <button 
                 onClick={() => save(false)} 
                 disabled={saving} 
@@ -582,6 +616,16 @@ export default function JobsAdminPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={closeConfirm}
+        title={confirmConfig?.title || ''}
+        description={confirmConfig?.description}
+        confirmLabel={confirmConfig?.confirmLabel}
+        variant={confirmConfig?.variant || 'default'}
+        onConfirm={confirmConfig ? confirmConfig.onConfirm : () => {}}
+      />
     </AdminLayout>
   )
 }

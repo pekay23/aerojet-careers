@@ -71,7 +71,7 @@ export async function refreshSession(): Promise<NextResponse> {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    path: '/api',
+    path: '/',
     maxAge: SESSION_MAX_AGE,
   })
   res.cookies.set(REFRESH_COOKIE, newRefreshId, {
