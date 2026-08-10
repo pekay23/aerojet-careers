@@ -319,10 +319,17 @@ CREATE TABLE IF NOT EXISTS staff_profiles (
 -- ── document_folders (migration 002) ──────────────────────────
 CREATE TABLE IF NOT EXISTS document_folders (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name        TEXT NOT NULL,
+  name        TEXT NOT NULL UNIQUE,
   description TEXT,
   icon        TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_document_folders_name ON document_folders(name);
+
+-- Deduplicate any existing duplicate folders before seeding
+DELETE FROM document_folders WHERE id NOT IN (
+  SELECT MIN(id) FROM document_folders GROUP BY name
 );
 
 INSERT INTO document_folders (name, description, icon) VALUES
@@ -331,7 +338,7 @@ INSERT INTO document_folders (name, description, icon) VALUES
   ('Contract & Legal', 'Signed employment contracts and NDAs', 'file-text'),
   ('Medical', 'Health clearances and medical reports', 'heart-pulse'),
   ('Miscellaneous', 'Other employee documents', 'folder')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO NOTHING;
 
 -- ── staff_documents (migration 002) ───────────────────────────
 CREATE TABLE IF NOT EXISTS staff_documents (

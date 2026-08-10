@@ -4,9 +4,13 @@
  * then applies indexes.
  *
  * Safe to run multiple times (IF NOT EXISTS / idempotent guards).
- * ON CONFLICT (slug) on the seed INSERT ensures updated seed data is always applied.
+ * Includes deduplication for document_folders to prevent duplicate entries.
  *
- * Usage:  bun scripts/apply-schema.mjs
+ * Usage:
+ *   bun scripts/apply-schema.mjs
+ *   bun scripts/apply-schema.mjs --url=<prod-connection-string>
+ *
+ * The --url flag allows targeting a specific Neon branch (e.g. prod).
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -24,9 +28,10 @@ function loadEnv(file) {
 }
 loadEnv('.env.local')
 
-const DATABASE_URL = process.env.DATABASE_URL
+const urlArg = process.argv.find((a) => a.startsWith('--url='))
+const DATABASE_URL = urlArg ? urlArg.slice(6) : process.env.DATABASE_URL
 if (!DATABASE_URL) {
-  console.error('Missing DATABASE_URL in .env.local')
+  console.error('Missing DATABASE_URL. Set it in .env.local or pass --url=<connection-string>')
   process.exit(1)
 }
 
@@ -41,11 +46,9 @@ async function applySchema(client) {
   console.log('Applying schema + seed data...')
   try {
     await client.query(schema)
-    console.log('  ✓ Schema applied (tables, triggers, seed upsert)')
+    console.log('  ✓ Schema applied (tables, triggers, seed upsert, dedup)')
   } catch (e) {
     console.warn('  ! Schema had errors (partial application):', e.message)
-    // PostgreSQL simple-query executes all statements; errors from individual
-    // statements are logged but the connection remains usable.
   }
 }
 
@@ -68,6 +71,7 @@ const INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_apps_created_at    ON applications(created_at DESC)',
   'CREATE INDEX IF NOT EXISTS idx_apps_deleted_at    ON applications(deleted_at) WHERE deleted_at IS NULL',
   'CREATE INDEX IF NOT EXISTS idx_docs_app           ON application_documents(application_id)',
+  'CREATE UNIQUE INDEX IF NOT EXISTS idx_document_folders_name ON document_folders(name)',
 ]
 
 async function cleanupJobs(client) {
@@ -76,33 +80,71 @@ async function cleanupJobs(client) {
   console.log(`  ✓ ${res.rowCount} job postings removed`)
 }
 
+async function checkDuplicateFolders(client) {
+  const res = await client.query(
+    'SELECT COUNT(*) AS dups FROM (SELECT name FROM document_folders GROUP BY name HAVING COUNT(*) > 1) t'
+  )
+  return parseInt(res.rows[0]?.dups ?? '0', 10)
+}
+
 async function main() {
-  console.log('Connecting to Neon database...')
+  console.log(`Connecting to ${DATABASE_URL.includes('pooler') ? 'Neon (pooled)' : 'Neon'}...`)
+
   const client = await pool.connect()
   try {
     await cleanupJobs(client)
+
+    const dupCount = await checkDuplicateFolders(client)
+    if (dupCount > 0) {
+      console.log(`  ! Found ${dupCount} duplicate document_folders sets`)
+    } else {
+      console.log('  ✓ No duplicate document_folders found')
+    }
+
     await applySchema(client)
 
     console.log('\nApplying indexes...')
     for (const sql of INDEXES) {
       try {
         await client.query(sql)
-        console.log(`  + ${sql.match(/INDEX\s+IF\s+NOT\s+EXISTS\s+(\S+)/i)?.[1] ?? sql.split(' ').pop()?.replace(';', '')}`)
+        const name = sql.match(/INDEX\s+IF\s+NOT\s+EXISTS\s+(\S+)/i)?.[1] ?? sql.split(' ').pop()?.replace(';', '')
+        console.log(`  + ${name}`)
       } catch (e) {
         console.warn(`  ! ${sql.split(' ')[3]}: ${e.message}`)
       }
     }
 
-    const indexRes = await client.query(
-      'SELECT indexname FROM pg_indexes WHERE indexname LIKE \'idx_jobs_department\' OR indexname LIKE \'idx_auth_users_email\' OR indexname LIKE \'idx_talent_pool_email\' OR indexname LIKE \'idx_pipeline_events_type\' OR indexname LIKE \'idx_pipeline_events_admin\' OR indexname LIKE \'idx_admin_users_role\' OR indexname LIKE \'idx_admin_users_auth\''
-    )
+    const indexRes = await client.query(`
+      SELECT indexname FROM pg_indexes
+      WHERE indexname IN (
+        'idx_jobs_department','idx_jobs_status','idx_jobs_slug','idx_jobs_created_at',
+        'idx_admin_users_role','idx_admin_users_auth',
+        'idx_pipeline_events_type','idx_pipeline_events_admin','idx_pipeline_events_app',
+        'idx_auth_users_email','idx_talent_pool_email',
+        'idx_apps_status','idx_apps_job','idx_apps_email',
+        'idx_apps_submitted','idx_apps_created_at','idx_apps_deleted_at',
+        'idx_docs_app','idx_document_folders_name'
+      )
+    `)
     console.log(`\nVerification: ${indexRes.rowCount} indexes confirmed in database.`)
 
     const seedRes = await client.query(
       "SELECT slug, title, status FROM jobs WHERE status = 'open' ORDER BY created_at DESC"
     )
     console.log(`\nSeed verification: ${seedRes.rowCount} open jobs:`)
-    seedRes.rows.forEach(r => console.log(`  - ${r.title} (${r.slug})`))
+    seedRes.rows.forEach((r) => console.log(`  - ${r.title} (${r.slug})`))
+
+    const deptRes = await client.query(
+      'SELECT code, name, current_budget FROM departments ORDER BY name'
+    )
+    console.log(`\nDepartments: ${deptRes.rowCount} departments seeded:`)
+    deptRes.rows.forEach((r) => console.log(`  - ${r.code}: ${r.name}`))
+
+    const folderRes = await client.query(
+      'SELECT name, icon FROM document_folders ORDER BY name'
+    )
+    console.log(`\nDocument folders: ${folderRes.rowCount} folders:`)
+    folderRes.rows.forEach((r) => console.log(`  - ${r.name} (${r.icon})`))
   } finally {
     client.release()
     await pool.end()
