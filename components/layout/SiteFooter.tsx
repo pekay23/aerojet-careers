@@ -1,11 +1,9 @@
- 'use client';
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Mail, Phone } from 'lucide-react';
-
-
-const MAIN_SITE = 'https://www.aerojet-aviation.com';
+import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
+import { MAIN_SITE } from '@/lib/domain-config';
 
 const footerLinks = {
   careers: [
@@ -31,101 +29,36 @@ const footerLinks = {
   ],
 };
 
-
 export default function SiteFooter() {
   return (
-    <footer style={{ background: 'var(--aero-blue)', color: 'white' }}>
-      <div style={{ maxWidth: 'var(--container-wide)', margin: '0 auto', padding: '3rem 1.5rem 2rem' }}>
-        {/* Main Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '2.5rem',
-          marginBottom: '3rem'
-        }}>
-          {/* Column 1: Brand */}
-          <div style={{ paddingTop: '0.5rem' }}>
-            <div style={{ position: 'relative', height: 48, width: 192, marginBottom: '1.5rem' }}>
-              <Image
-                src="/logos/logo-footer.png"
-                alt="Aerojet Aviation Footer Logo"
-                fill
-                sizes="192px"
-                style={{ objectFit: 'contain', objectPosition: 'left' }}
-              />
-            </div>
-            <p style={{ opacity: 0.8, lineHeight: 1.7, fontSize: '0.875rem', marginBottom: '2rem', maxWidth: 280 }}>
-              Building West Africa's premier MRO facility — delivering world-class maintenance capabilities.
-            </p>
+    <footer className="site-footer">
+      <div className="footer-container">
+        {/* Main Grid: Brand | Careers | Company | Legal | Explore Openings | Contact */}
+        <div className="footer-grid">
 
-            {/* Careers CTA (replaces non-functional newsletter — no subscribe backend exists) */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
-              <h4 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '0.5rem' }}>
-                Explore Openings
-              </h4>
-              <p style={{ fontSize: '0.875rem', opacity: 0.8, marginBottom: '1rem' }}>
-                Browse current vacancies or register your profile for future opportunities.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <Link
-                  href="/jobs"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    borderRadius: 'var(--radius-xl)',
-                    background: 'var(--aero-sky)',
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 'bold',
-                    color: 'white',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0, 174, 239, 0.9)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--aero-sky)')}
-                >
-                  View Vacancies
-                </Link>
-                <Link
-                  href="/register"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    borderRadius: 'var(--radius-xl)',
-                    border: '1px solid rgba(255,255,255,0.35)',
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 'bold',
-                    color: 'white',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'var(--aero-sky)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'; }}
-                >
-                  Register
-                </Link>
-              </div>
+          {/* Column 1: Brand */}
+          <div className="footer-col py-4">
+             <div className="relative h-12 w-40 mb-6">
+               <Image
+                 src="/logos/logo-footer.png"
+                 alt="Aerojet Aviation Footer Logo"
+                 fill
+                 sizes="160px"
+                 className="object-contain object-left"
+               />
             </div>
+            <p className="opacity-80 leading-relaxed text-sm">
+              Building West Africa's premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
+            </p>
           </div>
 
-
           {/* Column 2: Careers */}
-          <div>
-            <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Careers
-            </h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Careers</h4>
+            <ul className="space-y-2 text-sm opacity-90">
               {footerLinks.careers.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    style={{ opacity: 0.9, fontSize: '0.875rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none', display: 'block' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-                  >
+                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -134,20 +67,16 @@ export default function SiteFooter() {
           </div>
 
           {/* Column 3: Company */}
-          <div>
-            <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Company
-            </h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
+            <ul className="space-y-2 text-sm opacity-90">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
                     target={link.href.startsWith('http') ? '_blank' : undefined}
                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    style={{ opacity: 0.9, fontSize: '0.875rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none', display: 'block' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+                    className="text-white hover:text-aero-accent transition-colors"
                   >
                     {link.label}
                   </a>
@@ -157,20 +86,12 @@ export default function SiteFooter() {
           </div>
 
           {/* Column 4: Legal */}
-
-          <div>
-            <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Legal
-            </h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Legal</h4>
+            <ul className="space-y-2 text-sm opacity-90">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    style={{ opacity: 0.9, fontSize: '0.875rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none', display: 'block' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-                  >
+                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -178,74 +99,61 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          {/* Column 5: Contact */}
+          {/* Column 5: Explore Openings */}
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Explore Openings</h4>
+            <p className="text-sm opacity-80 mb-4">
+              Browse current vacancies or register your profile for future opportunities.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <Link
+                href="/jobs"
+                className="btn-primary text-white text-sm py-2 px-5"
+              >
+                View Vacancies
+              </Link>
+              <Link
+                href="/register"
+                className="btn-secondary text-sm py-2 px-5"
+              >
+                Register
+              </Link>
+            </div>
+          </div>
 
-          <div>
-            <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--aero-sky)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Contact
-            </h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.875rem', opacity: 0.9, lineHeight: 1.6 }}>
-                <MapPin size={16} aria-hidden="true" style={{ marginTop: 2, flexShrink: 0 }} />
-                <span>Kotoka International Airport<br/>Accra, Ghana</span>
-
+          {/* Column 6: Contact */}
+          <div className="footer-col py-4">
+            <h4 className="text-lg font-bold text-aero-accent mb-4">Contact</h4>
+            <ul className="footer-contact space-y-3 text-sm opacity-90">
+              <li className="flex items-center gap-3">
+                <FaMapMarkerAlt className="text-white" />
+                <span className="text-white">Kotoka International Airport, Accra, Ghana</span>
               </li>
-              <li style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-                <a href="mailto:careers@aerojet-aviation.com" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'} onMouseLeave={(e) => e.currentTarget.style.color = 'white'}>
-                  <Mail size={16} aria-hidden="true" />
+              <li>
+                <a
+                  href="mailto:careers@aerojet-aviation.com"
+                  className="flex items-center gap-3 text-white hover:text-aero-accent transition-colors"
+                >
+                  <FaEnvelope className="text-white" />
                   careers@aerojet-aviation.com
-
                 </a>
               </li>
-              <li style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-                <a href="tel:+233209848423" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'color 0.2s', color: 'white', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--aero-sky)'} onMouseLeave={(e) => e.currentTarget.style.color = 'white'}>
-                  <Phone size={16} aria-hidden="true" />
+              <li>
+                <a
+                  href="tel:+233209848423"
+                  className="flex items-center gap-3 text-white hover:text-aero-accent transition-colors"
+                >
+                  <FaPhoneAlt className="text-white" />
                   +233-20-984-8423
-
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginBottom: '1.5rem' }} />
-
-        {/* Bottom Row: Copyright + Legal Links */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '1rem',
-          textAlign: 'center'
-        }}>
-          <p style={{ fontSize: '0.75rem', opacity: 0.6, margin: 0 }}>
-            &copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem' }}>
-            {footerLinks.legal.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                style={{ fontSize: '0.75rem', opacity: 0.6, transition: 'opacity 0.2s', color: 'white', textDecoration: 'none' }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <a
-              href={MAIN_SITE}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: '0.75rem', opacity: 0.6, transition: 'opacity 0.2s', color: 'white', textDecoration: 'none' }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
-            >
-              aerojet-aviation.com
-            </a>
-
-          </div>
+        {/* Copyright */}
+        <div className="text-center pt-6 border-t border-white/10 text-xs opacity-60">
+          <p>&copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.</p>
         </div>
       </div>
     </footer>

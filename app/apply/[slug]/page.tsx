@@ -39,7 +39,7 @@ export default async function ApplyPage({ params }: Props) {
 
   return (
     <>
-      <SiteNav activePath={`/apply/${slug}`} />
+        <SiteNav />
 
       {/* Hero */}
       <div
@@ -53,7 +53,7 @@ export default async function ApplyPage({ params }: Props) {
           backgroundSize: 'cover', backgroundPosition: 'center',
           opacity: 0.18,
         }} />
-        <div className="max-w-content mx-auto px-8" style={{ position: 'relative', zIndex: 1, paddingTop: '3rem' }}>
+        <div className="container-max mx-auto px-8" style={{ position: 'relative', zIndex: 1, paddingTop: '3rem' }}>
           {/* Breadcrumb */}
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: '1.25rem' }}>
             <Link href="/jobs" style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>Careers</Link>
@@ -68,6 +68,9 @@ export default async function ApplyPage({ params }: Props) {
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Building2 size={15} aria-hidden="true" /> {j.department}</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {j.employment_type?.replace(/_/g, ' ')}</span>
             {j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {j.target_count} {j.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
+            {!j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> Open positions</span>}
+            {j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+            {!j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> No deadline</span>}
           </div>
         </div>
       </div>

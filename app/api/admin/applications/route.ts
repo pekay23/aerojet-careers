@@ -57,13 +57,18 @@ export async function PATCH(req: NextRequest) {
     if (error) throw error
 
     if (updates.status && current && updates.status !== current.status) {
+      const { data: adminRow } = await supabaseAdmin
+        .from('admin_users')
+        .select('id')
+        .eq('auth_user_id', auth.user.id)
+        .maybeSingle()
       await supabaseAdmin.from('pipeline_events').insert({
         application_id: id,
         event_type:     'status_change',
         from_status:    current.status,
         to_status:      updates.status,
         note:           `Status changed from ${current.status} to ${updates.status}`,
-        admin_user_id:  auth.user.id
+        admin_user_id:  adminRow?.id
       })
     }
 

@@ -139,6 +139,7 @@
   --col-narrow: 720px;
   --col-default: 880px;
   --col-wide: 1080px;
+  --col-max: 1280px;
 
   /* ── Typography ────────────────────────────────────────────────────────── */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
@@ -254,20 +255,10 @@ body {
 }
 
 /* ── Links ──────────────────────────────────────────────────────────────── */
-a {
-  color: var(--aero-sky);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 120ms, color 120ms;
-}
-
-/* Underline/darken on hover for content links only — never for button-style
-   anchors (`.btn`, `.btn-white`, `.btn-secondary`, …), which otherwise get a
-   stray colored line painted across their bottom edge on hover. */
-a:not([class*="btn"]):hover {
-  border-bottom-color: currentColor;
-  color: var(--aero-soft-blue);
-}
+/* Note: `a` color rules live in @layer base in globals.css — NOT here as bare
+   rules — because bare rules outside @layer have higher cascade priority than
+   Tailwind utility classes (text-white, text-aero-blue, etc.) and would
+   prevent them from working. */
 
 
 /* ── Form element base styles ──────────────────────────────────────────── */

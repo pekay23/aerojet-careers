@@ -1,197 +1,128 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { FaBars, FaTimes } from 'react-icons/fa'
-import Image from 'next/image'
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { usePathname } from 'next/navigation';
+import { MAIN_SITE, CAREERS_INTERNAL_LINKS } from '@/lib/domain-config';
 
-const MAIN_SITE = 'https://www.aerojet-aviation.com'
-
-const NAV_LINKS = [
-  { href: MAIN_SITE, label: 'Home' },
-  { href: `${MAIN_SITE}/planned-capabilities`, label: 'Planned Capabilities' },
-  { href: `${MAIN_SITE}/consultancy`, label: 'Consultancy' },
-  { href: `${MAIN_SITE}/training`, label: 'Training' },
-  { href: `${MAIN_SITE}/accra-mro`, label: 'Accra MRO' },
-  { href: `${MAIN_SITE}/newsroom`, label: 'Newsroom' },
-  { href: '/', label: 'Careers', internal: true },
-  { href: `${MAIN_SITE}/contact`, label: 'Contact' },
-]
-
-
-export default function SiteNav({ activePath = '' }: { activePath?: string }) {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+export default function SiteNav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const underlineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const linkColor = scrolled ? 'var(--aero-blue)' : 'white'
-  const activeLinkColor = scrolled ? 'var(--aero-sky)' : 'var(--aero-sky)'
-  const mobileLinkColor = scrolled ? 'var(--foreground)' : 'white'
+  const handleMouseEnter = (index: number) => {
+    const el = underlineRefs.current[index];
+    if (el) el.style.transform = 'scaleX(1)';
+  };
+
+  const handleMouseLeave = (index: number) => {
+    const el = underlineRefs.current[index];
+    if (el) el.style.transform = 'scaleX(0)';
+  };
+
+  const menuItems: Array<{ name: string; href: string; external?: boolean }> = [
+    { name: 'Home', href: '/' },
+    ...CAREERS_INTERNAL_LINKS,
+    { name: 'Newsroom', href: `${MAIN_SITE}/newsroom`, external: true },
+    { name: 'Contact', href: `${MAIN_SITE}/contact`, external: true },
+  ];
+
+  const linkColor = scrolled ? 'text-aero-blue' : 'text-white';
+  const hoverColor = 'hover:text-aero-accent';
 
   return (
-    <nav
-      style={{
-        background: scrolled ? 'rgba(255,255,255,0.98)' : 'transparent',
-        boxShadow: scrolled ? 'var(--shadow-md)' : 'none',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: 1000,
-        transition: 'background 0.3s ease, box-shadow 0.3s ease',
-        backdropFilter: scrolled ? 'blur(10px)' : 'none',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 'var(--container-wide)',
-          margin: '0 auto',
-          padding: '0 1.5rem',
-          height: 70,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Logo pinned to the far left (matches aerojet-aviation navbar). */}
-        <Link
-          href={MAIN_SITE}
-          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
-        >
+    <nav className={`site-nav fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      scrolled ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
+    }`}>
+      <div className="mx-auto px-6 flex justify-between items-center">
 
-
-          <div style={{ position: 'relative', height: 40, width: 160 }}>
-            <Image
-              src={scrolled ? "/logos/logo-navbar.png" : "/logos/aerojetaviationlogonoBG.png"}
-              alt="Aerojet Aviation"
-              fill
-              sizes="160px"
-              style={{ objectFit: 'contain', objectPosition: 'left' }}
-              priority
-            />
-          </div>
+        {/* Logo — transparent version when over hero, dark version when scrolled */}
+        <Link href="/" className="relative h-10 w-40">
+          <Image
+            src={scrolled ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
+            alt="Aerojet Aviation"
+            fill
+            sizes="160px"
+            className="object-contain object-left"
+            priority
+          />
         </Link>
 
-        <ul
-          style={{
-            listStyle: 'none',
-            margin: 0,
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1.5rem',
-          }}
-          className="desktop-nav"
-        >
-          {NAV_LINKS.map((link) => {
-            const isActive = link.internal
-              ? activePath === link.href ||
-                activePath.startsWith('/jobs') ||
-                activePath.startsWith('/apply') ||
-                activePath.startsWith('/register') ||
-                activePath.startsWith('/graduate-program') ||
-                activePath.startsWith('/skilled-training')
-              : false
-
-            const style = {
-              textDecoration: 'none',
-              fontSize: '0.95rem',
-              fontWeight: 500,
-              color: isActive ? activeLinkColor : linkColor,
-              transition: 'color 0.2s ease',
-            }
-
-            return (
-              <li key={link.href}>
-                {link.internal ? (
-                  <Link href={link.href} style={style}>
-                    {link.label}
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-10">
+            <div className="flex justify-center items-center gap-7 flex-1">
+              {menuItems.map((item, index) => (
+                <div key={item.name} className="relative">
+                  <Link
+                    href={item.href}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noopener noreferrer' : undefined}
+                    className={`font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
+                    onMouseEnter={() => handleMouseEnter(index)}
+                    onMouseLeave={() => handleMouseLeave(index)}
+                  >
+                    {item.name}
                   </Link>
-                ) : (
-                  <a href={link.href} style={style}>
-                    {link.label}
-                  </a>
-                )}
-              </li>
-            )
-          })}
-        </ul>
+                {/* Animated underline */}
+                <div
+                  ref={(el) => { underlineRefs.current[index] = el; }}
+                  className="absolute -bottom-1 left-0 h-0.5 bg-aero-accent origin-left scale-x-0"
+                  style={{ width: '100%' }}
+                />
+              </div>
+            ))}
+          </div>
 
+          <Link
+            href="/jobs"
+            className="btn-primary text-sm py-2 px-6 tracking-widest"
+          >
+            View All Jobs
+          </Link>
+        </div>
+
+        {/* Mobile Toggle */}
         <button
-          onClick={() => setOpen(!open)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          aria-controls="mobile-nav-menu"
-          className="mobile-nav-toggle"
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            color: linkColor,
-            cursor: 'pointer',
-            display: 'none',
-          }}
+          className={`lg:hidden text-2xl ${linkColor}`}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          {open ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
+          {mobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 
-      {open && (
-        <div
-          id="mobile-nav-menu"
-          className="mobile-nav-menu"
-
-          style={{
-            borderTop: `1px solid ${scrolled ? 'var(--border)' : 'rgba(255,255,255,0.2)'}`,
-            background: scrolled ? 'var(--background)' : 'var(--aero-blue)',
-            padding: '1rem 2rem',
-            animation: 'slideDown 0.3s ease',
-          }}
-        >
-          <style jsx>{`
-            @keyframes slideDown {
-              from { opacity: 0; transform: translateY(-10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-          `}</style>
-          <ul
-            style={{
-              listStyle: 'none',
-              margin: 0,
-              padding: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.9rem',
-            }}
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+         <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden">
+          {menuItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
+               className={`font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+          <Link
+            href="/jobs"
+            className="btn-primary text-white text-sm py-3 px-10 tracking-widest"
+            onClick={() => setMobileMenuOpen(false)}
           >
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                {link.internal ? (
-                  <Link
-                    href={link.href}
-                    style={{ textDecoration: 'none', color: mobileLinkColor, fontSize: '0.95rem' }}
-                    onClick={() => setOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                ) : (
-                  <a
-                    href={link.href}
-                    style={{ textDecoration: 'none', color: mobileLinkColor, fontSize: '0.95rem' }}
-                  >
-                    {link.label}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
+            View All Jobs
+          </Link>
         </div>
       )}
     </nav>
-  )
+  );
 }

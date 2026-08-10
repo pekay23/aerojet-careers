@@ -16,6 +16,16 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- ── Refresh token store (for session refresh flow) ─────────────
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  token         TEXT PRIMARY KEY,
+  auth_user_id  UUID NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+  expires_at    TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user   ON refresh_tokens(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires ON refresh_tokens(expires_at);
+
 -- ── Enums (guarded so re-runs don't fail) ─────────────────────
 DO $$ BEGIN
   CREATE TYPE application_status AS ENUM (
@@ -272,6 +282,7 @@ CREATE TABLE IF NOT EXISTS branding_config (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_branding_config_key ON branding_config(key);
 INSERT INTO branding_config (key, value) VALUES
   ('org_name',         'Aerojet Aviation'),
   ('careers_url',      'careers.aerojet-aviation.com'),
@@ -344,6 +355,7 @@ CREATE TABLE IF NOT EXISTS system_settings (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_system_settings_key ON system_settings(setting_key);
 INSERT INTO system_settings (setting_key, setting_value) VALUES
   ('company_name', 'Aerojet Aviation Group'),
   ('portal_status', 'Operational'),
@@ -355,11 +367,13 @@ ON CONFLICT (setting_key) DO NOTHING;
 CREATE TABLE IF NOT EXISTS departments (
   id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name            TEXT NOT NULL,
-  code            TEXT,
+  code            TEXT UNIQUE,
   manager_id      UUID REFERENCES admin_users(id),
   current_budget  NUMERIC(14,2),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_departments_code ON departments(code);
 
 CREATE TABLE IF NOT EXISTS department_budget_history (
   id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -370,6 +384,17 @@ CREATE TABLE IF NOT EXISTS department_budget_history (
   created_by    UUID REFERENCES auth_users(id),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Seed departments matching the seeded job postings
+INSERT INTO departments (name, code, current_budget) VALUES
+  ('Engineering',   'ENG',  0),
+  ('Quality',       'QUAL', 0),
+  ('Operations',    'OPS',  0),
+  ('IT',            'IT',   0),
+  ('HR',            'HR',   0),
+  ('Sales',         'SAL',  0),
+  ('Logistics',     'LOG',  0)
+ON CONFLICT (code) DO NOTHING;
 
 -- ── dashboard_snapshots (migration 006) ───────────────────────
 CREATE TABLE IF NOT EXISTS dashboard_snapshots (
@@ -396,6 +421,7 @@ CREATE TABLE IF NOT EXISTS employment_types (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_job_categories_value ON job_categories(value);
 INSERT INTO job_categories (value, label) VALUES
   ('experienced_professional', 'Experienced Professional'),
   ('graduate_program', 'Graduate Program'),
@@ -403,6 +429,7 @@ INSERT INTO job_categories (value, label) VALUES
   ('general_application', 'General Application')
 ON CONFLICT (value) DO NOTHING;
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_employment_types_value ON employment_types(value);
 INSERT INTO employment_types (value, label) VALUES
   ('full_time', 'Full Time'),
   ('part_time', 'Part Time'),
@@ -513,24 +540,72 @@ DO $$ BEGIN
     FOR EACH ROW EXECUTE FUNCTION log_status_change();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- ── Seed: initial job postings (only if jobs table is empty) ──
-INSERT INTO jobs (title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at)
+-- ── Seed: upsert job postings (update existing, insert new) ──────────
+-- Uses temp table + UPDATE/INSERT to avoid requiring ON CONFLICT
+-- (which needs a unique constraint that may not exist on legacy data).
+-- 5 core positions seeded as 'open' (publicly visible).
+-- All others are 'draft' (hidden from candidates).
+-- Existing jobs are updated by slug (preserving their IDs and ref_codes).
+
+CREATE TEMP TABLE seed_jobs AS
 SELECT * FROM (VALUES
-  ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional'::job_category, 'full_time'::employment_type, 'open'::job_status,  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2025-12-31'::date),
+  ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional', 'full_time', 'open',  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2025-12-31'::date),
   ('Aircraft Mechanics (AME)',            'aircraft-mechanics',              'Engineering', 'experienced_professional', 'full_time', 'open',  15, 'Experienced aircraft maintenance engineers for line and base maintenance operations.',            ARRAY['Line Maintenance','A-Checks','Defect Rectification'],                           '2025-12-31'),
-  ('Engine Technicians',                  'engine-technicians',              'Engineering', 'experienced_professional', 'full_time', 'open',   8, 'Powerplant technicians with CFM56, CFM LEAP or GE90 experience.',                                ARRAY['CFM56','CFM LEAP','GE90','Powerplant'],                                         '2025-12-31'),
-  ('Avionics & Electrical Engineers',     'avionics-engineers',              'Engineering', 'experienced_professional', 'full_time', 'open',   6, 'EASA B2 licensed avionics and electrical systems engineers.',                                     ARRAY['EASA B2','Avionics','IFE','Navigation Systems'],                                '2025-12-31'),
-  ('Structures, Skins & Composites',      'composites-technicians',          'Engineering', 'experienced_professional', 'full_time', 'open',   4, 'Structural repair and composites technicians with NDT experience.',                               ARRAY['NDT','Composite Repair','Structural Repair'],                                   '2025-12-31'),
-  ('Quality Assurance Engineers',         'quality-assurance-engineers',     'Quality',     'experienced_professional', 'full_time', 'open',   3, 'QA engineers to develop and maintain our EASA Part-145 quality management system.',              ARRAY['EASA Part-145','QA','Compliance','Auditing'],                                   '2025-12-31'),
-  ('Ground Handling & Marshalling',       'ground-handling-operatives',      'Operations',  'experienced_professional', 'full_time', 'open',  10, 'Ramp operatives for aircraft ground handling, marshalling and airside operations.',              ARRAY['Ramp Operations','Aircraft Marshalling','Ground Safety','IATA DG'],             '2025-12-31'),
-  ('MRO Operations Manager',              'mro-operations-manager',          'Operations',  'experienced_professional', 'full_time', 'open',   1, 'Senior operations manager to lead MRO planning, production control and capacity management.',   ARRAY['MRO Operations','CAMO','Production Planning'],                                  '2025-11-30'),
-  ('IT Systems & Aviation Software Eng.', 'it-systems-engineer',             'IT',          'experienced_professional', 'full_time', 'open',   2, 'Engineer to deploy and administer AMOS/TRAX and core IT infrastructure.',                      ARRAY['AMOS','TRAX','Aviation IT','ERP'],                                              '2025-11-30'),
-  ('HR Business Partner',                 'hr-business-partner',             'HR',          'experienced_professional', 'full_time', 'open',   1, 'Senior HRBP to build HR capability and support the MRO facility launch team.',                  ARRAY['HR Strategy','Talent Acquisition','Employment Law'],                            '2025-11-30'),
-  ('Commercial & Sales Manager',          'commercial-sales-manager',        'Sales',       'experienced_professional', 'full_time', 'open',   1, 'Commercial manager to develop airline contracts and business development for MRO services.',    ARRAY['MRO Commercial','Airline Contracts','Business Development'],                    '2025-11-30'),
-  ('Parts & Logistics Coordinator',       'parts-logistics-coordinator',     'Logistics',   'experienced_professional', 'full_time', 'open',   3, 'Aviation supply chain and parts coordinator for AOG and scheduled maintenance.',               ARRAY['AOG Parts','Supply Chain','Customs','Air Freight'],                             '2025-12-31'),
-  ('Graduate Engineer Program',           'graduate-engineer-program',       'Engineering', 'graduate_program',         'full_time', 'open',   5, 'Structured 24-month graduate programme with pathway to EASA/GCAA AME Licence.',               ARRAY['Graduate','AME Pathway','Mentorship','Rotational'],                             '2025-10-01'),
-  ('Graduate Operations Analyst',         'graduate-operations-analyst',     'Operations',  'graduate_program',         'full_time', 'open',   3, 'Graduate placement in MRO operations, production control and regulatory compliance.',          ARRAY['Graduate','Operations','MRO Planning'],                                         '2025-10-01'),
-  ('Trainee Aircraft Mechanics',          'trainee-aircraft-mechanics',      'Engineering', 'skilled_training',         'trainee',   'open',  10, 'Apprentice aircraft mechanics programme with Category A licence pathway.',                      ARRAY['Trainee','Cat A Pathway','Line Maintenance','Apprenticeship'],                  '2025-10-01'),
-  ('Ground Handling Trainees',            'trainee-ground-handling',         'Operations',  'skilled_training',         'trainee',   'open',  10, 'Entry-level ramp operative training with IATA Dangerous Goods certification included.',         ARRAY['Trainee','IATA DG','Ramp Operations','Entry Level'],                            '2025-10-01')
-) AS seed
-WHERE NOT EXISTS (SELECT 1 FROM jobs);
+  ('Avionics Technicians',                'avionics-technicians',            'Engineering', 'experienced_professional', 'full_time', 'open',   6, 'EASA B2 licensed avionics and electrical systems engineers.',                                     ARRAY['EASA B2','Avionics','IFE','Navigation Systems'],                                '2025-12-31'),
+  ('Quality Compliance Officer/Supervisor','quality-compliance-supervisor',  'Quality',     'experienced_professional', 'full_time', 'open',   3, 'QA engineers to develop and maintain our EASA Part-145 quality management system.',              ARRAY['EASA Part-145','QA','Compliance','Auditing'],                                   '2025-12-31'),
+  ('Quality Manager',                     'quality-manager',                 'Quality',     'experienced_professional', 'full_time', 'open',   1, 'Head of Quality to lead EASA Part-145 compliance, audits, and the QMS team.',                    ARRAY['EASA Part-145','Quality Management','Auditing','Compliance'],                    '2025-12-31'),
+  ('Engine Technicians',                  'engine-technicians',              'Engineering', 'experienced_professional', 'full_time', 'draft',  8, 'Powerplant technicians with CFM56, CFM LEAP or GE90 experience.',                                ARRAY['CFM56','CFM LEAP','GE90','Powerplant'],                                         NULL),
+  ('Structures, Skins & Composites',      'composites-technicians',          'Engineering', 'experienced_professional', 'full_time', 'draft',  4, 'Structural repair and composites technicians with NDT experience.',                               ARRAY['NDT','Composite Repair','Structural Repair'],                                   NULL),
+  ('Ground Handling & Marshalling',       'ground-handling-operatives',      'Operations',  'experienced_professional', 'full_time', 'draft', 10, 'Ramp operatives for aircraft ground handling, marshalling and airside operations.',              ARRAY['Ramp Operations','Aircraft Marshalling','Ground Safety','IATA DG'],             NULL),
+  ('MRO Operations Manager',              'mro-operations-manager',          'Operations',  'experienced_professional', 'full_time', 'draft',  1, 'Senior operations manager to lead MRO planning, production control and capacity management.',   ARRAY['MRO Operations','CAMO','Production Planning'],                                  NULL),
+  ('IT Systems & Aviation Software Eng.', 'it-systems-engineer',             'IT',          'experienced_professional', 'full_time', 'draft',  2, 'Engineer to deploy and administer AMOS/TRAX and core IT infrastructure.',                      ARRAY['AMOS','TRAX','Aviation IT','ERP'],                                              NULL),
+  ('HR Business Partner',                 'hr-business-partner',             'HR',          'experienced_professional', 'full_time', 'draft',  1, 'Senior HRBP to build HR capability and support the MRO facility launch team.',                  ARRAY['HR Strategy','Talent Acquisition','Employment Law'],                            NULL),
+  ('Commercial & Sales Manager',          'commercial-sales-manager',        'Sales',       'experienced_professional', 'full_time', 'draft',  1, 'Commercial manager to develop airline contracts and business development for MRO services.',    ARRAY['MRO Commercial','Airline Contracts','Business Development'],                    NULL),
+  ('Parts & Logistics Coordinator',       'parts-logistics-coordinator',     'Logistics',   'experienced_professional', 'full_time', 'draft',  3, 'Aviation supply chain and parts coordinator for AOG and scheduled maintenance.',               ARRAY['AOG Parts','Supply Chain','Customs','Air Freight'],                             NULL),
+  ('Graduate Engineer Program',           'graduate-engineer-program',       'Engineering', 'graduate_program',         'full_time', 'draft',  5, 'Structured 24-month graduate programme with pathway to EASA/GCAA AME Licence.',               ARRAY['Graduate','AME Pathway','Mentorship','Rotational'],                             NULL),
+  ('Graduate Operations Analyst',         'graduate-operations-analyst',     'Operations',  'graduate_program',         'full_time', 'draft',  3, 'Graduate placement in MRO operations, production control and regulatory compliance.',          ARRAY['Graduate','Operations','MRO Planning'],                                         NULL),
+  ('Trainee Aircraft Mechanics',          'trainee-aircraft-mechanics',      'Engineering', 'skilled_training',         'trainee',   'draft', 10, 'Apprentice aircraft mechanics programme with Category A licence pathway.',                      ARRAY['Trainee','Cat A Pathway','Line Maintenance','Apprenticeship'],                  NULL),
+  ('Ground Handling Trainees',            'trainee-ground-handling',         'Operations',  'skilled_training',         'trainee',   'draft', 10, 'Entry-level ramp operative training with IATA Dangerous Goods certification included.',         ARRAY['Trainee','IATA DG','Ramp Operations','Entry Level'],                            NULL)
+) AS v(title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at);
+
+-- Update existing seed jobs (preserves IDs and ref_codes)
+UPDATE jobs SET
+  title = s.title,
+  department = s.department,
+  category = s.category::job_category,
+  employment_type = s.employment_type::employment_type,
+  status = s.status::job_status,
+  target_count = s.target_count,
+  summary = s.summary,
+  tags = s.tags,
+  closes_at = s.closes_at,
+  updated_at = NOW()
+FROM seed_jobs s
+WHERE jobs.slug = s.slug;
+
+-- Insert new seed jobs (those that don't exist yet)
+INSERT INTO jobs (title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at)
+SELECT s.title, s.slug, s.department, s.category::job_category, s.employment_type::employment_type, s.status::job_status, s.target_count, s.summary, s.tags, s.closes_at
+FROM seed_jobs s
+WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE slug = s.slug);
+
+DROP TABLE seed_jobs;
+
+-- ── Indexes (performance) ─────────────────────────────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_jobs_department    ON jobs(department);
+CREATE INDEX IF NOT EXISTS idx_jobs_status        ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_slug          ON jobs(slug);
+CREATE INDEX IF NOT EXISTS idx_admin_users_role   ON admin_users(role);
+CREATE INDEX IF NOT EXISTS idx_admin_users_auth   ON admin_users(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_pipeline_events_type  ON pipeline_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_pipeline_events_admin ON pipeline_events(admin_user_id);
+CREATE INDEX IF NOT EXISTS idx_pipeline_events_app   ON pipeline_events(application_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auth_users_email   ON auth_users(LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_talent_pool_email  ON talent_pool(email);
+CREATE INDEX IF NOT EXISTS idx_apps_status        ON applications(status);
+CREATE INDEX IF NOT EXISTS idx_apps_job           ON applications(job_id);
+CREATE INDEX IF NOT EXISTS idx_apps_email         ON applications(email);
+CREATE INDEX IF NOT EXISTS idx_docs_app           ON application_documents(application_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_created_at   ON jobs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_apps_created_at   ON applications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_apps_deleted_at   ON applications(deleted_at) WHERE deleted_at IS NULL;

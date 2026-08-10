@@ -1,10 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Briefcase } from 'lucide-react'
+import type { Job } from '@/types'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Briefcase } from 'lucide-react'
-import type { Job } from '@/types'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { toast } from '@/lib/toast'
 
 
 // Metadata state
@@ -17,7 +19,7 @@ type Metadata = {
 const EMPTY_JOB = {
   title: '', ref_code: '', department: '', category: 'experienced_professional',
   employment_type: 'full_time', location: '',
-  status: 'draft', target_count: '', closes_at: '',
+  status: 'draft', target_count: '', closes_at: '', indefinite_deadline: false, open_positions: false,
   summary: '', responsibilities: '', requirements: '', what_we_offer: '',
   tags: '',
 }
@@ -31,14 +33,58 @@ export default function JobsAdminPage() {
   const [statusF, setStatusF] = useState('')
   const [meta,    setMeta]    = useState<Metadata>({ departments: [], categories: [], employment_types: [] })
   const [baseLoc, setBaseLoc] = useState('Accra Base, GH')
+  const [newDeptName, setNewDeptName] = useState('')
+  const [creatingDept, setCreatingDept] = useState(false)
+  const [pageInfo, setPageInfo] = useState<{ total: number; page: number; limit: number }>({ total: 0, page: 1, limit: 50 })
+  const [sortCol, setSortCol] = useState('created_at')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmConfig, setConfirmConfig] = useState<{
+    title: string
+    description?: string
+    confirmLabel?: string
+    variant?: 'danger' | 'default'
+    onConfirm: () => void
+  } | null>(null)
 
-  const load = async () => {
+  const openConfirm = (config: {
+    title: string
+    description?: string
+    confirmLabel?: string
+    variant?: 'danger' | 'default'
+    onConfirm: () => void
+  }) => {
+    setConfirmConfig(config)
+    setConfirmOpen(true)
+  }
+  const closeConfirm = () => {
+    setConfirmOpen(false)
+    setConfirmConfig(null)
+  }
+
+  const load = async (pg: number = pageInfo.page) => {
     setLoading(true)
-    const url = statusF ? `/api/admin/jobs?status=${statusF}` : '/api/admin/jobs'
-    const r   = await fetch(url)
-    const d   = await r.json()
-    setJobs(d.data || [])
+    const params = new URLSearchParams({ page: String(pg), limit: '50', sort: sortCol, dir: sortDir })
+    if (statusF) params.set('status', statusF)
+    const r = await fetch(`/api/admin/jobs?${params}`)
+    const d = await r.json()
+    if (d.data?.data) {
+      setJobs(d.data.data)
+      setPageInfo({ total: d.data.total || 0, page: d.data.page || 1, limit: d.data.limit || 50 })
+    } else {
+      setJobs(d.data || [])
+    }
     setLoading(false)
+  }
+
+  const setSort = (col: string) => {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(col)
+      setSortDir('asc')
+    }
   }
 
   const loadMetadata = async () => {
@@ -56,9 +102,16 @@ export default function JobsAdminPage() {
     }
   }
 
-  useEffect(() => { 
-    load()
+  useEffect(() => {
+    load(1)
     loadMetadata()
+
+    const checkRole = async () => {
+      const r = await fetch('/api/auth/me')
+      const { admin } = await r.json()
+      if (admin) setUserRole(admin.role)
+    }
+    checkRole()
     
     // Auto-open modal if navigating from dashboard
     if (typeof window !== 'undefined' && window.location.search.includes('action=new')) {
@@ -66,71 +119,191 @@ export default function JobsAdminPage() {
          // Clear URL so it doesn't pop open again on saves
          window.history.replaceState({}, document.title, '/admin/jobs')
          setModal('new')
-         setForm({ ...EMPTY_JOB, location: 'Accra Base, GH' })
+          setForm({ ...EMPTY_JOB, location: baseLoc })
+          setPageInfo(p => ({ ...p, page: 1 }))
        }, 500)
     }
-  }, [statusF]) // eslint-disable-line
+  }, [statusF, sortCol, sortDir, userRole]) // eslint-disable-line
 
   const sf = (k: string) => (v: any) => setForm(f => ({ ...f, [k]: v }))
 
   const openNew  = () => { 
     setForm({ ...EMPTY_JOB, location: baseLoc })
-    setModal('new') 
+    setModal('new')
+    setPageInfo(p => ({ ...p, page: 1 }))
   }
   const openEdit = (j: Job) => {
+    setNewDeptName('')
     setForm({
       ...j,
       tags: (j.tags || []).join(', '),
       target_count: j.target_count || '',
-      // Normalize to YYYY-MM-DD so the <input type="date"> accepts it.
       closes_at: j.closes_at ? new Date(j.closes_at).toISOString().slice(0, 10) : '',
+      indefinite_deadline: !j.closes_at,
+      open_positions: !j.target_count,
     })
     setModal('edit')
   }
 
   const save = async (publishNow?: boolean) => {
+    if (form.department === '__add_new__') {
+      toast.error('Please select or create a department before saving.')
+      return
+    }
     if (!form.title?.trim() || !form.department) {
-      alert('Title and department are required.'); return
+      toast.error('Title and department are required.')
+      return
     }
     setSaving(true)
     const payload = {
-      ...form,
-      tags:         (form.tags || '').split(',').map((t: string) => t.trim()).filter(Boolean),
-      target_count: form.target_count ? Number(form.target_count) : null,
-      status:       publishNow ? 'open' : form.status || 'draft',
+      title: form.title.trim(),
+      ref_code: form.ref_code || undefined,
+      department: form.department,
+      category: form.category,
+      employment_type: form.employment_type,
+      location: form.location,
+      status: publishNow ? 'open' : form.status || 'draft',
+      target_count: form.open_positions ? null : (form.target_count ? Number(form.target_count) : null),
+      closes_at: form.indefinite_deadline ? null : (form.closes_at || null),
+      summary: form.summary || null,
+      responsibilities: form.responsibilities || null,
+      requirements: form.requirements || null,
+      what_we_offer: form.what_we_offer || null,
+      tags: (form.tags || '').split(',').map((t: string) => t.trim()).filter(Boolean),
     }
     const method = modal === 'edit' ? 'PATCH' : 'POST'
-    await fetch('/api/admin/jobs', {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    setSaving(false)
-    setModal(null)
-    load()
+    try {
+      const res = await fetch('/api/admin/jobs', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const d = await res.json()
+       if (!res.ok) {
+        toast.error(d.error || 'Failed to save job posting.')
+      } else {
+        setModal(null)
+        setPageInfo(p => ({ ...p, page: 1 }))
+        load(1)
+        toast.success(publishNow ? 'Job published' : 'Job saved as draft')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Network error — could not save job posting.')
+    } finally {
+      setSaving(false)
+    }
   }
-  const toggleStatus = async (j: Job) => {
-    const newStatus = j.status === 'open' ? 'closed' : 'open'
-    await fetch('/api/admin/jobs', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: j.id, status: newStatus }),
+
+  const handleCreateDept = async () => {
+    if (!newDeptName.trim()) return
+    setCreatingDept(true)
+    try {
+      const res = await fetch('/api/admin/departments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newDeptName.trim() }),
+      })
+      const d = await res.json()
+      if (!res.ok) {
+        toast.error(d.error || 'Could not create department.')
+      } else {
+        setMeta((m) => ({
+          ...m,
+          departments: [...m.departments, d.data],
+        }))
+        sf('department')(newDeptName.trim())
+        setNewDeptName('')
+        toast.success('Department created')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Network error — could not create department.')
+    } finally {
+      setCreatingDept(false)
+    }
+  }
+
+  const cancelNewDept = () => {
+    setNewDeptName('')
+  }
+
+  const toggleVisibility = async (j: Job) => {
+    const newStatus = j.status === 'open' ? 'draft' : 'open'
+    const action = newStatus === 'open' ? 'publish' : 'unpublish'
+    openConfirm({
+      title: `${action === 'publish' ? 'Publish' : 'Unpublish'} job posting?`,
+      description: `"${j.title}" will be ${newStatus === 'open' ? 'visible on the careers page' : 'hidden from the careers page'}.`,
+      confirmLabel: newStatus === 'open' ? 'Publish' : 'Hide',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/admin/jobs', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: j.id, status: newStatus }),
+          })
+          if (!res.ok) {
+            const d = await res.json()
+            toast.error(d.error || 'Failed to update visibility')
+          } else {
+            toast.success(`Job ${newStatus === 'open' ? 'published' : 'moved to draft'}`)
+            load()
+          }
+        } catch (err: any) {
+          toast.error(err.message || 'Network error')
+        }
+      },
     })
-    load()
+  }
+
+  const toggleStatus = async (j: Job) => {
+    const statuses = ['draft', 'open', 'paused', 'closed', 'filled']
+    const idx = statuses.indexOf(j.status)
+    const newStatus = statuses[(idx + 1) % statuses.length]
+      openConfirm({
+      title: `Change status to ${newStatus}?`,
+      description: `"${j.title}" will move from "${j.status}" to "${newStatus}".`,
+      confirmLabel: 'Update',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/admin/jobs', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: j.id, status: newStatus }),
+          })
+          if (!res.ok) {
+            const d = await res.json()
+            toast.error(d.error || 'Failed to update status')
+          } else {
+            toast.success(`Status changed to ${newStatus}`)
+            load()
+          }
+        } catch (err: any) {
+          toast.error(err.message || 'Network error')
+        }
+      },
+    })
   }
 
   const handleDelete = async (j: Job) => {
-    if (!confirm(`Are you sure you want to delete "${j.title}"?`)) return
-    
-    setSaving(true)
-    const res = await fetch(`/api/admin/jobs?id=${j.id}`, { method: 'DELETE' })
-    if (res.ok) {
-      load()
-    } else {
-      const d = await res.json()
-      alert(d.error || 'Failed to delete job')
-    }
-    setSaving(false)
+    openConfirm({
+      title: 'Delete job posting?',
+      description: `"${j.title}" will be permanently removed and no longer visible.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/jobs?id=${j.id}`, { method: 'DELETE' })
+          if (res.ok) {
+            toast.success('Job posting deleted')
+            load()
+          } else {
+            const d = await res.json()
+            toast.error(d.error || 'Failed to delete job')
+          }
+        } catch (err: any) {
+          toast.error(err.message || 'Network error')
+        }
+      },
+    })
   }
 
   return (
@@ -139,7 +312,7 @@ export default function JobsAdminPage() {
         {/* Toolbar */}
         <div className="px-4 lg:px-8 py-4 lg:py-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center">
           <div className="flex items-center gap-3">
-            <select value={statusF} onChange={e => setStatusF(e.target.value)} className="admin-input text-xs uppercase tracking-widest cursor-pointer appearance-none min-w-[160px]">
+            <select value={statusF} onChange={e => setStatusF(e.target.value)} className="admin-input text-xs uppercase tracking-widest cursor-pointer appearance-none min-w-40">
               <option value="">All statuses</option>
               {['open','draft','closed','paused','filled'].map(s => <option key={s}>{s}</option>)}
             </select>
@@ -147,8 +320,29 @@ export default function JobsAdminPage() {
           
           <div className="md:ml-auto flex items-center gap-6">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-               {jobs.length} posting{jobs.length !== 1 ? 's' : ''}
+               {pageInfo.total > 0 ? `${(pageInfo.page - 1) * pageInfo.limit + 1}-${Math.min(pageInfo.page * pageInfo.limit, pageInfo.total)} of ${pageInfo.total}` : `${jobs.length} posting${jobs.length !== 1 ? 's' : ''}`}
             </span>
+            {pageInfo.total > pageInfo.limit && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => load(pageInfo.page - 1)}
+                  disabled={pageInfo.page <= 1}
+                  className="px-3 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
+                >
+                  Prev
+                </button>
+                <span className="text-[10px] font-bold text-slate-400">
+                  {pageInfo.page} / {Math.ceil(pageInfo.total / pageInfo.limit)}
+                </span>
+                <button
+                  onClick={() => load(pageInfo.page + 1)}
+                  disabled={pageInfo.page >= Math.ceil(pageInfo.total / pageInfo.limit)}
+                  className="px-3 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
+                >
+                  Next
+                </button>
+              </div>
+            )}
             <button 
               onClick={openNew} 
               className="px-6 py-2.5 bg-slate-900 hover:bg-black text-white rounded-lg text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-black/10 hover:-translate-y-0.5"
@@ -172,13 +366,27 @@ export default function JobsAdminPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/50">
-                  {['Job Title','Department','Category','Vacancies','Status','Created','Actions'].map(h => (
-                    <th key={h} className="px-4 lg:px-8 py-3 lg:py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
+                 <tr className="bg-slate-50/50">
+                   {['Job Title','Department','Category','Vacancies','Closes','Status','Created','Actions'].map(h => {
+                     const sortable = ['department','category','status','created_at'].includes(h.toLowerCase())
+                     const colKey = h.toLowerCase().replace(/ /g,'_')
+                     return (
+                     <th 
+                       key={h} 
+                       className="px-4 lg:px-8 py-3 lg:py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100"
+                       onClick={sortable ? () => setSort(colKey) : undefined}
+                       style={sortable ? { cursor: 'pointer', userSelect: 'none' } : undefined}
+                     >
+                       <div className="flex items-center gap-1">
+                         {h}
+                         {sortable && sortCol === colKey && (
+                           <span className="text-blue-600">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                         )}
+                       </div>
+                     </th>
+                     )
+                   })}
+                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {jobs.map(j => (
@@ -186,44 +394,57 @@ export default function JobsAdminPage() {
                     <td className="px-4 lg:px-8 py-4 lg:py-5">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900 uppercase tracking-tight group-hover/row:text-blue-600 transition-colors">{j.title}</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{j.ref_code} · {j.location}</span>
-                        {j.closes_at && <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter mt-1">Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
-                      </div>
+                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{j.ref_code} · {j.location}</span>
+                       </div>
                     </td>
                     <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-600 uppercase tracking-tight">{j.department}</td>
                     <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-600 uppercase tracking-tight">
                        {meta.categories.find(c => c.value === j.category)?.label || j.category?.replace(/_/g, ' ')}
                     </td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-900">{j.target_count || '—'}</td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5"><StatusPill status={j.status} /></td>
+                     <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-900">{!j.target_count ? 'Open' : j.target_count}</td>
+                     <td className="px-4 lg:px-8 py-4 lg:py-5">
+                       {j.closes_at && <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter">Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+                       {!j.closes_at && <span className="text-[9px] font-bold text-sky-600 uppercase tracking-tighter">No deadline</span>}
+                     </td>
+                     <td className="px-4 lg:px-8 py-4 lg:py-5"><StatusPill status={j.status} /></td>
                     <td className="px-4 lg:px-8 py-4 lg:py-5">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         {new Date(j.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5">
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => openEdit(j)} 
-                          className="px-4 py-1.5 bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-blue-600 rounded-lg hover:border-blue-400 hover:text-blue-700 transition-all shadow-sm"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => toggleStatus(j)} 
-                          className="px-4 py-1.5 bg-slate-50 border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 rounded-lg hover:bg-slate-900 hover:text-white transition-all shadow-sm"
-                        >
-                          {j.status === 'open' ? 'Close' : 'Open'}
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(j)} 
-                          className="px-4 py-1.5 bg-red-50 border border-red-100 text-[10px] font-bold uppercase tracking-widest text-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                          title="Permanent Delete"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
+                     <td className="px-4 lg:px-8 py-4 lg:py-5">
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => openEdit(j)} 
+                            className="px-4 py-1.5 bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-blue-600 rounded-lg hover:border-blue-400 hover:text-blue-700 transition-all shadow-sm"
+                          >
+                            Edit
+                          </button>
+                          {(userRole === 'admin' || userRole === 'hr_manager') && (
+                            <>
+                          <button 
+                            onClick={() => toggleVisibility(j)} 
+                            className={`px-4 py-1.5 border rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'open' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white'}`}
+                            title={j.status === 'open' ? 'Hide from careers page' : 'Publish to careers page'}
+                          >
+                            {j.status === 'open' ? 'Published' : 'Draft'}
+                          </button>
+                          <button 
+                            onClick={() => toggleStatus(j)} 
+                            className="px-4 py-1.5 bg-slate-50 border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 rounded-lg hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                          >
+                            {j.status === 'open' ? 'Close' : j.status === 'closed' ? 'Reopen' : 'Cycle status'}
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(j)} 
+                            className="px-4 py-1.5 bg-red-50 border border-red-100 text-[10px] font-bold uppercase tracking-widest text-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                          >
+                            Delete
+                          </button>
+                            </>
+                          )}
+                        </div>
+                     </td>
                   </tr>
                 ))}
               </tbody>
@@ -237,7 +458,7 @@ export default function JobsAdminPage() {
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" 
-            onClick={() => !saving && setModal(null)} 
+             onClick={() => !saving && (setModal(null), setNewDeptName(''))}
           />
           <div className="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] font-medium">
             <div className="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -247,17 +468,17 @@ export default function JobsAdminPage() {
                 </h2>
                 <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.2em]">{modal === 'new' ? 'Draft Posting' : 'Reference: ' + (form.ref_code || 'N/A')}</p>
               </div>
-              <button 
-                onClick={() => setModal(null)} 
-                className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all"
+               <button 
+                 onClick={() => { setModal(null); setNewDeptName('') }} 
+                 className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>
-            </div>
-            
-            <div className="p-10 overflow-y-auto space-y-8">
+              </div>
+
+              <div className="p-10 overflow-y-auto space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Job title *</label>
@@ -267,13 +488,41 @@ export default function JobsAdminPage() {
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Reference Code</label>
                   <input value={form.ref_code ?? ''} onChange={e => sf('ref_code')(e.target.value)} placeholder="e.g. AERO-ENG-001" className="admin-input" />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Department *</label>
-                  <select value={form.department ?? ''} onChange={e => sf('department')(e.target.value)} className="admin-input appearance-none">
-                    <option value="">Select…</option>
-                    {meta.departments.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
-                  </select>
-                </div>
+                 <div className="space-y-1.5">
+                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Department *</label>
+                   <select value={form.department ?? ''} onChange={e => sf('department')(e.target.value)} className="admin-input appearance-none">
+                     <option value="">Select…</option>
+                     {meta.departments.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
+                     <option value="__add_new__">— Add new department —</option>
+                   </select>
+                   {form.department === '__add_new__' && (
+                     <div className="pt-2 space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            value={newDeptName}
+                            onChange={e => setNewDeptName(e.target.value)}
+                            placeholder="Department name"
+                            className="admin-input flex-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleCreateDept}
+                            disabled={creatingDept || !newDeptName.trim()}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all"
+                          >
+                            {creatingDept ? 'Adding…' : 'Add'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { cancelNewDept(); sf('department')('') }}
+                            className="px-4 py-2 bg-white border border-slate-200 text-slate-400 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-all"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                     </div>
+                   )}
+                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Category</label>
                   <select value={form.category} onChange={e => sf('category')(e.target.value)} className="admin-input appearance-none">
@@ -290,39 +539,65 @@ export default function JobsAdminPage() {
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Location</label>
                   <input value={form.location ?? ''} onChange={e => sf('location')(e.target.value)} className="admin-input" />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Number of vacancies</label>
-                  <input type="number" value={form.target_count ?? ''} onChange={e => sf('target_count')(e.target.value)} placeholder="e.g. 5" className="admin-input" min="1" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Closing date</label>
-                  <input type="date" value={form.closes_at ?? ''} onChange={e => sf('closes_at')(e.target.value)} className="admin-input" />
-                </div>
+                 <div className="space-y-1.5">
+                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Number of vacancies</label>
+                   {!form.open_positions ? (
+                     <input type="number" value={form.target_count ?? ''} onChange={e => sf('target_count')(e.target.value)} placeholder="e.g. 5" className="admin-input" min="1" />
+                   ) : (
+                     <div className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold text-slate-600">Open — unlimited positions</div>
+                   )}
+                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                     <input
+                       type="checkbox"
+                       checked={!!form.open_positions}
+                       onChange={e => { sf('open_positions')(e.target.checked); if (e.target.checked) sf('target_count')('') }}
+                       className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                     />
+                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Open positions (no fixed limit)</span>
+                   </label>
+                 </div>
+                 <div className="space-y-1.5">
+                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Closing date</label>
+                   {!form.indefinite_deadline ? (
+                     <input type="date" value={form.closes_at ?? ''} onChange={e => sf('closes_at')(e.target.value)} className="admin-input" />
+                   ) : (
+                     <div className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold text-slate-600">No deadline — open indefinitely</div>
+                   )}
+                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                     <input
+                       type="checkbox"
+                       checked={!!form.indefinite_deadline}
+                       onChange={e => { sf('indefinite_deadline')(e.target.checked); if (e.target.checked) sf('closes_at')('') }}
+                       className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                     />
+                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Indefinite — no application deadline</span>
+                   </label>
+                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Tags (comma-separated)</label>
                   <input value={form.tags ?? ''} onChange={e => sf('tags')(e.target.value)} placeholder="e.g. EASA Part-66, Boeing 737, AOG" className="admin-input" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Summary</label>
-                  <textarea value={form.summary ?? ''} onChange={e => sf('summary')(e.target.value)} className="admin-input admin-textarea min-h-[100px]" />
+                  <textarea value={form.summary ?? ''} onChange={e => sf('summary')(e.target.value)} className="admin-input admin-textarea min-h-25" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Key responsibilities</label>
-                  <textarea value={form.responsibilities ?? ''} onChange={e => sf('responsibilities')(e.target.value)} className="admin-input admin-textarea min-h-[120px]" placeholder="• Responsibility 1&#10;• Responsibility 2" />
+                  <textarea value={form.responsibilities ?? ''} onChange={e => sf('responsibilities')(e.target.value)} className="admin-input admin-textarea min-h-30" placeholder="• Responsibility 1&#10;• Responsibility 2" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Requirements</label>
-                  <textarea value={form.requirements ?? ''} onChange={e => sf('requirements')(e.target.value)} className="admin-input admin-textarea min-h-[120px]" placeholder="• Requirement 1&#10;• Requirement 2" />
+                  <textarea value={form.requirements ?? ''} onChange={e => sf('requirements')(e.target.value)} className="admin-input admin-textarea min-h-30" placeholder="• Requirement 1&#10;• Requirement 2" />
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">What we offer</label>
-                  <textarea value={form.what_we_offer ?? ''} onChange={e => sf('what_we_offer')(e.target.value)} className="admin-input admin-textarea min-h-[100px]" />
+                  <textarea value={form.what_we_offer ?? ''} onChange={e => sf('what_we_offer')(e.target.value)} className="admin-input admin-textarea min-h-25" />
                 </div>
               </div>
             </div>
             
             <div className="p-8 border-t border-slate-100 bg-slate-50 flex flex-wrap gap-4 justify-end shrink-0">
-               <button onClick={() => setModal(null)} className="px-8 py-3.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all">Cancel</button>
+                <button onClick={() => { setModal(null); setNewDeptName('') }} className="px-8 py-3.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all">Cancel</button>
               <button 
                 onClick={() => save(false)} 
                 disabled={saving} 
@@ -341,6 +616,16 @@ export default function JobsAdminPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={closeConfirm}
+        title={confirmConfig?.title || ''}
+        description={confirmConfig?.description}
+        confirmLabel={confirmConfig?.confirmLabel}
+        variant={confirmConfig?.variant || 'default'}
+        onConfirm={confirmConfig ? confirmConfig.onConfirm : () => {}}
+      />
     </AdminLayout>
   )
 }

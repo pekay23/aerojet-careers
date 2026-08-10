@@ -82,15 +82,27 @@ export async function GET(req: NextRequest) {
 
     let query = supabaseAdmin
       .from('staff_documents')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
 
     if (staffId) query = query.eq('staff_id', staffId)
     if (folderId) query = query.eq('folder_id', folderId)
 
-    const { data: documents, error } = await query
+    const p = new URL(req.url).searchParams
+    const page = Math.max(1, parseInt(p.get('page') || '1', 10))
+    const limit = Math.min(100, Math.max(1, parseInt(p.get('limit') || '50', 10)))
+    if (!staffId && !folderId) {
+      const from = (page - 1) * limit
+      const to = from + limit - 1
+      query = query.range(from, to)
+    }
+
+    const { data: documents, error, count } = await query
     if (error) throw error
 
+    if (folderId) {
+      return ApiResponse.success({ data: documents, total: count, page, limit })
+    }
     return ApiResponse.success(documents)
   } catch (err: any) {
     return ApiResponse.error(err.message, 500)

@@ -22,7 +22,7 @@ export default async function JobsPage() {
 
   return (
     <>
-      <SiteNav activePath="/jobs" />
+      <SiteNav />
 
       <PageHero
         title="Current Vacancies"
@@ -31,7 +31,7 @@ export default async function JobsPage() {
       />
 
       <section style={{ background: 'white', padding: '3rem 1rem 4rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <JobsClient initialJobs={jobs || []} />
         </div>
       </section>

@@ -52,17 +52,34 @@ const TRACKS = [
   },
 ]
 
-const STATS = [
-  { value: '12+', label: 'Active Vacancies' },
+const STATS_FALLBACK = [
   { value: 'KIA', label: 'Kotoka Intl Airport, Accra' },
-  { value: '7', label: 'Departments Hiring' },
   { value: '1st', label: 'Planned MRO Hub in West Africa' },
 ]
 
-export default function HomePage() {
+async function fetchStats() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/stats`, { next: { revalidate: 300 } })
+    if (!res.ok) return null
+    const { data } = await res.json()
+    return data
+  } catch {
+    return null
+  }
+}
+
+export default async function HomePage() {
+  const stats = await fetchStats()
+
+  const displayStats = [
+    { value: stats ? `${stats.activeJobs}+` : '12+', label: 'Active Vacancies' },
+    ...STATS_FALLBACK,
+    { value: stats ? `${stats.departments}` : '7', label: 'Departments Hiring' },
+  ]
+
   return (
     <>
-      <SiteNav activePath="/" />
+      <SiteNav />
 
       <PageHero
         title="Careers at Aerojet Aviation"
@@ -71,7 +88,7 @@ export default function HomePage() {
       />
 
       <section style={{ background: 'white', padding: '2rem 1rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <div style={{ background: 'var(--surface-accent-soft)', borderLeft: '4px solid var(--aero-sky)', borderRadius: '3px', padding: '0.875rem 1.25rem', fontSize: '13px', color: 'var(--aero-blue)', lineHeight: 1.6 }}>
 
             <strong>Note:</strong> Aerojet Aviation is actively building its team ahead of the operational launch of our Accra MRO facility. We welcome applications from qualified professionals and early-career talent who share our vision.
@@ -81,7 +98,7 @@ export default function HomePage() {
 
       <section style={{ background: 'white', padding: '3rem 1rem 2rem' }}>
         <div
-          className="max-w-content mx-auto"
+          className="container-max mx-auto"
           style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto' }}
         >
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.875rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '1rem' }}>Find Your Place at Aerojet</h2>
@@ -94,7 +111,7 @@ export default function HomePage() {
       </section>
 
       <section style={{ background: 'white', padding: '2rem 1rem 4rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <div
             style={{
               display: 'grid',
@@ -111,9 +128,9 @@ export default function HomePage() {
 
       <div style={{ background: 'var(--aero-blue)', padding: '3rem 1rem' }}>
         <div
-          className="max-w-content mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
+          className="container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
         >
-          {STATS.map((s) => (
+          {displayStats.map((s) => (
             <div key={s.value}>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
                 {s.value}
@@ -125,7 +142,7 @@ export default function HomePage() {
       </div>
 
       <section style={{ background: 'white', padding: '4rem 1rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <h2 style={{ fontFamily: 'var(--font-display)', textAlign: 'center', fontSize: '1.75rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '0.75rem' }}>
             Why Join Aerojet Aviation?
           </h2>
@@ -174,16 +191,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div style={{ background: 'var(--gradient-brand)', padding: '4rem 1rem', textAlign: 'center' }}>
-        <h2 style={{ color: 'white', fontSize: '1.875rem', fontWeight: 800, marginBottom: '0.75rem', fontFamily: 'var(--font-display)' }}>
+      <section className="cta-section">
+        <h2 className="cta-title">
           Ready to Take Off With Us?
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.05rem', marginBottom: '2rem' }}>
-
+        <p className="cta-subtitle">
           Explore opportunities or get in touch to learn more about life at Aerojet Aviation
         </p>
         <CTAButtons />
-      </div>
+      </section>
 
       <SiteFooter />
     </>

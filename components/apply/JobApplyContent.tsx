@@ -48,7 +48,7 @@ export default function JobApplyContent({ job }: { job: Job }) {
     <>
       {/* Two-column layout */}
       <section style={{ background: 'white', padding: '3rem 1rem' }}>
-        <div className="max-w-content mx-auto">
+        <div className="container-max mx-auto">
           <Link href="/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--blue)', fontSize: 13, fontWeight: 500, textDecoration: 'none', marginBottom: '2rem' }}>
             <ArrowLeft size={15} aria-hidden="true" /> Back to All Vacancies
           </Link>

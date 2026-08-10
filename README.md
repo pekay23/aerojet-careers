@@ -18,12 +18,11 @@ Subdomain: `careers.aerojet-aviation.com`
 
 - **Framework:** Next.js 16 (App Router) · React 19
 - **Language:** TypeScript
-- **Database:** PostgreSQL (**Supabase** — Primary) + Prisma-like schema via SQL migrations
-- **Auth:** Supabase Auth (email/password, magic links, OAuth)
+- **Database:** **Neon** (PostgreSQL serverless) — shared with `aerojet-aviation`
+- **Auth:** Custom JWT session (`jose` library, bcrypt password hashing)
 - **Email:** Resend
-- **Files:** UploadThing
+- **Files:** Custom DB-backed storage (`storage_objects` table with BYTEA on Neon)
 - **UI:** Tailwind CSS v4 + `@aerojet/design-tokens` + `@aerojet/ui` (Radix + CVA)
-- **Testing:** Vitest (unit), Playwright (E2E) — to be configured
 - **Package manager:** **bun**
 
 ## Getting Started
@@ -36,8 +35,8 @@ bun install
 cp .env.example .env.local
 # Edit .env.local with your credentials
 
-# Run Supabase migrations (via Supabase Dashboard or CLI)
-# supabase db push --linked
+# Run schema migrations
+bun scripts/schema-push.mjs   # pushes schema to Neon
 
 # Start dev server
 bun dev
@@ -49,11 +48,11 @@ See `.env.example` for all required variables:
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key (client) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-only admin) |
+| `DATABASE_URL` | Neon PostgreSQL connection string (pooled) |
+| `DIRECT_URL` | Neon direct connection string (for migrations) |
+| `AUTH_SECRET` | Secret key for signing JWT session tokens |
 | `RESEND_API_KEY` | Resend API key for transactional email |
-| `EMAIL_FROM` | From address (e.g., `Careers <careers@aerojet-aviation.com>`) |
+| `EMAIL_FROM` | From address (e.g., `careers@aerojet-aviation.com`) |
 | `NEXT_PUBLIC_APP_URL` | Production URL (`https://careers.aerojet-aviation.com`) |
 
 ## Project Structure
@@ -86,15 +85,18 @@ components/
   admin/                 # Admin-specific components
   forms/                 # ApplicationForm, etc.
 lib/
-  supabase-server.ts     # Server component Supabase client
-  supabase-admin.ts      # Service-role client for admin APIs
-  email-service.ts       # Resend wrapper with backoff
-  utils.ts               # cn(), formatters
-  toast.ts               # Sonner wrapper
-  validation/            # Zod schemas
+   supabase-server.ts     # Server component compat shim (wraps Neon + JWT)
+   supabase-admin.ts      # Service-role compat shim (wraps Neon + JWT)
+   email-service.ts       # Resend wrapper with backoff
+   utils.ts               # cn(), formatters
+   toast.ts               # Sonner wrapper
+   validation/            # Zod schemas
+   auth.ts                # Custom JWT auth (bcrypt + jose)
+   db.ts                  # Neon pg connection pool + PostgREST shim
+   storage.ts             # File storage (BYTEA on Neon)
+   storage-compat.ts      # Supabase Storage API compat shim
 supabase/
   migrations/            # Numbered SQL migrations
-  seed.sql               # Optional seed data
 ```
 
 ## Key Business Flows
@@ -130,7 +132,9 @@ bun run format       # Prettier
 - **Vercel** — Auto-deploy on push to `main`; preview on PRs
 - **Custom domain** — `careers.aerojet-aviation.com` (configure in Vercel → Domains)
 - **Env vars** — Set in Vercel dashboard (Project → Settings → Environment Variables)
-- **Build output** — `output: 'standalone'` for Docker/edge compatibility
+- **Database** — Schema lives in `db/neon-schema.sql`; migrations in `supabase/migrations/`
+- **Build command** — `bun run build`
+- **Edge runtime** — Auth middleware (`proxy.ts`) runs on Edge; session JWT verified at the edge
 
 ## License
 

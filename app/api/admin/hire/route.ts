@@ -108,13 +108,13 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', app.id)
 
-    // 7. Log to Pipeline Events
     await supabaseAdmin.from('pipeline_events').insert({
       application_id: app.id,
       event_type: 'status_change',
       from_status: app.status,
       to_status: 'hired',
-      note: 'Candidate officially hired and staff profile created.'
+      note: 'Candidate officially hired and staff profile created.',
+      admin_user_id: auth.adminUserId,
     })
 
     // 8. Send Welcome Email

@@ -24,7 +24,7 @@ const PROGRAM_AREAS = [
 export default function GraduateProgramPage() {
   return (
     <>
-      <SiteNav activePath="/graduate-program" />
+        <SiteNav />
 
       <PageHero
         title="Aerojet Graduate Program"
@@ -33,7 +33,7 @@ export default function GraduateProgramPage() {
       />
 
       <section style={{ background: 'white', padding: '3rem 1rem' }}>
-        <div className="max-w-content mx-auto" style={{ maxWidth: 920 }}>
+        <div className="container-max mx-auto" style={{ maxWidth: 920 }}>
           <div
             className="card"
             style={{

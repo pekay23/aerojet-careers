@@ -76,7 +76,7 @@ export default function RegisterPage() {
 
   return (
     <>
-      <SiteNav activePath="/register" />
+      <SiteNav />
       <PageHero title="General Application" subtitle="Register your profile and we will contact you when a matching role opens" image="/images/7.jpg" height={300} />
 
       <section style={{ background: 'white', padding: '3rem 1rem' }}>

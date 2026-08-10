@@ -33,6 +33,8 @@ export interface Job {
   created_at: string
   updated_at: string
   application_count?: number
+  indefinite_deadline?: boolean
+  open_positions?: boolean
 }
 
 export interface Application {

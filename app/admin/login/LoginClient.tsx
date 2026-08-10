@@ -38,8 +38,7 @@ export default function LoginClient() {
         return
       }
 
-      router.push(redirectTo)
-      router.refresh()
+      await router.push(redirectTo)
     } catch {
       setError('Connection failure: Unable to connect to our server.')
       setLoading(false)

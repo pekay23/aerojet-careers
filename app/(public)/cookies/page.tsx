@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function CookiePolicyPage() {
   return (
     <>
-      <SiteNav activePath="/cookies" />
+        <SiteNav />
       
       <div style={{ background: 'var(--bg)', paddingTop: '70px' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto', padding: '3rem 1.5rem' }}>

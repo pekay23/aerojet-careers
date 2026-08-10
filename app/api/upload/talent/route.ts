@@ -4,12 +4,19 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-    const file     = formData.get('file')           as File | null
-    const talentId = formData.get('talent_pool_id') as string | null
+    const file = formData.get('file') as File | null
+    if (!file) {
+      return NextResponse.json({ error: 'file is required' }, { status: 400 })
+    }
 
-    if (!file || !talentId) {
-      console.warn('Talent Upload 400: Missing file or talent_pool_id', { file: !!file, talentId: !!talentId })
-      return NextResponse.json({ error: 'file and talent_pool_id are required' }, { status: 400 })
+    const talentId = formData.get('talent_pool_id') as string | null
+    if (!talentId) {
+      console.warn('Talent Upload 400: Missing talent_pool_id')
+      return NextResponse.json({ error: 'talent_pool_id is required' }, { status: 400 })
+    }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(talentId)) {
+      console.warn('Talent Upload 400: Invalid talent_pool_id', { talentId })
+      return NextResponse.json({ error: 'talent_pool_id must be a valid UUID' }, { status: 400 })
     }
 
     if (file.size > 5 * 1024 * 1024) {
