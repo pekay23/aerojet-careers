@@ -5,10 +5,20 @@ import { ApiResponse, verifyRole } from '@/lib/api-utils'
 
 const DepartmentSchema = z.object({
   name: z.string().min(1, 'Department name is required'),
-  code: z.string().min(1, 'Department code is required').max(20),
+  code: z.string().min(1, 'Department code is required').max(20).optional(),
   current_budget: z.number().min(0).optional(),
   manager_id: z.string().uuid().nullable().optional(),
 })
+
+function generateDeptCode(name: string): string {
+  const base = name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 4)
+  return base
+}
 
 const DepartmentUpdateSchema = DepartmentSchema.extend({
   id: z.string().uuid('id must be a valid UUID'),
@@ -85,20 +95,35 @@ export async function POST(req: NextRequest) {
 
       return ApiResponse.success(data)
     } else {
-      // CREATE NEW
-      const createParsed = DepartmentSchema.safeParse(rest)
-      if (!createParsed.success) {
-        return ApiResponse.error(
-          'Validation failed: ' + createParsed.error.issues.map((i: any) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', '),
-          400
-        )
-      }
+       // CREATE NEW
+       const createParsed = DepartmentSchema.safeParse(rest)
+       if (!createParsed.success) {
+         return ApiResponse.error(
+           'Validation failed: ' + createParsed.error.issues.map((i: any) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', '),
+           400
+         )
+       }
 
-      const { data, error } = await supabaseAdmin
-        .from('departments')
-        .insert(createParsed.data)
-        .select()
-        .single()
+       const deptData = { ...createParsed.data }
+       if (!deptData.code) {
+         let code = generateDeptCode(deptData.name)
+         const existing = await supabaseAdmin
+           .from('departments')
+           .select('code')
+           .eq('code', code)
+           .maybeSingle()
+         if (existing.data) {
+           const suffix = Math.floor(Math.random() * 9000) + 1000
+           code = `${code}${suffix}`
+         }
+         deptData.code = code
+       }
+
+       const { data, error } = await supabaseAdmin
+         .from('departments')
+         .insert(deptData)
+         .select()
+         .single()
 
       if (error) throw error
       return ApiResponse.success(data)

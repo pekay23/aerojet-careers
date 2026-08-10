@@ -464,7 +464,7 @@ export default function JobsAdminPage() {
             <div className="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="space-y-1">
                  <h2 className="text-xl font-bold text-slate-900 uppercase tracking-tighter">
-                  {modal === 'new' ? 'Create New Vacancy' : 'Edit Opportunity'}
+                   {modal === 'new' ? 'Create New Vacancy' : 'Edit Job Posting'}
                 </h2>
                 <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.2em]">{modal === 'new' ? 'Draft Posting' : 'Reference: ' + (form.ref_code || 'N/A')}</p>
               </div>
