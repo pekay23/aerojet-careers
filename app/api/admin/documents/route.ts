@@ -76,27 +76,45 @@ export async function GET(req: NextRequest) {
           }
         }))
 
-        // Also surface talent pool CVs (these live in talent_pool.cv_path)
+        // Also surface talent pool CVs. Files live in the
+        // `application-documents` bucket under `talent-pool/` paths.
+        // Query storage_objects directly so we find ALL uploaded talent
+        // files even if talent_pool.cv_path was never populated.
         if (!staffId) {
-          const { data: talentDocs } = await supabaseAdmin
-            .from('talent_pool')
-            .select('id, first_name, last_name, cv_path, created_at')
-            .neq('cv_path', null)
+          const { data: talentFiles } = await supabaseAdmin
+            .from('storage_objects')
+            .select('path, content_type, size, created_at')
+            .eq('bucket', 'application-documents')
+            .ilike('path', 'talent-pool/%')
             .order('created_at', { ascending: false })
 
-          if (talentDocs) {
-            for (const t of talentDocs) {
+          if (talentFiles) {
+            for (const f of talentFiles) {
+              // Derive the talent's name from the path: talent-pool/{id}/{file}
+              const seg = f.path.split('/')
+              const talentId = seg[1]
+              const fileName = seg[seg.length - 1] || 'CV'
+
+              // Look up the talent's name for a friendly label
+              const { data: talent } = await supabaseAdmin
+                .from('talent_pool')
+                .select('first_name, last_name')
+                .eq('id', talentId)
+                .maybeSingle()
+
               const { data: signed } = await supabaseAdmin.storage
                 .from('application-documents')
-                .createSignedUrl(t.cv_path, 3600)
+                .createSignedUrl(f.path, 3600)
 
               mapped.push({
-                id: `talent-${t.id}`,
-                file_name: `CV - ${t.first_name} ${t.last_name}`,
+                id: `talent-${talentId}-${f.path}`,
+                file_name: talent
+                  ? `CV - ${talent.first_name} ${talent.last_name}`
+                  : `CV - ${fileName}`,
                 file_url: signed?.signedUrl || '',
-                file_type: 'application/pdf',
-                file_size: null,
-                created_at: t.created_at,
+                file_type: f.content_type || 'application/pdf',
+                file_size: f.size,
+                created_at: f.created_at,
                 folder_id: folderId,
                 is_external: true
               })
