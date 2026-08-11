@@ -7,6 +7,15 @@ export async function GET(req: NextRequest) {
     const auth = await verifyRole(['admin', 'hr_manager', 'recruiter', 'employee'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
+    // Ensure the "Recruitment Scans" folder exists so application/talent
+    // documents are always reachable, even if the schema seed hasn't run.
+    // Upsert on name is idempotent and safe against concurrent requests.
+    await supabaseAdmin.from('document_folders').upsert({
+      name: 'Recruitment Scans',
+      description: 'CVs, licence scans and passport scans from applications and talent pool',
+      icon: 'file-search',
+    }, { onConflict: 'name' })
+
     const { data: folders, error } = await supabaseAdmin
       .from('document_folders')
       .select('*')
