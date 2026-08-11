@@ -68,7 +68,8 @@ INSERT INTO document_folders (name, description, icon) VALUES
   ('Qualifications', 'Certificates, Licences, and EASA ratings', 'award'),
   ('Contract & Legal', 'Signed employment contracts and NDAs', 'file-text'),
   ('Medical', 'Health clearances and medical reports', 'heart-pulse'),
-  ('Miscellaneous', 'Other employee documents', 'folder')
+  ('Miscellaneous', 'Other employee documents', 'folder'),
+  ('Recruitment Scans', 'CVs, licence scans and passport scans from applications and talent pool', 'file-search')
 ON CONFLICT DO NOTHING;
 
 -- 6. RLS Policies for Staff Profiles

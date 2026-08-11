@@ -76,6 +76,37 @@ export async function GET(req: NextRequest) {
           }
         }))
 
+        // Also surface talent pool CVs (these live in talent_pool.cv_path)
+        if (!staffId) {
+          const { data: talentDocs } = await supabaseAdmin
+            .from('talent_pool')
+            .select('id, first_name, last_name, cv_path, created_at')
+            .neq('cv_path', null)
+            .order('created_at', { ascending: false })
+
+          if (talentDocs) {
+            for (const t of talentDocs) {
+              const { data: signed } = await supabaseAdmin.storage
+                .from('application-documents')
+                .createSignedUrl(t.cv_path, 3600)
+
+              mapped.push({
+                id: `talent-${t.id}`,
+                file_name: `CV - ${t.first_name} ${t.last_name}`,
+                file_url: signed?.signedUrl || '',
+                file_type: 'application/pdf',
+                file_size: null,
+                created_at: t.created_at,
+                folder_id: folderId,
+                is_external: true
+              })
+            }
+          }
+        }
+
+        // Sort combined list by created_at desc
+        mapped.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
         return ApiResponse.success(mapped)
       }
     }

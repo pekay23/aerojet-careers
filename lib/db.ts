@@ -330,8 +330,12 @@ class QueryBuilder implements PromiseLike<any> {
           clauses.push(`${col} = $${params.length}`)
           break
         case 'neq':
-          params.push(f.value)
-          clauses.push(`${col} <> $${params.length}`)
+          if (f.value === null) {
+            clauses.push(`${col} IS NOT NULL`)
+          } else {
+            params.push(f.value)
+            clauses.push(`${col} <> $${params.length}`)
+          }
           break
         case 'is':
           if (f.value === null) clauses.push(`${col} IS NULL`)
