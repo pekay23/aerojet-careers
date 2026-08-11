@@ -24,6 +24,18 @@ const EMPTY_JOB = {
   tags: '',
 }
 
+// Column header → API sort key mapping
+const SORTABLE_COLUMNS: Record<string, string> = {
+  'Job Title': 'title',
+  'Department': 'department',
+  'Category': 'category',
+  'Vacancies': 'target_count',
+  'Closes': 'closes_at',
+  'Status': 'status',
+  'Created': 'created_at',
+  'Updated': 'updated_at',
+}
+
 export default function JobsAdminPage() {
   const [jobs,    setJobs]    = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -196,8 +208,13 @@ export default function JobsAdminPage() {
         toast.error(d.error || 'Failed to save job posting.')
       } else {
         setModal(null)
-        setPageInfo(p => ({ ...p, page: 1 }))
-        load(1)
+        if (modal === 'edit') {
+          // Stay on the current page so the edited job stays in view
+          load(pageInfo.page)
+        } else {
+          setPageInfo(p => ({ ...p, page: 1 }))
+          load(1)
+        }
         toast.success(publishNow ? 'Job published' : 'Job saved as draft')
       }
     } catch (err: any) {
@@ -380,9 +397,9 @@ export default function JobsAdminPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                  <tr className="bg-slate-50/50">
-                   {['Job Title','Department','Category','Vacancies','Closes','Status','Created','Actions'].map(h => {
-                     const sortable = ['department','category','status','created_at'].includes(h.toLowerCase())
-                     const colKey = h.toLowerCase().replace(/ /g,'_')
+                   {['Job Title','Department','Category','Vacancies','Closes','Status','Created','Updated','Actions'].map(h => {
+                     const colKey = SORTABLE_COLUMNS[h]
+                     const sortable = !!colKey
                      return (
                      <th 
                        key={h} 
@@ -423,6 +440,11 @@ export default function JobsAdminPage() {
                     <td className="px-4 lg:px-8 py-4 lg:py-5">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         {new Date(j.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </td>
+                    <td className="px-4 lg:px-8 py-4 lg:py-5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {new Date(j.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </td>
                      <td className="px-4 lg:px-8 py-4 lg:py-5">

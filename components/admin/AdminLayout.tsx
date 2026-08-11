@@ -116,7 +116,7 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/admin/login')
+    router.push('/login')
   }
 
   const toggleSidebar = () => setSidebarOpen((p) => !p)

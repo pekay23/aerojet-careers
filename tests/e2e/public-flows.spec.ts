@@ -18,13 +18,13 @@ test.describe('Public pages', () => {
   })
 
   test('login page loads for admin', async ({ page }) => {
-    await page.goto('/admin/login')
-    await expect(page.getByRole('button', { name: /Log In/i })).toBeVisible()
+    await page.goto('/login')
+    await expect(page.getByRole('button', { name: /Sign In/i })).toBeVisible()
   })
 
   test('protected admin route redirects to login', async ({ page }) => {
     await page.goto('/admin/jobs')
-    await expect(page).toHaveURL(/\/admin\/login/)
+    await expect(page).toHaveURL(/\/login/)
   })
 })
 

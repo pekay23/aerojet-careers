@@ -4,7 +4,7 @@ import { supabaseAdmin } from './supabase-admin'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function sendWelcomeEmail(email: string, fullName: string, tempPassword: string) {
-  const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/login`
+  const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login`
   const fromEmail = process.env.EMAIL_FROM || 'onboarding@aerojet-aviation.com'
 
   try {

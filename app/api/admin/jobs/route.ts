@@ -31,6 +31,12 @@ const JobUpdateSchema = JobCreateSchema.partial().extend({
   id: z.string().uuid('id must be a valid UUID'),
 })
 
+// Whitelist of columns the GET endpoint may sort by (prevents injection via ?sort=)
+const SORTABLE_COLUMNS = [
+  'title', 'department', 'category', 'employment_type', 'location',
+  'status', 'target_count', 'closes_at', 'created_at', 'updated_at',
+]
+
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,8 +45,8 @@ export async function GET(req: NextRequest) {
 
     const p = new URL(req.url).searchParams
     const status  = p.get('status')
-    const sortCol = p.get('sort')  || 'created_at'
-    const sortDir = p.get('dir')  || 'desc'
+    const sortCol = SORTABLE_COLUMNS.includes(p.get('sort') || '') ? p.get('sort')! : 'created_at'
+    const sortDir = p.get('dir') === 'asc' ? 'asc' : 'desc'
     const page    = Math.max(1, parseInt(p.get('page') || '1', 10))
     const limit   = Math.min(100, Math.max(1, parseInt(p.get('limit') || '50', 10)))
     const from    = (page - 1) * limit

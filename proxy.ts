@@ -25,7 +25,7 @@ export default async function proxy(request: NextRequest) {
   const isAdminApi = pathname.startsWith('/api/admin')
 
   // Skip guard for login page
-  if (pathname === '/admin/login') {
+  if (pathname === '/login') {
     return NextResponse.next()
   }
 
@@ -50,7 +50,7 @@ export default async function proxy(request: NextRequest) {
     if (isAdminApi) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const url = new URL('/admin/login', request.url)
+    const url = new URL('/login', request.url)
     url.searchParams.set('redirect', pathname)
     return NextResponse.redirect(url)
   }

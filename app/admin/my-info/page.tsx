@@ -14,7 +14,7 @@ export default async function MyInfoPage() {
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    redirect('/admin/login')
+    redirect('/login')
   }
 
     // Fetch admin access details
