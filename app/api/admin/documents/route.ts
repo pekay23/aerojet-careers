@@ -76,49 +76,93 @@ export async function GET(req: NextRequest) {
           }
         }))
 
-        // Also surface talent pool CVs. Files live in the
-        // `application-documents` bucket under `talent-pool/` paths.
-        // Query storage_objects directly so we find ALL uploaded talent
-        // files even if talent_pool.cv_path was never populated.
+        // Also surface talent pool CVs. Two sources:
+        // 1. talent_pool.cv_path — the canonical source (same data the talent
+        //    page uses to build download links, so it always matches).
+        // 2. storage_objects under talent-pool/ — fallback for any files that
+        //    exist in storage but never had cv_path populated.
         if (!staffId) {
-          const { data: talentFiles } = await supabaseAdmin
-            .from('storage_objects')
-            .select('path, content_type, size, created_at')
-            .eq('bucket', 'application-documents')
-            .ilike('path', 'talent-pool/%')
-            .order('created_at', { ascending: false })
+          const seen = new Set<string>()
 
-          if (talentFiles) {
-            for (const f of talentFiles) {
-              // Derive the talent's name from the path: talent-pool/{id}/{file}
-              const seg = f.path.split('/')
-              const talentId = seg[1]
-              const fileName = seg[seg.length - 1] || 'CV'
+          // Source 1: talent_pool.cv_path
+          try {
+            const { data: talentDocs } = await supabaseAdmin
+              .from('talent_pool')
+              .select('id, first_name, last_name, cv_path, created_at')
+              .order('created_at', { ascending: false })
 
-              // Look up the talent's name for a friendly label
-              const { data: talent } = await supabaseAdmin
-                .from('talent_pool')
-                .select('first_name, last_name')
-                .eq('id', talentId)
-                .maybeSingle()
+            if (talentDocs) {
+              for (const t of talentDocs) {
+                if (!t.cv_path) continue
+                if (seen.has(t.cv_path)) continue
+                seen.add(t.cv_path)
 
-              const { data: signed } = await supabaseAdmin.storage
-                .from('application-documents')
-                .createSignedUrl(f.path, 3600)
+                const { data: signed } = await supabaseAdmin.storage
+                  .from('application-documents')
+                  .createSignedUrl(t.cv_path, 3600)
 
-              mapped.push({
-                id: `talent-${talentId}-${f.path}`,
-                file_name: talent
-                  ? `CV - ${talent.first_name} ${talent.last_name}`
-                  : `CV - ${fileName}`,
-                file_url: signed?.signedUrl || '',
-                file_type: f.content_type || 'application/pdf',
-                file_size: f.size,
-                created_at: f.created_at,
-                folder_id: folderId,
-                is_external: true
-              })
+                mapped.push({
+                  id: `talent-${t.id}`,
+                  file_name: `CV - ${t.first_name} ${t.last_name}`,
+                  file_url: signed?.signedUrl || '',
+                  file_type: 'application/pdf',
+                  file_size: null,
+                  created_at: t.created_at,
+                  folder_id: folderId,
+                  is_external: true
+                })
+              }
             }
+          } catch (e) {
+            // ignore — fall through to storage_objects
+          }
+
+          // Source 2: storage_objects fallback (files without cv_path set)
+          try {
+            const { data: talentFiles } = await supabaseAdmin
+              .from('storage_objects')
+              .select('path, content_type, size, created_at')
+              .eq('bucket', 'application-documents')
+              .ilike('path', 'talent-pool/%')
+              .order('created_at', { ascending: false })
+
+            if (talentFiles) {
+              for (const f of talentFiles) {
+                if (seen.has(f.path)) continue
+                seen.add(f.path)
+
+                // Derive the talent's name from the path: talent-pool/{id}/{file}
+                const seg = f.path.split('/')
+                const talentId = seg[1]
+                const fileName = seg[seg.length - 1] || 'CV'
+
+                // Look up the talent's name for a friendly label
+                const { data: talent } = await supabaseAdmin
+                  .from('talent_pool')
+                  .select('first_name, last_name')
+                  .eq('id', talentId)
+                  .maybeSingle()
+
+                const { data: signed } = await supabaseAdmin.storage
+                  .from('application-documents')
+                  .createSignedUrl(f.path, 3600)
+
+                mapped.push({
+                  id: `talent-${talentId}-${f.path}`,
+                  file_name: talent
+                    ? `CV - ${talent.first_name} ${talent.last_name}`
+                    : `CV - ${fileName}`,
+                  file_url: signed?.signedUrl || '',
+                  file_type: f.content_type || 'application/pdf',
+                  file_size: f.size,
+                  created_at: f.created_at,
+                  folder_id: folderId,
+                  is_external: true
+                })
+              }
+            }
+          } catch (e) {
+            // ignore — storage_objects may not exist on older DBs
           }
         }
 

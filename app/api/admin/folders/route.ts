@@ -10,11 +10,16 @@ export async function GET(req: NextRequest) {
     // Ensure the "Recruitment Scans" folder exists so application/talent
     // documents are always reachable, even if the schema seed hasn't run.
     // Upsert on name is idempotent and safe against concurrent requests.
-    await supabaseAdmin.from('document_folders').upsert({
-      name: 'Recruitment Scans',
-      description: 'CVs, licence scans and passport scans from applications and talent pool',
-      icon: 'file-search',
-    }, { onConflict: 'name' })
+    // Wrapped in try/catch so a failure never breaks the folder listing.
+    try {
+      await supabaseAdmin.from('document_folders').upsert({
+        name: 'Recruitment Scans',
+        description: 'CVs, licence scans and passport scans from applications and talent pool',
+        icon: 'file-search',
+      }, { onConflict: 'name' })
+    } catch (e) {
+      // ignore — folder may already exist or unique constraint may be absent
+    }
 
     const { data: folders, error } = await supabaseAdmin
       .from('document_folders')
