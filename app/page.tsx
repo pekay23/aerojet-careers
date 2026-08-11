@@ -7,7 +7,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Careers at Aerojet Aviation',
-  description: "Join the team building West Africa's premier MRO facility at Kotoka International Airport, Accra.",
+  description: "Join the team building West Africa's premier MRO facility at Accra International Airport, Accra.",
 }
 
 const TRACKS = [
@@ -53,7 +53,7 @@ const TRACKS = [
 ]
 
 const STATS_FALLBACK = [
-  { value: 'KIA', label: 'Kotoka Intl Airport, Accra' },
+  { value: 'AIA', label: 'Accra Intl Airport, Accra' },
   { value: '1st', label: 'Planned MRO Hub in West Africa' },
 ]
 

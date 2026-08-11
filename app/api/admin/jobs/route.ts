@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, ALLOWED_UPDATE_KEYS } from '@/lib/api-utils'
 
 const JobStatusSchema = z.enum(['draft', 'open', 'paused', 'closed', 'filled'])
 const JobCategorySchema = z.enum(['experienced_professional', 'graduate_program', 'skilled_training', 'general_application'])
@@ -13,7 +13,7 @@ const JobCreateSchema = z.object({
   department: z.string().min(1, 'Department is required'),
   category: JobCategorySchema.default('experienced_professional'),
   employment_type: EmploymentTypeSchema.default('full_time'),
-  location: z.string().default('Accra, Ghana (KIA)'),
+  location: z.string().default('Accra, Ghana (AIA)'),
   status: JobStatusSchema.optional(),
   target_count: z.number().int().positive().nullable().optional(),
   summary: z.string().nullable().optional(),
@@ -31,12 +31,6 @@ const JobUpdateSchema = JobCreateSchema.partial().extend({
   id: z.string().uuid('id must be a valid UUID'),
 })
 
-const ALLOWED_UPDATE_KEYS = [
-  'title', 'ref_code', 'department', 'category', 'employment_type',
-  'location', 'status', 'target_count', 'summary', 'responsibilities',
-  'requirements', 'what_we_offer', 'salary_range_min', 'salary_range_max',
-  'tags', 'closes_at', 'published_at',
-]
 
 export async function GET(req: NextRequest) {
   try {
@@ -145,6 +139,24 @@ export async function PATCH(req: NextRequest) {
       if (key in rawUpdates && rawUpdates[key] !== undefined) {
         updates[key] = rawUpdates[key]
       }
+    }
+
+    // Validate department exists (FK at app level since departments table is independent)
+    if (updates.department) {
+      const { data: dept } = await supabaseAdmin
+        .from('departments')
+        .select('id')
+        .eq('name', updates.department)
+        .maybeSingle()
+
+      if (!dept) {
+        return ApiResponse.error(`Department "${updates.department}" does not exist. Create it first.`, 400)
+      }
+    }
+
+    // Regenerate slug when title changes
+    if (updates.title) {
+      updates.slug = updates.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     }
 
     const prev = await supabaseAdmin.from('jobs').select('status, published_at').eq('id', id).maybeSingle()

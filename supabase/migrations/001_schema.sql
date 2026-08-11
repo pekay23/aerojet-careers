@@ -39,7 +39,7 @@ CREATE TABLE jobs (
   department      TEXT NOT NULL,
   category        job_category NOT NULL DEFAULT 'experienced_professional',
   employment_type employment_type NOT NULL DEFAULT 'full_time',
-  location        TEXT NOT NULL DEFAULT 'Accra, Ghana (KIA)',
+  location        TEXT NOT NULL DEFAULT 'Accra, Ghana (AIA)',
   status          job_status NOT NULL DEFAULT 'draft',
   target_count    INTEGER,
   summary         TEXT,

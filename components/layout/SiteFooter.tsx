@@ -127,7 +127,7 @@ export default function SiteFooter() {
             <ul className="footer-contact space-y-3 text-sm opacity-90">
               <li className="flex items-center gap-3">
                 <FaMapMarkerAlt className="text-white" />
-                <span className="text-white">Kotoka International Airport, Accra, Ghana</span>
+                <span className="text-white">Accra International Airport, Accra, Ghana</span>
               </li>
               <li>
                 <a

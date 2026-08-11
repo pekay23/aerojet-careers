@@ -47,7 +47,6 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
   const [userRole, setUserRole] = useState('')
   const [settings, setSettings] = useState<Record<string, string>>({
     company_name: 'Aerojet Aviation',
-    portal_status: 'Portal Online',
     support_email: 'support@aerojet-aviation.com',
   })
 
@@ -352,7 +351,7 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
             <div className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 shadow-sm sm:flex">
               <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
               <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                {settings.portal_status}
+                Operational
               </span>
             </div>
           </div>

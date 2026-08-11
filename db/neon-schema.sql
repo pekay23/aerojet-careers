@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   department      TEXT NOT NULL,
   category        job_category NOT NULL DEFAULT 'experienced_professional',
   employment_type employment_type NOT NULL DEFAULT 'full_time',
-  location        TEXT NOT NULL DEFAULT 'Accra, Ghana (KIA)',
+  location        TEXT NOT NULL DEFAULT 'Accra, Ghana (AIA)',
   status          job_status NOT NULL DEFAULT 'draft',
   target_count    INTEGER,
   summary         TEXT,
@@ -360,7 +360,7 @@ CREATE TABLE IF NOT EXISTS system_settings (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_system_settings_key ON system_settings(setting_key);
 INSERT INTO system_settings (setting_key, setting_value) VALUES
   ('company_name', 'Aerojet Aviation Group'),
-  ('portal_status', 'Operational'),
+  ('support_email', 'support@aerojet-aviation.com'),
   ('base_location', 'Accra Base, GH'),
   ('enterprise_logo_url', '/images/aalogowhite-BCKBvd3h.png')
 ON CONFLICT (setting_key) DO NOTHING;

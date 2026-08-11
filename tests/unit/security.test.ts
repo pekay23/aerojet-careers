@@ -1,25 +1,41 @@
 import { describe, it, expect } from 'vitest'
 
+// Mirror the constant from lib/api-utils.ts
+// (can't import directly — lib/api-utils has DB side-effects at module load)
+const ALLOWED_UPDATE_KEYS = [
+  'title',
+  'ref_code',
+  'department',
+  'category',
+  'employment_type',
+  'location',
+  'status',
+  'target_count',
+  'summary',
+  'responsibilities',
+  'requirements',
+  'what_we_offer',
+  'salary_range_min',
+  'salary_range_max',
+  'tags',
+  'closes_at',
+  'published_at',
+  'updated_at',
+]
+
 // Test the ALLOWED_UPDATE_KEYS allowlist for PATCH security
 // This ensures the jobs PATCH endpoint cannot accept arbitrary field injection
 
 describe('Jobs PATCH allowlist', () => {
-  // Mirror the constant from app/api/admin/jobs/route.ts
-  const ALLOWED_UPDATE_KEYS = [
-    'title', 'ref_code', 'department', 'category', 'employment_type',
-    'location', 'status', 'target_count', 'closes_at',
-    'summary', 'responsibilities', 'requirements', 'what_we_offer',
-    'tags', 'updated_at',
-  ]
-
-  it('excludes internal fields like created_by, slug, ref_code from injection', () => {
+  it('excludes internal fields like created_by, slug, id from injection', () => {
     const filtered: Record<string, any> = {}
     const malicious: Record<string, any> = {
       created_by: 'hacker-id',
       slug: 'malicious-slug',
       id: 'fake-id',
       is_published: true,
-      published_at: '2020-01-01',
+      admin_user_id: 'hacker-admin',
+      auth_user_id: 'hacker-auth',
     }
 
     for (const key of ALLOWED_UPDATE_KEYS) {
@@ -32,15 +48,22 @@ describe('Jobs PATCH allowlist', () => {
     expect(filtered).not.toHaveProperty('slug')
     expect(filtered).not.toHaveProperty('id')
     expect(filtered).not.toHaveProperty('is_published')
-    expect(filtered).not.toHaveProperty('published_at')
+    expect(filtered).not.toHaveProperty('admin_user_id')
+    expect(filtered).not.toHaveProperty('auth_user_id')
   })
 
   it('includes all expected editable fields', () => {
     expect(ALLOWED_UPDATE_KEYS).toContain('title')
+    expect(ALLOWED_UPDATE_KEYS).toContain('ref_code')
     expect(ALLOWED_UPDATE_KEYS).toContain('status')
     expect(ALLOWED_UPDATE_KEYS).toContain('department')
     expect(ALLOWED_UPDATE_KEYS).toContain('target_count')
     expect(ALLOWED_UPDATE_KEYS).toContain('closes_at')
+    expect(ALLOWED_UPDATE_KEYS).toContain('published_at')
+  })
+
+  it('does not allow slug to be set by clients (server derives it)', () => {
+    expect(ALLOWED_UPDATE_KEYS).not.toContain('slug')
   })
 })
 

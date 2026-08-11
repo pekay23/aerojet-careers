@@ -67,15 +67,24 @@ export default function JobsAdminPage() {
     setLoading(true)
     const params = new URLSearchParams({ page: String(pg), limit: '50', sort: sortCol, dir: sortDir })
     if (statusF) params.set('status', statusF)
-    const r = await fetch(`/api/admin/jobs?${params}`)
-    const d = await r.json()
-    if (d.data?.data) {
-      setJobs(d.data.data)
-      setPageInfo({ total: d.data.total || 0, page: d.data.page || 1, limit: d.data.limit || 50 })
-    } else {
-      setJobs(d.data || [])
+    try {
+      const r = await fetch(`/api/admin/jobs?${params}`)
+      const d = await r.json()
+      if (!r.ok) {
+        toast.error(d.error || 'Failed to load jobs.')
+        setJobs([])
+      } else if (d.data?.data) {
+        setJobs(d.data.data)
+        setPageInfo({ total: d.data.total || 0, page: d.data.page || 1, limit: d.data.limit || 50 })
+      } else {
+        setJobs(d.data || [])
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Network error — could not load jobs.')
+      setJobs([])
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const setSort = (col: string) => {
@@ -104,6 +113,9 @@ export default function JobsAdminPage() {
 
   useEffect(() => {
     load(1)
+  }, [statusF, sortCol, sortDir])
+
+  useEffect(() => {
     loadMetadata()
 
     const checkRole = async () => {
@@ -123,7 +135,7 @@ export default function JobsAdminPage() {
           setPageInfo(p => ({ ...p, page: 1 }))
        }, 500)
     }
-  }, [statusF, sortCol, sortDir, userRole]) // eslint-disable-line
+  }, [])
 
   const sf = (k: string) => (v: any) => setForm(f => ({ ...f, [k]: v }))
 
@@ -155,13 +167,14 @@ export default function JobsAdminPage() {
       return
     }
     setSaving(true)
-    const payload = {
+    const payload: Record<string, any> = {
+      ...(modal === 'edit' ? { id: form.id } : {}),
       title: form.title.trim(),
-      ref_code: form.ref_code || undefined,
+      ref_code: form.ref_code ? form.ref_code.toUpperCase() : undefined,
       department: form.department,
       category: form.category,
       employment_type: form.employment_type,
-      location: form.location,
+      location: form.location || 'Accra, Ghana (AIA)',
       status: publishNow ? 'open' : form.status || 'draft',
       target_count: form.open_positions ? null : (form.target_count ? Number(form.target_count) : null),
       closes_at: form.indefinite_deadline ? null : (form.closes_at || null),
@@ -629,6 +642,3 @@ export default function JobsAdminPage() {
     </AdminLayout>
   )
 }
-
-const TH: React.CSSProperties = { padding: '0.625rem 1.25rem', textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }
-const TD: React.CSSProperties = { padding: '0.8rem 1.25rem', verticalAlign: 'middle' }

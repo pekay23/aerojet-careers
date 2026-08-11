@@ -6,10 +6,8 @@ import {
   Save, 
   Building2, 
   MapPin, 
-  Mail, 
-  Activity,
-  Image as ImageIcon,
-  Loader2,
+   Mail, 
+   Loader2,
   CheckCircle2,
   AlertCircle,
   Database,
@@ -18,9 +16,8 @@ import {
   Trash2,
   Table as TableIcon,
   RotateCcw,
-  Shield,
-  Palette,
-  History,
+   Shield,
+   History,
   Smartphone,
   ChevronRight,
   User,
@@ -31,7 +28,7 @@ import {
 import { cn } from '@/lib/utils'
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'config' | 'branding' | 'intelligence'>('config')
+  const [activeTab, setActiveTab] = useState<'config' | 'intelligence'>('config')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -106,7 +103,6 @@ export default function SettingsPage() {
 
   const TABS = [
     { id: 'config', label: 'Configuration', icon: Shield },
-    { id: 'branding', label: 'Branding', icon: Palette },
     { id: 'intelligence', label: 'Activity Log', icon: History },
   ] as const
 
@@ -121,7 +117,7 @@ export default function SettingsPage() {
                 <span className="w-6 h-px bg-blue-600" /> Administrative Core
               </h2>
               <h1 className="text-3xl font-bold text-slate-900 tracking-tight uppercase">System Settings</h1>
-              <p className="text-xs font-medium text-slate-400">Manage settings, company branding, and recent system updates.</p>
+              <p className="text-xs font-medium text-slate-400">Manage settings and recent system updates.</p>
            </div>
            
            <div className="flex bg-slate-100 p-1.5 rounded-2xl">
@@ -168,17 +164,8 @@ export default function SettingsPage() {
                      </div>
                   </div>
 
-                  <div className="space-y-6">
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Company Legal Name</label>
-                        <input 
-                          className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-slate-900"
-                          value={getSetting('company_name')}
-                          onChange={(e) => handleUpdate('company_name', e.target.value)}
-                        />
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Support & Admin Email</label>
+                   <div className="space-y-2">
+                      <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Support & Admin Email</label>
                         <div className="relative">
                            <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                            <input 
@@ -187,136 +174,12 @@ export default function SettingsPage() {
                              onChange={(e) => handleUpdate('support_email', e.target.value)}
                            />
                         </div>
-                     </div>
-                  </div>
-               </div>
+                    </div>
+                 </div>
+             </div>
+           )}
 
-               {/* Portal Health indicator */}
-               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8 relative overflow-hidden group">
-                  <Activity size={180} className="absolute right-[-30px] top-[-30px] text-slate-50 opacity-50 group-hover:rotate-12 transition-transform duration-1000" />
-                  
-                  <div className="flex items-center gap-4">
-                     <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl"><Activity size={24} /></div>
-                     <div className="space-y-1">
-                        <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Portal Status</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live health indicator</p>
-                     </div>
-                  </div>
-
-                  <div className="space-y-6 relative z-10">
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Broadcasting Message</label>
-                        <input 
-                          className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-blue-500 focus:outline-none transition-all font-bold text-slate-900 text-xl uppercase tracking-[0.05em]"
-                          value={getSetting('portal_status')}
-                          onChange={(e) => handleUpdate('portal_status', e.target.value)}
-                        />
-                     </div>
-                     <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[9px] font-bold tracking-[0.1em] text-emerald-600 uppercase">Connected • Live updates active</span>
-                     </div>
-                  </div>
-               </div>
-            </div>
-          )}
-
-          {activeTab === 'branding' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in zoom-in-95 duration-500">
-               
-               {/* Color & Theme */}
-               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-10">
-                  <div className="flex items-center gap-4">
-                     <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl"><Palette size={24} /></div>
-                     <div className="space-y-1">
-                        <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">System Branding</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Theme & Colors</p>
-                     </div>
-                  </div>
-
-                  <div className="space-y-8">
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Primary Brand Color</label>
-                        <div className="flex items-center gap-6">
-                           <div className="h-20 w-32 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden flex items-center justify-center bg-slate-50">
-                              <div 
-                                className="absolute inset-0 transition-colors duration-500" 
-                                style={{ backgroundColor: getSetting('brand_primary_color') || '#2880b9' }} 
-                              />
-                              <input 
-                                type="color" 
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                value={getSetting('brand_primary_color') || '#2880b9'}
-                                onChange={(e) => handleUpdate('brand_primary_color', e.target.value)}
-                              />
-                              <span className="relative z-10 text-[10px] font-black text-white drop-shadow-md uppercase tracking-[0.2em]">Select Color</span>
-                           </div>
-                           <div className="flex-1 space-y-2">
-                              <input 
-                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-500 focus:outline-none transition-all font-mono font-bold text-slate-900 uppercase"
-                                value={getSetting('brand_primary_color') || '#2880b9'}
-                                onChange={(e) => handleUpdate('brand_primary_color', e.target.value)}
-                              />
-                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">This color will be applied to buttons, active navigation, and accents.</p>
-                           </div>
-                        </div>
-                     </div>
-
-                     <div className="space-y-4 pt-4 border-t border-slate-50">
-                        <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Corner Accent Radius</label>
-                        <div className="flex items-center gap-6">
-                           <div className="flex-1">
-                              <input 
-                                type="range" 
-                                min="0" max="32" step="4"
-                                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                value={getSetting('brand_accent_radius') || '12'}
-                                onChange={(e) => handleUpdate('brand_accent_radius', e.target.value)}
-                              />
-                           </div>
-                           <div className="w-16 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-center text-xs font-bold text-slate-900">
-                              {getSetting('brand_accent_radius') || '12'}px
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Assets */}
-               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-10">
-                  <div className="flex items-center gap-4">
-                     <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl"><ImageIcon size={24} /></div>
-                     <div className="space-y-1">
-                        <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Asset Library</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logo & Iconography</p>
-                     </div>
-                  </div>
-
-                  <div className="space-y-6">
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Enterprise Logo URL</label>
-                        <div className="relative">
-                           <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                           <input 
-                             className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-emerald-500 focus:outline-none transition-all font-bold text-slate-900"
-                             value={getSetting('enterprise_logo_url')}
-                             onChange={(e) => handleUpdate('enterprise_logo_url', e.target.value)}
-                           />
-                        </div>
-                        <div className="mt-6 h-32 w-full bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100 flex items-center justify-center p-6 grayscale hover:grayscale-0 transition-all group">
-                           {getSetting('enterprise_logo_url') ? (
-                             <img src={getSetting('enterprise_logo_url')} className="h-full w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-500" alt="Preview" />
-                           ) : (
-                             <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Logo Preview</p>
-                           )}
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-          )}
-
-          {activeTab === 'intelligence' && (
+           {activeTab === 'intelligence' && (
             <div className="animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-8">
                
                {/* Global Intelligence Feed */}

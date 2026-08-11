@@ -163,7 +163,7 @@ export default async function AdminDashboardPage() {
                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
                   <div className="relative z-10">
                      <p className="text-[9px] font-bold tracking-[0.3em] text-blue-600 uppercase mb-2">System Status</p>
-                     <h4 className="text-xl font-bold uppercase mb-1 text-slate-900">{sMap.portal_status || 'Operational'}</h4>
+                     <h4 className="text-xl font-bold uppercase mb-1 text-slate-900">Operational</h4>
                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
                         <MapPin size={12} />
                         <span>{sMap.base_location || 'Accra Base, GH'}</span>

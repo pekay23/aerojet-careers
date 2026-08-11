@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: 'Careers — Aerojet Aviation',
     template: '%s | Aerojet Aviation Careers',
   },
-  description: 'Join the team building West Africa\'s premier MRO facility at Kotoka International Airport, Accra, Ghana.',
+  description: 'Join the team building West Africa\'s premier MRO facility at Accra International Airport, Accra, Ghana.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://careers.aerojet-aviation.com'),
   icons: {
     apple: '/favicon/apple-touch-icon.png',

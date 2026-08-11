@@ -25,7 +25,11 @@ export default function FastTrackModal({ talent, isOpen, onClose, onSuccess }: F
       fetch('/api/admin/jobs?status=open')
         .then(res => res.json())
         .then(({ data }) => {
-          setJobs(data || [])
+          setJobs(data?.data || data || [])
+          setLoading(false)
+        })
+        .catch(() => {
+          setJobs([])
           setLoading(false)
         })
     }

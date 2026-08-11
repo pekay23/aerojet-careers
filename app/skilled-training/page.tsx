@@ -12,17 +12,17 @@ export const metadata: Metadata = {
 }
 
 const ENG_ROLES = [
-  { title: 'Trainee Aircraft Mechanics',           sub: 'Cat A pathway · 18-month program · Accra KIA' },
-  { title: 'Engine Technicians (Trainee)',          sub: 'Powerplant · CFM56 / LEAP · Accra KIA' },
-  { title: 'Electrical Technicians (Trainee)',      sub: 'Avionics / B2 pathway · Accra KIA' },
-  { title: 'Skins, Repairs & Composites (Trainee)', sub: 'Structural repair · NDT · Accra KIA' },
+  { title: 'Trainee Aircraft Mechanics',           sub: 'Cat A pathway · 18-month program · Accra AIA' },
+  { title: 'Engine Technicians (Trainee)',          sub: 'Powerplant · CFM56 / LEAP · Accra AIA' },
+  { title: 'Electrical Technicians (Trainee)',      sub: 'Avionics / B2 pathway · Accra AIA' },
+  { title: 'Skins, Repairs & Composites (Trainee)', sub: 'Structural repair · NDT · Accra AIA' },
 ]
 
 const RAMP_ROLES = [
-  { title: 'Ground Handling Operatives (Trainee)',  sub: 'Full ramp operations training · Accra KIA' },
-  { title: 'Aircraft Marshalling Technicians',       sub: 'Wing-walking, towing, pushback · Accra KIA' },
-  { title: 'Aircraft Fuelling Technicians',          sub: 'Fuelling / defuelling operations · Accra KIA' },
-  { title: 'Cargo & Baggage Handling',               sub: 'ULD, DG, load control · Accra KIA' },
+  { title: 'Ground Handling Operatives (Trainee)',  sub: 'Full ramp operations training · Accra AIA' },
+  { title: 'Aircraft Marshalling Technicians',       sub: 'Wing-walking, towing, pushback · Accra AIA' },
+  { title: 'Aircraft Fuelling Technicians',          sub: 'Fuelling / defuelling operations · Accra AIA' },
+  { title: 'Cargo & Baggage Handling',               sub: 'ULD, DG, load control · Accra AIA' },
 ]
 
 export default function SkilledTrainingPage() {

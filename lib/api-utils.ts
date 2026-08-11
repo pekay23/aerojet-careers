@@ -20,26 +20,54 @@ export class ApiResponse {
  * @param allowedRoles List of roles permitted to access the route
    * @returns Object containing user, role, and adminUserId if authorized, otherwise null
    */
-  export async function verifyRole(allowedRoles: string[] | null = null) {
+    export async function verifyRole(allowedRoles: string[] | null = null) {
     const supabase = await createSupabaseServer()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return null
 
-    const { data: adminUser } = await supabaseAdmin
+    let { data: adminUser } = await supabaseAdmin
       .from('admin_users')
-      .select('id, role')
+      .select('id, role, is_active')
       .eq('auth_user_id', user.id)
       .maybeSingle()
 
     if (!adminUser) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn('[verifyRole] No admin_users record for auth_user_id:', user.id, '(role:', allowedRoles, ')')
+      const { data: authUser, error: authError } = await supabaseAdmin
+        .from('auth_users')
+        .select('email, user_metadata')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (authError || !authUser) return null
+
+      const role = (authUser.user_metadata?.role as string) || 'admin'
+      const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0]
+
+      const { data: provisioned, error: provisionError } = await supabaseAdmin
+        .from('admin_users')
+        .insert({
+          auth_user_id: user.id,
+          email: authUser.email,
+          full_name: fullName,
+          role,
+          is_active: true,
+        })
+        .select('id, role, is_active')
+        .maybeSingle()
+
+      if (provisionError || !provisioned) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[verifyRole] Auto-provisioning admin_users failed:', provisionError?.message)
+        }
+        return null
       }
-      return null
+
+      adminUser = provisioned
     }
 
-    // super_admin bypasses all role checks
+    if (!adminUser.is_active) return null
+
     if (adminUser.role === 'super_admin' || (allowedRoles && allowedRoles.includes(adminUser.role))) {
       return { user, role: adminUser.role, adminUserId: adminUser.id }
     }
@@ -66,11 +94,11 @@ export function sanitizeSearch(s: string): string {
 /**
  * Allow-list of keys that the PATCH /api/admin/jobs endpoint will accept.
  * Anything not in this list is stripped — prevents privilege escalation
- * (e.g. overwriting created_by, id, ref_code).
+ * (e.g. overwriting created_by, id, slug).
  */
 export const ALLOWED_UPDATE_KEYS = [
   'title',
-  'slug',
+  'ref_code',
   'department',
   'category',
   'employment_type',
@@ -86,6 +114,7 @@ export const ALLOWED_UPDATE_KEYS = [
   'tags',
   'closes_at',
   'published_at',
+  'updated_at',
 ]
 
 /**
