@@ -96,12 +96,12 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
       />
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col lg:ml-20">
+      <div className={cn('flex flex-1 flex-col transition-all duration-300 ease-in-out', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}>
         <AdminTopbar title={title} breadcrumb={breadcrumb} mobileOpen={mobileOpen} onToggleMobile={() => setMobileOpen((p) => !p)} />
 
         {/* Page content */}
         <main className="min-h-[calc(100vh-4rem)] flex-1 overflow-y-auto bg-slate-50 p-4 admin-scrollbar lg:p-8">
-          <div className="mx-auto max-w-[1600px] pb-20">{children}</div>
+          <div className="mx-auto w-full pb-20">{children}</div>
         </main>
       </div>
 
