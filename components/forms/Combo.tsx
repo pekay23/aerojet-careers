@@ -8,16 +8,20 @@ interface ComboProps {
   required?: boolean
   placeholder?: string
   listId: string
+  id?: string
+  name?: string
 }
 
 export function Combo({
-  value, onChange, options, label, required, placeholder, listId
+  value, onChange, options, label, required, placeholder, listId, id, name
 }: ComboProps) {
   return (
     <div className="field">
       {label && <FormLabel required={required}>{label}</FormLabel>}
       <>
         <input
+          id={id}
+          name={name}
           list={listId}
           className="field-input"
           value={value ?? ''}

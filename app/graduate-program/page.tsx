@@ -34,7 +34,7 @@ export default function GraduateProgramPage() {
 
       <section className="section-white">
         <div className="container-max mx-auto" style={{ maxWidth: 920 }}>
-          <div className="card card-inner">
+          <div className="card card-inner" style={{ marginBottom: '2rem' }}>
             <h2 className="section-heading-xl" style={{ marginTop: 0 }}>Overview</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1rem' }}>
               The Aerojet Graduate Program is designed for high-potential early-career applicants
@@ -48,7 +48,7 @@ export default function GraduateProgramPage() {
             </p>
           </div>
 
-          <div className="grid-auto-sm" style={{ marginBottom: '2rem' }}>
+          <div className="grid-auto-sm" style={{ marginBottom: '1.25rem' }}>
             <div className="card card-inner">
               <h3 className="section-heading-xl" style={{ fontSize: '1.1rem', marginTop: 0 }}>Who this is for</h3>
               <p style={{ color: 'var(--muted)', lineHeight: 1.7, margin: 0 }}>
@@ -98,10 +98,17 @@ export default function GraduateProgramPage() {
             <h2 className="section-heading-xl">Current Status</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1rem' }}>
               This page currently serves as a placeholder for the Graduate Program intake pathway.
-              Formal program openings may be published from time to time based on operational needs.
+              Formal program openings may be published{' '}
+              <Link href="/jobs" className="text-link">
+                from time to time
+              </Link>{' '}
+              based on operational needs.
             </p>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, margin: 0 }}>
-              Candidates interested in future graduate opportunities may register a general profile
+              Candidates interested in future graduate opportunities may{' '}
+              <Link href="/register" className="text-link">
+                register a general profile
+              </Link>{' '}
               so Aerojet can retain their details for future consideration.
             </p>
           </div>

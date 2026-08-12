@@ -12,4 +12,7 @@ export const CAREERS_INTERNAL_LINKS = [
   { name: 'Graduate Program', href: '/graduate-program' },
   { name: 'Skilled Training', href: '/skilled-training' },
   { name: 'Register', href: '/register' },
+  { name: 'FAQ', href: '/faq' },
+  { name: 'Our Story', href: '/our-story' },
+  { name: 'Check Status', href: '/check-status' },
 ]

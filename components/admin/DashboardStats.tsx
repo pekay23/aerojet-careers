@@ -21,9 +21,9 @@ interface Snapshot {
   snapshot_date: string
 }
 
-import type { DashboardStats } from '@/types'
+import type { DashboardStats as DashboardStatsType } from '@/types'
 
-export default function DashboardStats({ stats }: { stats: DashboardStats }) {
+export default function DashboardStats({ stats }: { stats: DashboardStatsType }) {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([])
   const [loading, setLoading] = useState(true)
 

@@ -4,8 +4,7 @@ import { pool } from '@/lib/db'
 
 /**
  * Returns the current session user plus their admin_users record
- * (role, full_name). Replaces client-side supabase.auth.getUser() +
- * supabase.from('admin_users') lookups.
+ * (role, full_name). Reads the local JWT session cookie.
  */
 export async function GET() {
   const user = await getServerUser()

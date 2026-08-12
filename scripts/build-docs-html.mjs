@@ -37,6 +37,7 @@ const TOP_LEVEL = [
   { file: 'LLM_COUNCIL_FRAMEWORK.md', title: 'LLM Council Framework', eyebrow: 'Framework' },
   { file: 'README.md', title: 'Documentation Index', eyebrow: 'Docs' },
   { file: 'UNDONE_ISSUES_2026-08-11.md', title: 'Undone Issues Tracker', eyebrow: 'Tracker' },
+  { file: 'VERIFICATION_REPORT_2026-08-12.md', title: 'Undone Issues Verification', eyebrow: 'Verification' },
 ]
 
 // ── HTML helpers ─────────────────────────────────────────────────────────
@@ -330,7 +331,7 @@ async function readProjectName() {
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ')
     }
-  } catch {}
+  } catch { /* no-op */ }
   return 'Project'
 }
 

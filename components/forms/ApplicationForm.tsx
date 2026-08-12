@@ -50,12 +50,20 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
   const [refCode,    setRefCode]    = useState('')
   const [error,      setError]      = useState('')
   const [isStepValid, setIsStepValid] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [hasDraft,   setHasDraft]   = useState(false)
+  const [hasStarted, setHasStarted] = useState(false)
   const [lastSaved,  setLastSaved]  = useState<string | null>(null)
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({})
   const topRef = useRef<HTMLDivElement>(null)
   const DRAFT_KEY = `aerojet-draft-${jobId}`
 
-  const set = <K extends keyof ApplicationFormData>(k: K) => (v: ApplicationFormData[K]) => setData(d => ({ ...d, [k]: v }))
+  const touch = (k: string) => setTouchedFields(p => ({ ...p, [k]: true }))
+
+  const set = <K extends keyof ApplicationFormData>(k: K) => (v: ApplicationFormData[K]) => {
+    setHasStarted(true)
+    setData(d => ({ ...d, [k]: v }))
+  }
   const toggleArr = (k: 'type_ratings' | 'certifications' | 'work_types' | 'current_benefits', v: string) => setData(d => {
     const arr: string[] = d[k] || []
     return { ...d, [k]: arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] }
@@ -73,18 +81,30 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
     else result = { success: true }
 
     setIsStepValid(!!result?.success)
+
+    if (result && !result.success && (result as any).error?.issues) {
+      const errors: Record<string, string> = {}
+      for (const issue of (result as any).error.issues) {
+        const key = issue.path?.join('.') || 'form'
+        errors[key] = issue.message
+      }
+      setValidationErrors(errors)
+    } else {
+      setValidationErrors({})
+    }
   }, [data, step, files.cv, consent])
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY)
-      if (raw) {
-        const draft = JSON.parse(raw)
-        if (draft.data) setData(draft.data)
-        if (draft.consent !== undefined) setConsent(draft.consent)
-        if (draft.step) setStep(draft.step)
-        setHasDraft(true)
-      }
+      if (!raw) return
+      const draft = JSON.parse(raw)
+      if (!draft.hasStarted) return
+      if (draft.data) setData(draft.data)
+      if (draft.consent !== undefined) setConsent(draft.consent)
+      if (draft.step) setStep(draft.step)
+      setHasDraft(true)
+      setHasStarted(true)
     } catch { /* ignore corrupt draft */ }
   }, [])
 
@@ -94,14 +114,25 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
       setLastSaved(null)
       return
     }
-    const payload = { data, consent, step, lastSaved: new Date().toISOString() }
+    if (!hasStarted) return
+    const payload = { data, consent, step, lastSaved: new Date().toISOString(), hasStarted: true }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(payload))
     setLastSaved(payload.lastSaved)
-  }, [data, consent, step, submitted])
+  }, [data, consent, step, submitted, hasStarted])
 
   const STEPS = ['Personal', 'Qualifications', 'Experience', 'Compensation', 'Documents']
 
   const goTo = (n: number) => { setStep(n); setError(''); scrollTop() }
+
+  const markAllTouched = () => {
+    const allFields = ['first_name','last_name','email','phone','nationality','country_of_residence','date_of_birth','licence_type','type_ratings','current_employer','total_years_exp','payment_preference']
+    setTouchedFields(Object.fromEntries(allFields.map(k => [k, true])))
+  }
+
+  const next = () => {
+    if (!isStepValid) { markAllTouched(); return }
+    goTo(step + 1)
+  }
 
   const restoreDraft = () => {
     setHasDraft(false)
@@ -112,11 +143,6 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
   const saveDraft = () => {
     setError('')
     scrollTop()
-  }
-
-  const next = () => {
-    if (!isStepValid) return
-    goTo(step + 1)
   }
 
   const addFile = (key: string) => (f: File) => {
@@ -151,7 +177,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
   }
 
   const submit = async () => {
-    if (!isStepValid) return
+    if (!isStepValid) { markAllTouched(); return }
     setError('')
     setSubmitting(true)
     try {
@@ -257,7 +283,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
             </span>
           )
           const labelEl = (
-            <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', color: active ? 'var(--navy)' : 'var(--muted)', fontWeight: active ? 600 : 400 }}>
+            <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: active ? 'var(--navy)' : 'var(--muted)', fontWeight: active ? 600 : 400 }}>
               {label}
             </span>
           )
@@ -305,27 +331,27 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
       {step === 1 && (
         <FormCard title="Personal details" subtitle="Tell us who you are and how to reach you. All information is treated in strict confidence.">
           <FormGrid>
-            <FormField label="First name" required>
-              <TextInput name="given-name" autoComplete="given-name" value={data.first_name} onChange={set('first_name')} placeholder="Given name" />
+            <FormField label="First name" required error={validationErrors.first_name} touched={!!touchedFields.first_name}>
+              <TextInput name="given-name" autoComplete="given-name" value={data.first_name} onChange={set('first_name')} placeholder="Given name" error={validationErrors.first_name} touched={!!touchedFields.first_name} onBlur={() => touch('first_name')} />
             </FormField>
-            <FormField label="Last name" required>
-              <TextInput name="family-name" autoComplete="family-name" value={data.last_name} onChange={set('last_name')} placeholder="Family name" />
+            <FormField label="Last name" required error={validationErrors.last_name} touched={!!touchedFields.last_name}>
+              <TextInput name="family-name" autoComplete="family-name" value={data.last_name} onChange={set('last_name')} placeholder="Family name" error={validationErrors.last_name} touched={!!touchedFields.last_name} onBlur={() => touch('last_name')} />
             </FormField>
-            <FormField label="Email address" required>
-              <TextInput type="email" name="email" autoComplete="email" inputMode="email" spellCheck={false} value={data.email} onChange={set('email')} placeholder="you@example.com" />
+            <FormField label="Email address" required error={validationErrors.email} touched={!!touchedFields.email}>
+              <TextInput type="email" name="email" autoComplete="email" inputMode="email" spellCheck={false} value={data.email} onChange={set('email')} placeholder="you@example.com" error={validationErrors.email} touched={!!touchedFields.email} onBlur={() => touch('email')} />
             </FormField>
-            <FormField label="Phone / WhatsApp" required hint="Include your international dialing code, e.g. +233…">
-              <TextInput type="tel" name="tel" autoComplete="tel" inputMode="tel" value={data.phone} onChange={set('phone')} placeholder="+233 20 000 0000" />
+            <FormField label="Phone / WhatsApp" required hint="Include your international dialing code, e.g. +233…" error={validationErrors.phone} touched={!!touchedFields.phone}>
+              <TextInput type="tel" name="tel" autoComplete="tel" inputMode="tel" value={data.phone} onChange={set('phone')} placeholder="+233 20 000 0000" error={validationErrors.phone} touched={!!touchedFields.phone} onBlur={() => touch('phone')} />
             </FormField>
-            <FormField label="Nationality" required>
-              <Combo listId="nationality-list" value={data.nationality} onChange={set('nationality')} options={NATIONALITIES} placeholder="Type or select nationality" />
+            <FormField label="Nationality" required error={validationErrors.nationality} touched={!!touchedFields.nationality}>
+              <Select id="app-nationality" name="nationality" value={data.nationality} onChange={set('nationality')} options={NATIONALITIES} placeholder="Select nationality" error={validationErrors.nationality} touched={!!touchedFields.nationality} onBlur={() => touch('nationality')} />
             </FormField>
-            <FormField label="Country of residence" required>
-              <Combo listId="country-list" value={data.country_of_residence} onChange={set('country_of_residence')} options={COUNTRIES} placeholder="Type or select country" />
+            <FormField label="Country of residence" required error={validationErrors.country_of_residence} touched={!!touchedFields.country_of_residence}>
+              <Select id="app-country" name="country_of_residence" value={data.country_of_residence} onChange={set('country_of_residence')} options={COUNTRIES} placeholder="Select country" error={validationErrors.country_of_residence} touched={!!touchedFields.country_of_residence} onBlur={() => touch('country_of_residence')} />
             </FormField>
           </FormGrid>
-          <FormField label="Date of birth" required hint="You must be at least 18 years old to apply.">
-            <TextInput type="date" value={data.date_of_birth} onChange={set('date_of_birth')} min={dobMin} max={dobMax} />
+          <FormField label="Date of birth" required hint="You must be at least 18 years old to apply." error={validationErrors.date_of_birth} touched={!!touchedFields.date_of_birth}>
+            <TextInput type="date" id="app-dob" name="date_of_birth" value={data.date_of_birth} onChange={set('date_of_birth')} min={dobMin} max={dobMax} error={validationErrors.date_of_birth} touched={!!touchedFields.date_of_birth} onBlur={() => touch('date_of_birth')} />
           </FormField>
           <FormField label="Valid passport?">
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
@@ -358,22 +384,22 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
       {step === 2 && (
         <FormCard title="Licences & qualifications" subtitle="Provide your current regulatory licences and authorisations.">
           <FormGrid>
-            <FormField label="Primary licence" required>
-              <Select value={data.licence_type} onChange={set('licence_type')} options={['EASA Part-66 B1.1','EASA Part-66 B2','EASA Part-66 B1.1 + B2','ECAA (Ethiopian)','KCAA (Kenya)','GCAA (Ghana)','NCAA (Nigeria)','FAA A&P','Other']} />
+            <FormField label="Primary licence" required error={validationErrors.licence_type} touched={!!touchedFields.licence_type}>
+              <Select id="app-licence-type" name="licence_type" value={data.licence_type} onChange={set('licence_type')} options={['EASA Part-66 B1.1','EASA Part-66 B2','EASA Part-66 B1.1 + B2','ECAA (Ethiopian)','KCAA (Kenya)','GCAA (Ghana)','NCAA (Nigeria)','FAA A&P','Other']} error={validationErrors.licence_type} touched={!!touchedFields.licence_type} onBlur={() => touch('licence_type')} />
             </FormField>
             <FormField label="Licence number">
-              <TextInput value={data.licence_number} onChange={set('licence_number')} placeholder="e.g. EASA.B1.ET.XXXXX" />
+              <TextInput id="app-licence-number" name="licence_number" value={data.licence_number} onChange={set('licence_number')} placeholder="e.g. EASA.B1.ET.XXXXX" />
             </FormField>
             <FormField label="Issuing authority">
-              <TextInput value={data.issuing_authority} onChange={set('issuing_authority')} placeholder="e.g. ECAA, KCAA, EASA" />
+              <TextInput id="app-issuing-authority" name="issuing_authority" value={data.issuing_authority} onChange={set('issuing_authority')} placeholder="e.g. ECAA, KCAA, EASA" />
             </FormField>
             <FormField label="Licence expiry">
-              <TextInput type="date" value={data.licence_expiry} onChange={set('licence_expiry')} />
+              <TextInput type="date" id="app-licence-expiry" name="licence_expiry" value={data.licence_expiry} onChange={set('licence_expiry')} />
               {licenceExpired && <p className="field-hint" style={{ color: 'var(--warning)' }}>This licence appears to have expired.</p>}
             </FormField>
           </FormGrid>
           <Divider />
-          <FormField label="Current type ratings" required>
+          <FormField label="Current type ratings" required error={validationErrors.type_ratings} touched={!!touchedFields.type_ratings}>
             <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Select all that are currently on your licence.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[['B737NG','Boeing 737 NG (B1 — CFM56)'],['B737MAX','Boeing 737 MAX (B1 — CFM LEAP)'],['E190','Embraer E190 / E195'],['A320','Airbus A320 family'],['B787','Boeing 787'],['B777','Boeing 777'],['other','Other (specify below)']].map(([v,l]) => (
@@ -383,7 +409,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
           </FormField>
           {has('type_ratings', 'other') && (
             <FormField label="Other type ratings">
-              <TextInput value={data.other_type_ratings} onChange={set('other_type_ratings')} placeholder="List any additional types not shown above" />
+              <TextInput id="app-other-type-ratings" name="other_type_ratings" value={data.other_type_ratings} onChange={set('other_type_ratings')} placeholder="List any additional types not shown above" />
             </FormField>
           )}
           <Divider />
@@ -395,11 +421,11 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
             </div>
           </FormField>
           <FormField label="Highest educational qualification">
-            <Select value={data.highest_qualification} onChange={set('highest_qualification')} options={['AMT Certificate','Diploma in Aero Engineering','BSc Aero/Mech Engineering','BSc Electrical Engineering',"Master's Degree",'Other']} />
+            <Select id="app-highest-qualification" name="highest_qualification" value={data.highest_qualification} onChange={set('highest_qualification')} options={['AMT Certificate','Diploma in Aero Engineering','BSc Aero/Mech Engineering','BSc Electrical Engineering',"Master's Degree",'Other']} />
           </FormField>
           {data.highest_qualification === 'Other' && (
             <FormField label="Please specify your qualification">
-              <TextInput value={data.highest_qualification_other} onChange={set('highest_qualification_other')} placeholder="Your highest qualification" />
+              <TextInput id="app-highest-qualification-other" name="highest_qualification_other" value={data.highest_qualification_other} onChange={set('highest_qualification_other')} placeholder="Your highest qualification" />
             </FormField>
           )}
           <BtnRow onBack={() => goTo(1)} onNext={next} disabled={!isStepValid} onSaveDraft={saveDraft} />
@@ -410,24 +436,24 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
       {step === 3 && (
         <FormCard title="Work experience" subtitle="Tell us about your current and previous roles.">
           <FormGrid>
-            <FormField label="Current employer" required>
-              <TextInput value={data.current_employer} onChange={set('current_employer')} placeholder="e.g. Ethiopian Airlines" />
+            <FormField label="Current employer" required error={validationErrors.current_employer} touched={!!touchedFields.current_employer}>
+              <TextInput id="app-current-employer" name="current_employer" value={data.current_employer} onChange={set('current_employer')} placeholder="e.g. Ethiopian Airlines" error={validationErrors.current_employer} touched={!!touchedFields.current_employer} onBlur={() => touch('current_employer')} />
             </FormField>
             <FormField label="Job title / grade">
-              <TextInput value={data.job_title} onChange={set('job_title')} placeholder="e.g. Senior LAE" />
+              <TextInput id="app-job-title" name="job_title" value={data.job_title} onChange={set('job_title')} placeholder="e.g. Senior LAE" />
             </FormField>
             <FormField label="Start date (current role)">
-              <TextInput type="date" value={data.role_start_date} onChange={set('role_start_date')} max={new Date().toISOString().slice(0, 10)} />
+              <TextInput type="date" id="app-role-start" name="role_start_date" value={data.role_start_date} onChange={set('role_start_date')} max={new Date().toISOString().slice(0, 10)} />
             </FormField>
             <FormField label="End date (if applicable)">
-              <TextInput type="date" value={data.role_end_date} onChange={set('role_end_date')} min={data.role_start_date || undefined} />
+              <TextInput type="date" id="app-role-end" name="role_end_date" value={data.role_end_date} onChange={set('role_end_date')} min={data.role_start_date || undefined} />
               {data.role_start_date && data.role_end_date && data.role_end_date < data.role_start_date && (
                 <p className="field-hint" style={{ color: 'var(--error)' }}>End date must be after the start date.</p>
               )}
             </FormField>
           </FormGrid>
-          <FormField label="Total years of experience" required>
-            <Select value={data.total_years_exp} onChange={set('total_years_exp')} options={['Less than 3 years','3–5 years','6–8 years','9–12 years','13–15 years','15+ years']} />
+          <FormField label="Total years of experience" required error={validationErrors.total_years_exp} touched={!!touchedFields.total_years_exp}>
+            <Select id="app-total-years" name="total_years_exp" value={data.total_years_exp} onChange={set('total_years_exp')} options={['Less than 3 years','3–5 years','6–8 years','9–12 years','13–15 years','15+ years']} error={validationErrors.total_years_exp} touched={!!touchedFields.total_years_exp} onBlur={() => touch('total_years_exp')} />
           </FormField>
           <FormField label="Types of work">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
@@ -438,7 +464,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
           </FormField>
           {has('work_types', 'other') && (
             <FormField label="Please specify other work types">
-              <TextInput value={data.work_types_other} onChange={set('work_types_other')} placeholder="Describe other maintenance work" />
+              <TextInput id="app-work-types-other" name="work_types_other" value={data.work_types_other} onChange={set('work_types_other')} placeholder="Describe other maintenance work" />
             </FormField>
           )}
           <FormField label="Outstation experience">
@@ -448,8 +474,8 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
               <RadioItem label="Base only" value="none"      current={data.outstation_exp} onChange={set('outstation_exp')} />
             </div>
           </FormField>
-           <FormField label="Why are you interested in Aerojet? (Motivation)">
-            <TextArea value={data.motivation} onChange={set('motivation')} placeholder="What draws you to this role and our company?" />
+           <FormField label="Motivation">
+            <TextArea id="app-motivation" name="motivation" value={data.motivation} onChange={set('motivation')} placeholder="What draws you to this role and our company?" />
           </FormField>
           <BtnRow onBack={() => goTo(2)} onNext={next} disabled={!isStepValid} onSaveDraft={saveDraft} />
         </FormCard>
@@ -460,10 +486,10 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
         <FormCard title="Compensation & availability" subtitle="Ensuring we offer you a competitive package. All data is confidential.">
           <FormGrid>
              <FormField label="Current salary (monthly)">
-              <TextInput type="number" min={0} step={100} value={data.current_salary} onChange={v => set('current_salary')(v === '' ? undefined : Number(v))} placeholder="0" />
+              <TextInput type="number" id="app-current-salary" name="current_salary" min={0} step={100} value={data.current_salary} onChange={v => set('current_salary')(v === '' ? undefined : Number(v))} placeholder="0" />
             </FormField>
             <FormField label="Currency">
-              <Select value={data.current_salary_currency || 'USD'} onChange={set('current_salary_currency')} options={['USD','ETB','KES','GHS','ZAR','NGN','EUR']} />
+              <Select id="app-salary-currency" name="current_salary_currency" value={data.current_salary_currency || 'USD'} onChange={set('current_salary_currency')} options={['USD','ETB','KES','GHS','ZAR','NGN','EUR']} />
             </FormField>
           </FormGrid>
           <FormField label="Current benefits">
@@ -476,16 +502,16 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
           <Divider />
           <FormGrid>
              <FormField label="Salary expectation (Min USD)">
-              <TextInput type="number" min={0} step={100} value={data.expected_min_usd} onChange={v => set('expected_min_usd')(v === '' ? undefined : Number(v))} placeholder="0" />
+              <TextInput type="number" id="app-expected-min" name="expected_min_usd" min={0} step={100} value={data.expected_min_usd} onChange={v => set('expected_min_usd')(v === '' ? undefined : Number(v))} placeholder="0" />
             </FormField>
              <FormField label="Salary expectation (Target USD)">
-              <TextInput type="number" min={0} step={100} value={data.expected_target_usd} onChange={v => set('expected_target_usd')(v === '' ? undefined : Number(v))} placeholder="0" />
+              <TextInput type="number" id="app-expected-target" name="expected_target_usd" min={0} step={100} value={data.expected_target_usd} onChange={v => set('expected_target_usd')(v === '' ? undefined : Number(v))} placeholder="0" />
               {data.expected_min_usd && data.expected_target_usd && Number(data.expected_target_usd) < Number(data.expected_min_usd) && (
                 <p className="field-hint" style={{ color: 'var(--error)' }}>Target should be at least the minimum.</p>
               )}
             </FormField>
           </FormGrid>
-          <FormField label="Preferred payment arrangement" required>
+          <FormField label="Preferred payment arrangement" required error={validationErrors.payment_preference} touched={!!touchedFields.payment_preference}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
               {[['usd_home','USD — paid to home country account'],['local_home','Local currency — paid to home account']].map(([v,l]) => (
                 <RadioItem key={v} label={l} value={v} current={data.payment_preference} onChange={set('payment_preference')} />
@@ -493,11 +519,11 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
             </div>
           </FormField>
           <FormField label="Deployment arrangement preference">
-             <Select value={data.deployment_arrangement} onChange={set('deployment_arrangement')} options={['Rotation (4 on / 2 off)','Rotation (6 on / 3 off)','Open to discussion','Other']} />
+             <Select id="app-deployment-arrangement" name="deployment_arrangement" value={data.deployment_arrangement} onChange={set('deployment_arrangement')} options={['Rotation (4 on / 2 off)','Rotation (6 on / 3 off)','Open to discussion','Other']} />
           </FormField>
           {data.deployment_arrangement === 'Other' && (
             <FormField label="Please specify arrangement">
-              <TextInput value={data.deployment_arrangement_other} onChange={set('deployment_arrangement_other')} placeholder="Preferred rotation / arrangement" />
+              <TextInput id="app-deployment-other" name="deployment_arrangement_other" value={data.deployment_arrangement_other} onChange={set('deployment_arrangement_other')} placeholder="Preferred rotation / arrangement" />
             </FormField>
           )}
           <BtnRow onBack={() => goTo(3)} onNext={next} disabled={!isStepValid} onSaveDraft={saveDraft} />
@@ -522,11 +548,11 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
           <Divider />
 
           <FormField label="How did you hear about us?">
-             <Select value={data.source} onChange={set('source')} options={['LinkedIn','Ethiopian internal network','Kenya Airways network','Colleague referral','Aerojet website','Job board','Other']} />
+             <Select id="app-source" name="source" value={data.source} onChange={set('source')} options={['LinkedIn','Ethiopian internal network','Kenya Airways network','Colleague referral','Aerojet website','Job board','Other']} />
           </FormField>
           {data.source === 'Other' && (
             <FormField label="Please specify">
-              <TextInput value={data.source_other} onChange={set('source_other')} placeholder="How did you hear about us?" />
+              <TextInput id="app-source-other" name="source_other" value={data.source_other} onChange={set('source_other')} placeholder="How did you hear about us?" />
             </FormField>
           )}
 

@@ -58,7 +58,7 @@ export default function JobApplyContent({ job }: { job: Job }) {
             <div style={{ minWidth: 0 }}>
               {j.summary && (
                 <Section title="About the Role">
-                  <p style={{ color: 'var(--muted)', lineHeight: 1.8, textAlign: 'justify' }}>{j.summary}</p>
+                  <p style={{ color: 'var(--muted)', lineHeight: 1.8 }}>{j.summary}</p>
                 </Section>
               )}
               {j.responsibilities && (

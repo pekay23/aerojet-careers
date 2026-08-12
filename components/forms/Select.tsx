@@ -8,19 +8,28 @@ interface SelectProps {
   required?: boolean
   placeholder?: string
   span?: boolean
+  id?: string
+  name?: string
+  error?: string
+  touched?: boolean
+  onBlur?: () => void
 }
 
 export function Select({
-  value, onChange, options, label, required, placeholder, span
+  value, onChange, options, label, required, placeholder, span, id, name, error, touched, onBlur
 }: SelectProps) {
   return (
     <div className="field" style={span ? { gridColumn: '1 / -1' } : {}}>
       {label && <FormLabel required={required}>{label}</FormLabel>}
       <select
+        id={id}
+        name={name}
         value={value ?? ''}
         onChange={e => onChange(e.target.value)}
+        onBlur={onBlur}
         className="field-input"
         style={{ cursor: 'pointer' }}
+        aria-invalid={!!error && touched}
       >
         <option value="">{placeholder ?? 'Select…'}</option>
         {options.map(o => {

@@ -366,6 +366,16 @@
     justify-content: center;
     flex-wrap: wrap;
   }
+  @media (max-width: 640px) {
+    .cta-buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .cta-buttons .btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
 
   /* ── Footer ────────────────────────────────────────────────────────── */
   .site-footer {
@@ -382,14 +392,17 @@
   .site-footer .footer-container {
     width: 100%;
     margin: 0;
-    padding: var(--sp-8) var(--sp-5) var(--sp-5);
+    padding: var(--sp-8) var(--sp-8) var(--sp-5);
   }
 
   .site-footer .footer-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--sp-6);
+    gap: var(--sp-4);
     margin-bottom: var(--sp-6);
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   @media (min-width: 768px) {
@@ -406,7 +419,8 @@
 
   @media (min-width: 1280px) {
     .site-footer .footer-grid {
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1.25fr;
+      gap: var(--sp-4);
     }
   }
 
@@ -656,6 +670,20 @@
   a:not([class*="btn"]):hover {
     border-bottom-color: currentColor;
   }
+  a.no-underline,
+  a.no-underline:hover {
+    text-decoration: none;
+    border-bottom-color: transparent !important;
+  }
+
+  a.text-link {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    border-bottom: none;
+  }
+  a.text-link:hover {
+    border-bottom-color: transparent !important;
+  }
 
 
   /* Selection */
@@ -683,7 +711,7 @@
   .field-input {
     width: 100%;
     padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+    font-size: 16px;
     border-radius: 0.75rem;
     border: 1px solid var(--input);
     background: var(--background);
@@ -785,6 +813,13 @@
   }
   .job-row:hover {
     text-decoration: none;
+  }
+  .job-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .job-card:active {
+    transform: scale(0.985);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   .tag-pill {
@@ -1159,6 +1194,12 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
+  }
+  @media (max-width: 640px) {
+    .grid-auto-sm {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
   }
   .info-box {
     background: #eaf3fa;

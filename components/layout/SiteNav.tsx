@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
-import { MAIN_SITE, CAREERS_INTERNAL_LINKS } from '@/lib/domain-config';
+import { MAIN_SITE } from '@/lib/domain-config';
 
 export default function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,7 +15,7 @@ export default function SiteNav() {
 
   const LIGHT_BG_PATHS = [
     '/jobs', '/register', '/graduate-program', '/skilled-training',
-    '/cookies', '/terms', '/privacy',
+    '/cookies', '/terms', '/privacy', '/faq', '/our-story', '/check-status',
   ];
   const forceOpaque = LIGHT_BG_PATHS.includes(pathname);
 
@@ -24,6 +24,19 @@ export default function SiteNav() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleKey)
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
 
   const handleMouseEnter = (index: number) => {
     const el = underlineRefs.current[index];
@@ -37,7 +50,16 @@ export default function SiteNav() {
 
   const menuItems: Array<{ name: string; href: string; external?: boolean }> = [
     { name: 'Home', href: '/' },
-    ...CAREERS_INTERNAL_LINKS,
+    { name: 'Jobs', href: '/jobs' },
+    { name: 'Graduate Program', href: '/graduate-program' },
+    { name: 'Skilled Training', href: '/skilled-training' },
+    { name: 'Register', href: '/register' },
+    { name: 'Check Status', href: '/check-status' },
+  ];
+
+  const secondaryItems: Array<{ name: string; href: string; external?: boolean }> = [
+    { name: 'FAQ', href: '/faq' },
+    { name: 'Our Story', href: '/our-story' },
     { name: 'Newsroom', href: `${MAIN_SITE}/newsroom`, external: true },
     { name: 'Contact', href: `${MAIN_SITE}/contact`, external: true },
   ];
@@ -50,29 +72,28 @@ export default function SiteNav() {
     <nav className={`site-nav fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
       isOpaque ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
     }`}>
-      <div className="mx-auto px-6 flex justify-between items-center">
+      <div className="w-full px-6">
+        <div className="mx-auto max-w-8xl grid grid-cols-[auto_1fr_auto] items-center">
 
-        {/* Logo — transparent version when over hero, dark version when scrolled */}
-        <Link href="/" className="relative h-10 w-40">
-          <Image
-            src={isOpaque ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
-            alt="Aerojet Aviation"
-            fill
-            sizes="160px"
-            className="object-contain object-left"
-            priority
-          />
-        </Link>
+          {/* Logo */}
+          <Link href="/" className="relative h-10 w-40 flex items-center no-underline">
+             <Image
+              src={isOpaque ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
+              alt="Aerojet Aviation"
+              fill
+              sizes="160px"
+              className="object-contain object-left"
+              priority
+            />
+          </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-10">
-            <div className="flex justify-center items-center gap-7 flex-1">
+          {/* Centered Desktop Links */}
+          <div className="hidden lg:flex items-center justify-center">
+            <div className="flex items-center gap-7 flex-nowrap">
               {menuItems.map((item, index) => (
                 <div key={item.name} className="relative">
                   <Link
                     href={item.href}
-                    target={item.external ? '_blank' : undefined}
-                    rel={item.external ? 'noopener noreferrer' : undefined}
                     className={`font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
                     onMouseEnter={() => handleMouseEnter(index)}
                     onMouseLeave={() => handleMouseLeave(index)}
@@ -88,7 +109,10 @@ export default function SiteNav() {
               </div>
             ))}
           </div>
+        </div>
 
+        {/* View All Jobs — far right */}
+        <div className="hidden lg:flex justify-end">
           <Link
             href="/jobs"
             className="btn-primary text-sm py-2 px-6 tracking-widest"
@@ -108,6 +132,16 @@ export default function SiteNav() {
           {mobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
+      </div>
+
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
@@ -116,9 +150,20 @@ export default function SiteNav() {
             <Link
               key={item.name}
               href={item.href}
+              className={`font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+          <div style={{ width: '80%', height: 1, background: 'var(--border)' }} />
+          {secondaryItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noopener noreferrer' : undefined}
-               className={`font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+              className={`text-sm hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}

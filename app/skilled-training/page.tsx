@@ -81,7 +81,7 @@ export default function SkilledTrainingPage() {
             ))}
           </div>
 
-          <h2 className="section-heading-xl" style={{ textAlign: 'center', marginBottom: '1.25rem' }}>Entry Requirements</h2>
+          <h2 className="section-heading-xl text-center" style={{ marginBottom: '1.25rem' }}>Entry Requirements</h2>
           <div className="grid-auto">
             {[
               { title: 'Engineering Technicians Track', items: ['Minimum WAEC/WASSCE passes in Mathematics and Physics (Grade C or above)','OND in Mechanical, Electrical or Aeronautical Engineering preferred','Less than 3 years formal employment (trainees welcome)','Strong numerical and mechanical aptitude','Must be able to work shifts and pass a medical assessment','Willing to be based full-time in Accra, Ghana'] },

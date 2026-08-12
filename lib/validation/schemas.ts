@@ -8,18 +8,18 @@ const isAdult = (d: string) => {
 }
 
 export const ApplicationStep1Schema = z.object({
-  first_name: z.string().min(2, 'First name is required'),
-  last_name: z.string().min(2, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(8, 'Phone number is required'),
-  nationality: z.string().min(1, 'Nationality is required'),
-  country_of_residence: z.string().min(1, 'Country of residence is required'),
-  date_of_birth: z.string().min(1, 'Date of birth is required').refine(isAdult, 'Must be at least 18 years old'),
+  first_name: z.string().min(2, 'Input your first name'),
+  last_name: z.string().min(2, 'Input your last name'),
+  email: z.string().email('Enter a valid email'),
+  phone: z.string().min(8, 'Enter your phone number'),
+  nationality: z.string().min(1, 'Select your nationality'),
+  country_of_residence: z.string().min(1, 'Select your country of residence'),
+  date_of_birth: z.string().min(1, 'Enter your date of birth').refine(isAdult, 'You must be at least 18 years old'),
   deployment_pref: z.enum(['fully_flexible', 'ghana_only', 'not_available']),
 })
 
 export const ApplicationStep2Schema = z.object({
-  licence_type: z.string().min(1, 'Licence type is required'),
+  licence_type: z.string().min(1, 'Select your licence type'),
   licence_number: z.string().optional(),
   issuing_authority: z.string().optional(),
   licence_expiry: z.string().optional(),
@@ -30,11 +30,11 @@ export const ApplicationStep2Schema = z.object({
 })
 
 export const ApplicationStep3Schema = z.object({
-  current_employer: z.string().min(2, 'Current employer is required'),
+  current_employer: z.string().min(2, 'Enter your current employer'),
   job_title: z.string().optional(),
   role_start_date: z.string().optional(),
   role_end_date: z.string().optional(),
-  total_years_exp: z.string().min(1, 'Years of experience is required'),
+  total_years_exp: z.string().min(1, 'Select your total years of experience'),
   work_types: z.array(z.string()).optional(),
   outstation_exp: z.string().optional(),
   stations_worked: z.string().optional(),
@@ -49,7 +49,7 @@ export const ApplicationStep4Schema = z.object({
   total_package_approx: z.union([z.number(), z.nan()]).optional(),
   expected_min_usd: z.union([z.number(), z.nan()]).optional(),
   expected_target_usd: z.union([z.number(), z.nan()]).optional(),
-  payment_preference: z.string().min(1, 'Payment preference is required'),
+  payment_preference: z.string().min(1, 'Select your payment preference'),
   accommodation_important: z.string().optional(),
   deployment_arrangement: z.string().optional(),
   earliest_start_date: z.string().optional(),
@@ -85,14 +85,14 @@ export const ApplicationSchema = ApplicationStep1Schema
   })
 
 export const RegistrationSchema = z.object({
-  first_name: z.string().min(2, 'First name is required'),
-  last_name: z.string().min(2, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
+  first_name: z.string().min(2, 'Input your first name'),
+  last_name: z.string().min(2, 'Input your last name'),
+  email: z.string().email('Enter a valid email'),
   phone: z.string().optional(),
-  nationality: z.string().min(1, 'Nationality is required'),
-  country: z.string().min(1, 'Country of residence is required'),
-  years_experience: z.string().min(1, 'Years of experience is required'),
-  qualification: z.string().min(1, 'Highest qualification is required'),
+  nationality: z.string().min(1, 'Select your nationality'),
+  country: z.string().min(1, 'Select your country of residence'),
+  years_experience: z.string().min(1, 'Select your years of experience'),
+  qualification: z.string().min(1, 'Select your highest qualification'),
   source: z.string().optional(),
   statement: z.string().nullable().optional(),
   departments_interest: z.array(z.string()).default([]),
@@ -101,25 +101,25 @@ export const RegistrationSchema = z.object({
 // ── Wizard step schemas (used by ApplicationForm.tsx) ───────────────────────
 // These are simplified per-step validations for the multi-step form.
 export const WizardStep1Schema = z.object({
-  first_name: z.string().min(2, 'Required'),
-  last_name: z.string().min(2, 'Required'),
-  email: z.string().email('Invalid email'),
-  phone: z.string().min(8, 'Required'),
-  nationality: z.string().min(1, 'Selection required'),
-  country_of_residence: z.string().min(1, 'Selection required'),
-  date_of_birth: z.string().min(1, 'Required').refine(isAdult, 'Must be at least 18'),
+  first_name: z.string().min(2, 'Input your first name'),
+  last_name: z.string().min(2, 'Input your last name'),
+  email: z.string().email('Enter a valid email'),
+  phone: z.string().min(8, 'Enter your phone number'),
+  nationality: z.string().min(1, 'Select your nationality'),
+  country_of_residence: z.string().min(1, 'Select your country of residence'),
+  date_of_birth: z.string().min(1, 'Enter your date of birth').refine(isAdult, 'You must be at least 18 years old'),
   deployment_pref: z.enum(['fully_flexible', 'ghana_only', 'not_available']),
 })
 
 export const WizardStep2Schema = z.object({
-  licence_type: z.string().min(1, 'Selection required'),
-  type_ratings: z.array(z.string()).min(1, 'Select at least one'),
+  licence_type: z.string().min(1, 'Select your licence type'),
+  type_ratings: z.array(z.string()).min(1, 'Select at least one type rating'),
 })
 
 export const WizardStep3Schema = z
   .object({
-    current_employer: z.string().min(2, 'Required'),
-    total_years_exp: z.string().min(1, 'Selection required'),
+    current_employer: z.string().min(2, 'Enter your current employer'),
+    total_years_exp: z.string().min(1, 'Select your total years of experience'),
     role_start_date: z.string().optional(),
     role_end_date: z.string().optional(),
   })
@@ -130,7 +130,7 @@ export const WizardStep3Schema = z
 
 export const WizardStep4Schema = z
   .object({
-    payment_preference: z.string().min(1, 'Selection required'),
+    payment_preference: z.string().min(1, 'Select your payment preference'),
     expected_min_usd: z.union([z.number(), z.nan()]).optional(),
     expected_target_usd: z.union([z.number(), z.nan()]).optional(),
   })

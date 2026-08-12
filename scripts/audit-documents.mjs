@@ -10,7 +10,7 @@ function loadEnv(file) {
       const val = m[2].trim().replace(/^["']|["']$/g, '')
       if (!(m[1] in process.env)) process.env[m[1]] = val
     }
-  } catch {}
+  } catch { /* no-op if .env.local is missing */ }
 }
 loadEnv('.env.local')
 

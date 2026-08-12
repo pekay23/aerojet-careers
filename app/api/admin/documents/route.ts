@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger'
 
 export async function GET(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager', 'recruiter', 'employee'])
+    const auth = await verifyRole(['super_admin', 'admin', 'hr_manager', 'recruiter', 'employee', 'read_only'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const { searchParams } = new URL(req.url)
@@ -58,8 +58,14 @@ export async function GET(req: NextRequest) {
         const { data: appDocs, error: appDocsErr } = await appDocsQuery
         if (appDocsErr) throw appDocsErr
 
-        // Map application_documents to the format expected by FileManagement
-        const mapped = await Promise.all((appDocs || []).map(async (d: any) => {
+        const mapped: any[] = []
+        const seen = new Set<string>()
+
+        // Source 1: application_documents (canonical source for recruitment scans)
+        for (const d of appDocs || []) {
+          if (d.file_path && seen.has(d.file_path)) continue
+          if (d.file_path) seen.add(d.file_path)
+
           let signedUrl = ''
           try {
             const { data: signed } = await supabaseAdmin.storage
@@ -67,10 +73,10 @@ export async function GET(req: NextRequest) {
               .createSignedUrl(d.file_path, 3600)
             signedUrl = signed?.signedUrl || ''
           } catch (e) {
-            console.error('Failed to create signed URL for', d.file_path, e)
+            logger.error('Failed to create signed URL for recruitment scan', { path: d.file_path, error: e })
           }
 
-          return {
+          mapped.push({
             id: d.id,
             file_name: `${d.document_type?.toUpperCase() || 'DOC'} - ${d.file_name}`,
             file_url: signedUrl,
@@ -79,18 +85,11 @@ export async function GET(req: NextRequest) {
             created_at: d.uploaded_at,
             folder_id: folderId,
             is_external: true
-          }
-        }))
+          })
+        }
 
-        // Also surface talent pool CVs. Two sources:
-        // 1. talent_pool.cv_path — the canonical source (same data the talent
-        //    page uses to build download links, so it always matches).
-        // 2. storage_objects under talent-pool/ — fallback for any files that
-        //    exist in storage but never had cv_path populated.
+        // Source 2: talent_pool CVs (only if no staffId filter — these are general talent pool entries)
         if (!staffId) {
-          const seen = new Set<string>()
-
-          // Source 1: talent_pool.cv_path
           try {
             const { data: talentDocs } = await supabaseAdmin
               .from('talent_pool')
@@ -122,54 +121,6 @@ export async function GET(req: NextRequest) {
             }
           } catch (e) {
             // talent_pool table may not have created_at or may not exist on older DBs
-          }
-
-          // Source 2: storage_objects fallback (files without cv_path set)
-          try {
-            const { data: talentFiles } = await supabaseAdmin
-              .from('storage_objects')
-              .select('path, content_type, size')
-              .eq('bucket', 'application-documents')
-              .ilike('path', 'talent-pool/%')
-
-            if (talentFiles) {
-              const filePromises = talentFiles
-                .filter((f: any) => !seen.has(f.path))
-                .map(async (f: any) => {
-                  seen.add(f.path)
-                  const seg = f.path.split('/')
-                  const talentId = seg[1]
-                  const fileName = seg[seg.length - 1] || 'CV'
-
-                  const { data: talent } = await supabaseAdmin
-                    .from('talent_pool')
-                    .select('first_name, last_name')
-                    .eq('id', talentId)
-                    .maybeSingle()
-
-                  const { data: signed } = await supabaseAdmin.storage
-                    .from('application-documents')
-                    .createSignedUrl(f.path, 3600)
-
-                  return {
-                    id: `talent-${talentId}-${f.path}`,
-                    file_name: talent
-                      ? `CV - ${talent.first_name} ${talent.last_name}`
-                      : `CV - ${fileName}`,
-                    file_url: signed?.signedUrl || '',
-                    file_type: f.content_type || 'application/pdf',
-                    file_size: f.size,
-                    created_at: new Date().toISOString(),
-                    folder_id: folderId,
-                    is_external: true
-                  }
-                })
-
-              const fileResults = await Promise.all(filePromises)
-              mapped.push(...fileResults)
-            }
-          } catch (e) {
-            // ignore — storage_objects may not exist on older DBs
           }
         }
 
@@ -214,7 +165,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager', 'employee'])
+    const auth = await verifyRole(['super_admin', 'admin', 'hr_manager', 'employee'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const body = await req.json()
@@ -260,7 +211,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager', 'employee'])
+    const auth = await verifyRole(['super_admin', 'admin', 'hr_manager', 'employee'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const id = new URL(req.url).searchParams.get('id')

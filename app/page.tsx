@@ -131,7 +131,7 @@ export default async function HomePage() {
 
       <section className="section-white">
         <div className="container-max mx-auto">
-          <h2 className="section-heading-xl" style={{ textAlign: 'center', marginBottom: '0.75rem' }}>
+          <h2 className="section-heading-xl text-center" style={{ marginBottom: '0.75rem' }}>
             Why Join Aerojet Aviation?
           </h2>
           <p className="section-subtitle" style={{ marginBottom: '3rem' }}>
@@ -152,8 +152,8 @@ export default async function HomePage() {
                 body: "Your work will directly reduce Africa's reliance on overseas MRO — a mission with lasting regional significance.",
               },
             ].map((v) => (
-              <div key={v.title} className="card card-inner" style={{ textAlign: 'center', border: '1px solid var(--aero-blue-100)' }}>
-                <h4 style={{ fontFamily: 'var(--font-display)', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 700, color: 'var(--aero-blue)' }}>{v.title}</h4>
+              <div key={v.title} className="card card-inner" style={{ border: '1px solid var(--aero-blue-100)' }}>
+                <h4 style={{ fontFamily: 'var(--font-display)', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 700, color: 'var(--aero-blue)', textAlign: 'center' }}>{v.title}</h4>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', lineHeight: 1.65, margin: 0 }}>
                   {v.body}
                 </p>

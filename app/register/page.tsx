@@ -8,13 +8,13 @@ import { PageHero, NoticeBanner, FormCard } from '@/components/ui'
 const DEPARTMENTS = ['Engineering','IT','Operations','HR','Customer Support','Sales','Logistics','Quality']
 
 const RegistrationSchema = z.object({
-  first_name: z.string().min(2, "First name too short"),
-  last_name: z.string().min(2, "Last name too short"),
-  email: z.string().email("Invalid email address"),
-  nationality: z.string().min(1, "Selection required"),
-  country: z.string().min(1, "Selection required"),
-  years_experience: z.string().min(1, "Selection required"),
-  qualification: z.string().min(1, "Selection required"),
+  first_name: z.string().min(2, "Input your first name"),
+  last_name: z.string().min(2, "Input your last name"),
+  email: z.string().email("Enter a valid email"),
+  nationality: z.string().min(1, "Select your nationality"),
+  country: z.string().min(1, "Select your country of residence"),
+  years_experience: z.string().min(1, "Select your years of experience"),
+  qualification: z.string().min(1, "Select your highest qualification"),
 })
 
 export default function RegisterPage() {
@@ -26,15 +26,28 @@ export default function RegisterPage() {
   const [submitting,setSubmitting]= useState(false)
   const [isValid,   setIsValid]   = useState(false)
   const [error,     setError]     = useState('')
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const result = RegistrationSchema.safeParse(data)
     setIsValid(result.success)
+    if (!result.success && result.error?.issues) {
+      const errors: Record<string, string> = {}
+      for (const issue of result.error.issues) {
+        const key = issue.path?.join('.') || 'form'
+        errors[key] = issue.message
+      }
+      setFieldErrors(errors)
+    } else {
+      setFieldErrors({})
+    }
   }, [data])
 
   const canSubmit = isValid && !!cvFile && consent && !submitting
 
   const set = (k: string) => (v: any) => setData(d => ({ ...d, [k]: v }))
+  const touch = (k: string) => setTouchedFields(p => ({ ...p, [k]: true }))
   const toggleDept = (d: string) => {
     setData(prev => {
       const arr: string[] = prev.departments_interest || []
@@ -43,7 +56,11 @@ export default function RegisterPage() {
   }
 
   const handleSubmit = async () => {
-    if (!canSubmit) return
+    if (!canSubmit) {
+      const allFields = ['first_name','last_name','email','phone','nationality','country','years_experience','qualification']
+      setTouchedFields(Object.fromEntries(allFields.map(k => [k, true])))
+      return
+    }
     setError('')
     setSubmitting(true)
     try {
@@ -119,35 +136,37 @@ export default function RegisterPage() {
                         spellCheck={k === 'email' ? false : undefined}
                         value={data[k as string] ?? ''}
                         onChange={e => set(k as string)(e.target.value)}
+                        onBlur={() => touch(k as string)}
                         placeholder={ph as string}
                         className="field-input"
+                        aria-invalid={!!fieldErrors[k as string] && touchedFields[k as string]}
                       />
                     </div>
                   ))}
                   <div className="field">
                     <label className="field-label" htmlFor="reg-nationality">Nationality <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-nationality" value={data.nationality ?? ''} onChange={e => set('nationality')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }}>
+                    <select id="reg-nationality" name="nationality" value={data.nationality ?? ''} onChange={e => set('nationality')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.nationality && touchedFields.nationality} onBlur={() => touch('nationality')}>
                       <option value="">Select…</option>
                       {['Ghanaian','Nigerian','Kenyan','Ethiopian','Other African','Other'].map(n => <option key={n}>{n}</option>)}
                     </select>
                   </div>
                   <div className="field">
                     <label className="field-label" htmlFor="reg-country">Country of residence <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-country" value={data.country ?? ''} onChange={e => set('country')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }}>
+                    <select id="reg-country" name="country" value={data.country ?? ''} onChange={e => set('country')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.country && touchedFields.country} onBlur={() => touch('country')}>
                       <option value="">Select…</option>
                       {['Ghana','Nigeria','Kenya','Ethiopia','Other African country','Outside Africa'].map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="field">
                     <label className="field-label" htmlFor="reg-years">Years of experience <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-years" value={data.years_experience ?? ''} onChange={e => set('years_experience')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }}>
+                    <select id="reg-years" name="years_experience" value={data.years_experience ?? ''} onChange={e => set('years_experience')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.years_experience && touchedFields.years_experience} onBlur={() => touch('years_experience')}>
                       <option value="">Select…</option>
                       {['0–1 years','1–3 years','3–5 years','5–10 years','10–15 years','15+ years'].map(y => <option key={y}>{y}</option>)}
                     </select>
                   </div>
                   <div className="field">
                     <label className="field-label" htmlFor="reg-qualification">Highest qualification <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-qualification" value={data.qualification ?? ''} onChange={e => set('qualification')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }}>
+                    <select id="reg-qualification" name="qualification" value={data.qualification ?? ''} onChange={e => set('qualification')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.qualification && touchedFields.qualification} onBlur={() => touch('qualification')}>
                       <option value="">Select…</option>
                       {['Secondary School Certificate','OND / HND','Professional Certificate (AME, etc.)','Bachelor\'s Degree','Master\'s Degree','PhD / Doctorate'].map(q => <option key={q}>{q}</option>)}
                     </select>

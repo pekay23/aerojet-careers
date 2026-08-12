@@ -9,6 +9,10 @@ internal HR/admin dashboard).
 ```
 docs/
 ├── README.md                   This index
+├── CHANGELOG_2026-08-12.md     Recent UI/UX, validation, and lint fixes
+├── AUDIT_REPORT_2026-08-11.md  Full codebase audit report
+├── AUDIT_DECISIONS.md          Decisions from the audit council
+├── UNDONE_ISSUES_2026-08-11.md Tracked issues awaiting future sprints
 ├── architecture/               System reference — overview, database, security, API
 ├── guides/                     Operational how-tos — setup, deployment, migration, handover
 └── html/                       Generated HTML mirror (build with `bun run docs:html`)

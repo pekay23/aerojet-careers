@@ -60,6 +60,8 @@ export default function CheckStatusClient() {
                 <label className="field-label" htmlFor="ref">Reference Code <span style={{ color: 'var(--blue)' }}>*</span></label>
                 <input
                   id="ref"
+                  name="ref"
+                  autoComplete="off"
                   value={refCode}
                   onChange={e => setRefCode(e.target.value)}
                   className="field-input"
@@ -93,7 +95,7 @@ export default function CheckStatusClient() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' }}>
                   <div style={{ padding: '0.75rem', background: 'var(--bg)', borderRadius: 8 }}>
                     <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Reference</div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--navy)', fontFamily: 'monospace' }}>{result.ref_code}</div>
