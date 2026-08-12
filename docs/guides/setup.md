@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-- Node.js >= 20
+- Node.js >= 24
 - A PostgreSQL database (Neon recommended)
-- Package manager: `bun` (preferred) or `npm` — both lockfiles exist
+- Package manager: `bun` (preferred) or `npm`
 
 ## Installation
 
@@ -21,9 +21,14 @@ Create `.env.local`:
 ```
 # Neon (primary database)
 DATABASE_URL="postgresql://<user>:<pass>@<neon-host>/<db>?sslmode=require"
+DIRECT_URL="postgresql://<user>:<pass>@<neon-host>/<db>?sslmode=require"
 
 # Local auth — signs the JWT session cookie. Keep secret.
 AUTH_SECRET="<random 48+ byte string>"
+
+# Optional: rate limiting
+UPSTASH_REDIS_REST_URL="<url>"
+UPSTASH_REDIS_REST_TOKEN="<token>"
 
 # App
 EMAIL_FROM="careers@aerojet-aviation.com"
@@ -37,23 +42,20 @@ Generate a secret:
 node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 ```
 
-The legacy `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` values are not used
-at runtime; keep them only if you still need to export data from the paused Supabase
-project (see the [Neon migration guide](./neon-migration.md)).
-
 ## Database setup
 
 Apply the schema (idempotent — safe to re-run):
 
 ```bash
-psql "$DATABASE_URL" -f db/neon-schema.sql
+bun scripts/apply-schema.mjs
+# or: psql "$DATABASE_URL" -f db/neon-schema.sql
 # or paste db/neon-schema.sql into the Neon SQL editor
 ```
 
 Seed the initial admin:
 
 ```bash
-node seed-admin.js
+node scripts/seed-admin.mjs
 ```
 
 Defaults: `admin@aerojet-aviation.com` / `Admin@2026`
@@ -67,6 +69,8 @@ bun run lint         # ESLint
 bun run type-check   # tsc --noEmit
 bun run build        # production build (next build)
 bun start            # run the production build
+bun run test         # unit tests (Vitest)
+bun run test:e2e     # e2e tests (Playwright)
 ```
 
 ## Verifying the DB connection

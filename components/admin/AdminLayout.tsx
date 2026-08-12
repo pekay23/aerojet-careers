@@ -87,10 +87,16 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
         sidebarOpen={sidebarOpen}
         mobileOpen={mobileOpen}
         onToggleSidebar={toggleSidebar}
+        userName={userName}
+        userRole={userRole}
+        userMenuOpen={userMenuOpen}
+        settings={settings}
+        onToggleUserMenu={() => setUserMenuOpen((p) => !p)}
+        onLogout={handleLogout}
       />
 
       {/* Main content */}
-      <div className={cn('flex flex-1 flex-col transition-all duration-300 ease-in-out', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}>
+      <div className="flex flex-1 flex-col lg:ml-20">
         <AdminTopbar title={title} breadcrumb={breadcrumb} mobileOpen={mobileOpen} onToggleMobile={() => setMobileOpen((p) => !p)} />
 
         {/* Page content */}
@@ -98,15 +104,6 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
           <div className="mx-auto max-w-[1600px] pb-20">{children}</div>
         </main>
       </div>
-
-      <AdminUserMenu
-        userName={userName}
-        userRole={userRole}
-        userMenuOpen={userMenuOpen}
-        settings={settings}
-        onToggle={() => setUserMenuOpen((p) => !p)}
-        onLogout={handleLogout}
-      />
 
       <ToastContainer />
     </div>

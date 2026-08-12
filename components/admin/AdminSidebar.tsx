@@ -15,11 +15,18 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import AdminUserMenu from '@/components/admin/AdminUserMenu'
 
 interface AdminSidebarProps {
   sidebarOpen: boolean
   mobileOpen: boolean
   onToggleSidebar: () => void
+  userName: string
+  userRole: string
+  userMenuOpen: boolean
+  settings: Record<string, string>
+  onToggleUserMenu: () => void
+  onLogout: () => void
 }
 
 const navGroups = [
@@ -48,7 +55,7 @@ const navGroups = [
   },
 ]
 
-export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar }: AdminSidebarProps) {
+export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar, userName, userRole, userMenuOpen, settings, onToggleUserMenu, onLogout }: AdminSidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -137,6 +144,15 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar 
           </a>
         </div>
       </nav>
+
+      <AdminUserMenu
+        userName={userName}
+        userRole={userRole}
+        userMenuOpen={userMenuOpen}
+        settings={settings}
+        onToggle={onToggleUserMenu}
+        onLogout={onLogout}
+      />
     </aside>
   )
 }

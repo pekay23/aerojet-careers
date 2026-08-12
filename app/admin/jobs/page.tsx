@@ -389,16 +389,27 @@ export default function JobsAdminPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '11%' }} />
+                <col style={{ width: '8%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '8%' }} />
+                <col style={{ width: '9%' }} />
+                <col style={{ width: '9%' }} />
+                <col style={{ width: '19%' }} />
+              </colgroup>
               <thead>
                  <tr className="bg-slate-50/50">
                    {['Job Title','Department','Category','Vacancies','Closes','Status','Created','Updated','Actions'].map(h => {
                      const colKey = SORTABLE_COLUMNS[h]
                      const sortable = !!colKey
                      return (
-                     <th 
-                       key={h} 
-                       className="px-4 lg:px-8 py-3 lg:py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100"
+                     <th
+                       key={h}
+                       className="px-3 py-2 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100"
                        onClick={sortable ? () => setSort(colKey) : undefined}
                        style={sortable ? { cursor: 'pointer', userSelect: 'none' } : undefined}
                      >
@@ -416,58 +427,58 @@ export default function JobsAdminPage() {
               <tbody className="divide-y divide-slate-100">
                 {jobs.map(j => (
                    <tr key={j.id} className="hover:bg-slate-50/50 transition-colors group/row">
-                    <td className="px-4 lg:px-8 py-4 lg:py-5">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-900 uppercase tracking-tight group-hover/row:text-blue-600 transition-colors">{j.title}</span>
-                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{j.ref_code} · {j.location}</span>
+                    <td className="px-3 py-2.5">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold text-slate-900 uppercase tracking-tight truncate group-hover/row:text-blue-600 transition-colors">{j.title}</span>
+                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{j.ref_code} · {j.location}</span>
                        </div>
                     </td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-600 uppercase tracking-tight">{j.department}</td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-600 uppercase tracking-tight">
+                    <td className="px-3 py-2.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight truncate">{j.department}</td>
+                    <td className="px-3 py-2.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight truncate">
                        {meta.categories.find(c => c.value === j.category)?.label || j.category?.replace(/_/g, ' ')}
                     </td>
-                     <td className="px-4 lg:px-8 py-4 lg:py-5 text-[11px] font-bold text-slate-900">{!j.target_count ? 'Open' : j.target_count}</td>
-                     <td className="px-4 lg:px-8 py-4 lg:py-5">
+                     <td className="px-3 py-2.5 text-[10px] font-bold text-slate-900">{!j.target_count ? 'Open' : j.target_count}</td>
+                     <td className="px-3 py-2.5">
                        {j.closes_at && <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter">Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
                        {!j.closes_at && <span className="text-[9px] font-bold text-sky-600 uppercase tracking-tighter">No deadline</span>}
                      </td>
-                     <td className="px-4 lg:px-8 py-4 lg:py-5"><StatusPill status={j.status} /></td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                     <td className="px-3 py-2.5"><StatusPill status={j.status} /></td>
+                    <td className="px-3 py-2.5">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                         {new Date(j.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </td>
-                    <td className="px-4 lg:px-8 py-4 lg:py-5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <td className="px-3 py-2.5">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                         {new Date(j.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </td>
-                     <td className="px-4 lg:px-8 py-4 lg:py-5">
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => openEdit(j)} 
-                            className="px-4 py-1.5 bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-blue-600 rounded-lg hover:border-blue-400 hover:text-blue-700 transition-all shadow-sm"
+                     <td className="px-3 py-2.5">
+                        <div className="flex gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => openEdit(j)}
+                            className="px-2.5 py-1 bg-white border border-slate-200 text-[9px] font-bold uppercase tracking-widest text-blue-600 rounded hover:border-blue-400 hover:text-blue-700 transition-all shadow-sm"
                           >
                             Edit
                           </button>
                           {(userRole === 'admin' || userRole === 'hr_manager') && (
                             <>
-                          <button 
-                            onClick={() => toggleVisibility(j)} 
-                            className={`px-4 py-1.5 border rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'open' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white'}`}
+                          <button
+                            onClick={() => toggleVisibility(j)}
+                            className={`px-2.5 py-1 border rounded text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'open' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white'}`}
                             title={j.status === 'open' ? 'Hide from careers page' : 'Publish to careers page'}
                           >
                             {j.status === 'open' ? 'Published' : 'Draft'}
                           </button>
-                          <button 
-                            onClick={() => toggleStatus(j)} 
-                            className="px-4 py-1.5 bg-slate-50 border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 rounded-lg hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                          <button
+                            onClick={() => toggleStatus(j)}
+                            className="px-2.5 py-1 bg-slate-50 border border-slate-100 text-[9px] font-bold uppercase tracking-widest text-slate-400 rounded hover:bg-slate-900 hover:text-white transition-all shadow-sm"
                           >
-                            {j.status === 'open' ? 'Close' : j.status === 'closed' ? 'Reopen' : 'Cycle status'}
+                            {j.status === 'open' ? 'Close' : j.status === 'closed' ? 'Reopen' : 'Cycle'}
                           </button>
-                          <button 
-                            onClick={() => handleDelete(j)} 
-                            className="px-4 py-1.5 bg-red-50 border border-red-100 text-[10px] font-bold uppercase tracking-widest text-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                          <button
+                            onClick={() => handleDelete(j)}
+                            className="px-2.5 py-1 bg-red-50 border border-red-100 text-[9px] font-bold uppercase tracking-widest text-red-500 rounded hover:bg-red-600 hover:text-white transition-all shadow-sm"
                           >
                             Delete
                           </button>
@@ -475,12 +486,12 @@ export default function JobsAdminPage() {
                           )}
                         </div>
                      </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
+           </div>
+         )}
       </div>
 
       {/* Modal */}

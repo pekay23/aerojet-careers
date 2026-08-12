@@ -23,6 +23,7 @@ Auth and some upload routes return plainer shapes (documented inline below).
 | POST | `/api/auth/login` | `{ email, password }` | Verifies bcrypt hash, sets `aj_session` cookie. Returns `{ user }` or `{ error }`. |
 | POST | `/api/auth/logout` | — | Clears the session cookie. |
 | GET | `/api/auth/me` | — | Returns `{ user, admin }` for the current session (or nulls). |
+| POST | `/api/auth/refresh` | — | Rotates refresh token, issues new JWT session. |
 
 ## Public
 
@@ -31,6 +32,8 @@ Auth and some upload routes return plainer shapes (documented inline below).
 | POST | `/api/applications` | Submit a job application (creates `applications` + child rows). |
 | POST | `/api/register` | Talent-pool / general registration. |
 | GET | `/api/metadata` | Public lookup data (departments, categories) for forms. |
+| GET | `/api/stats` | Public stats (`{ activeJobs, departments }`). |
+| GET | `/api/check-status` | Look up application status by reference code. |
 | POST | `/api/upload` | Upload an application document (`application-documents` bucket). |
 | POST | `/api/upload/talent` | Upload a talent-pool CV, sets `talent_pool.cv_path`. |
 | POST | `/api/email/acknowledge` | Send an application acknowledgement email (Resend). |
@@ -53,7 +56,7 @@ Auth and some upload routes return plainer shapes (documented inline below).
 | Method | Path | Roles | Purpose |
 | --- | --- | --- | --- |
 | GET/DELETE | `/api/admin/people` | admin, hr_manager | Staff directory (with `staff_profiles` embed); soft/hard delete (hard = super_admin only). |
-| POST | `/api/admin/people/create` | admin, hr_manager | Create a staff member directly. |
+| POST | `/api/admin/people/create` | admin, hr_manager | Create a staff member directly with temp password. |
 | PATCH | `/api/admin/staff/profile` | any authenticated | Update the current user's staff profile. |
 | GET/POST/PATCH | `/api/admin/organization` | admin, hr_manager | Org chart / structure data. |
 | GET/POST/PATCH/DELETE | `/api/admin/departments` | admin, hr_manager | Departments CRUD. |
@@ -70,6 +73,10 @@ Auth and some upload routes return plainer shapes (documented inline below).
 | GET/PATCH | `/api/admin/settings` | admin | System settings key-values. |
 | GET | `/api/admin/metadata` | admin+ | Admin lookup data (departments, types). |
 | GET | `/api/admin/stats` · `/api/admin/analytics/snapshot` | admin+ | Dashboard metrics + snapshots. |
+| POST | `/api/admin/analytics/snapshot` | admin+ | Create a dashboard snapshot. |
+| GET | `/api/admin/application/[id]` | admin, hr_manager, recruiter | Single application detail. |
+| GET | `/api/admin/applications/stats` | admin, hr_manager, recruiter | Pipeline counts. |
+| GET | `/api/admin/applications/events` | admin, hr_manager, recruiter | Pipeline event history. |
 | GET | `/api/admin/audit` | admin | Audit / activity log. |
 
 ## Storage / files

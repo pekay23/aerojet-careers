@@ -635,6 +635,11 @@ function resolveRelationship(
   baseTable: string,
   embedTable: string
 ): { cardinality: 'one' | 'many'; predicate: string } {
+  // applications.job:jobs(...) — applications.job_id -> jobs.id (many-to-one)
+  if (baseTable === 'applications' && embedTable === 'jobs') {
+    return { cardinality: 'one', predicate: `e.job_id = t.id` }
+  }
+
   // child tables that hold application_id and belong to applications (one parent -> many children,
   // but in practice these are 1:1 detail tables; the app reads them as single objects
   // via app.qualifications?.x — so treat as ONE).

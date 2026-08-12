@@ -4,7 +4,7 @@
 
 - **Frontend:** Next.js 16 App Router (React Server Components), React 19, Tailwind CSS v4, shadcn/ui + Radix, Framer Motion
 - **Backend:** Next.js API routes (serverless)
-- **Database:** PostgreSQL (**Neon**, primary) via `pg` Pool; **Supabase** retained as a secondary/backup source for a one-time data migration
+- **Database:** PostgreSQL (**Neon**, primary) via `pg` Pool; Supabase project is paused/backup only
 - **Query layer:** a Supabase-compatible query builder (`lib/db.ts`) so existing `.from().select()...` call-sites work unchanged against plain Postgres
 - **Auth:** local bcrypt password hashing + JWT session in an httpOnly cookie (`lib/auth.ts`) — replaced Supabase Auth
 - **Files:** `storage_objects` table (BYTEA), served through `/api/files` — replaced Supabase Storage
@@ -17,12 +17,12 @@ The public marketing/careers site and the authenticated admin portal live under
 the same App Router tree.
 
 ```
-app/(public)/     → Legal pages (privacy, terms, cookies)
-app/              → Public careers site (home, jobs, apply/[slug], register,
-                    graduate-program, skilled-training)
-app/admin/        → Authenticated HR/admin portal (dashboard, applications, jobs,
-                    talent, people, organization, documents, settings, my-info)
-app/api/          → REST API (auth, admin/*, public applications, uploads, files)
+app/                   → Public careers site (home, jobs, apply/[slug], register,
+                          graduate-program, skilled-training, faq, our-story,
+                          check-status, login)
+app/admin/             → Authenticated HR/admin portal (dashboard, applications, jobs,
+                          talent, people, organization, documents, settings, my-info, hr)
+app/api/               → REST API (auth, admin/*, public applications, uploads, files)
 ```
 
 ## Auth enforcement (three layers)

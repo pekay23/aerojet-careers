@@ -5,13 +5,15 @@ Onboarding notes for anyone taking over the Aerojet Careers portal.
 ## Technical stack
 
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript
-- **Database:** PostgreSQL (**Neon** primary, **Supabase** retained as backup)
+- **Database:** PostgreSQL (**Neon** primary)
 - **Data access:** custom Supabase-compatible query builder (`lib/db.ts`) — no ORM
-- **Auth:** local bcrypt + JWT session cookie (`lib/auth.ts`), no external auth provider
+- **Auth:** local bcrypt + JWT session cookie (`lib/auth.ts`), refresh tokens (`lib/refresh-token.ts`), no external auth provider
 - **Storage:** files in a `storage_objects` table, served via `/api/files`
-- **Styling:** Tailwind CSS 4 + shadcn/ui + Radix, Framer Motion
+- **Styling:** Tailwind CSS 4 + design tokens in `app/globals.css` + Radix primitives
 - **Email:** Resend (`lib/email-service.ts`)
-- **Hosting:** Vercel
+- **Hosting:** Vercel (region `lhr1`)
+- **Logging:** Structured JSON logging (`lib/logger.ts`)
+- **Rate limiting:** Upstash Redis + memory fallback (`lib/rate-limit.ts`)
 
 ## The most important thing to understand
 
@@ -36,26 +38,31 @@ lib/
   db.ts              Neon pool + Supabase-style query builder (the core)
   auth.ts            bcrypt hashing, JWT sign/verify, getServerUser()
   auth-admin.ts      create/update/delete auth_users
+  refresh-token.ts   one-time-use refresh token lifecycle
   storage.ts         low-level storage_objects read/write
   storage-compat.ts  supabase.storage-shaped wrapper over storage.ts
-  supabase*.ts        the three compat shims
+  supabase*.ts       the three compat shims
   api-utils.ts       ApiResponse + verifyRole (authorization)
   email-service.ts   Resend templates (welcome, acknowledgement)
+  sanitize.ts        DOMPurify HTML sanitization + escapeHtml
+  rate-limit.ts      Upstash Redis rate limiting
+  logger.ts          Structured JSON logging with redaction
+  domain-config.ts   Domain URLs + internal link lists
 
 proxy.ts             edge route guard (JWT cookie check)
 db/neon-schema.sql   full schema
-seed-admin.js        seeds the first admin into Neon
+scripts/seed-admin.mjs  seeds the first admin into Neon
 
 app/
-  (public)/          legal pages
-  (root routes)      public careers site (jobs, apply, register, programs)
+  (public)/          legal pages, faq, our-story, check-status
+  (root routes)      public careers site (jobs, apply, register, programs, login)
   admin/             authenticated HR/admin portal
   api/               REST API
 
 components/
   admin/             portal UI (PeopleDirectory, PipelineView, OrgChart, …)
-  forms/             ApplicationForm
-  layout/ ui/        site chrome + shared primitives
+  forms/             13 reusable form components (TextInput, Select, CheckItem, …)
+  layout/ ui/        site chrome + shared primitives (Skeleton, ConfirmDialog, …)
 ```
 
 ## Common tasks

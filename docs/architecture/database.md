@@ -43,6 +43,7 @@ the query builder in [`lib/db.ts`](../../lib/db.ts).
 - **document_folders** / **staff_documents** — internal HR document library.
 - **email_logs** — every transactional email send (status, provider id, errors).
 - **dashboard_snapshots** — cached analytics snapshots.
+- **refresh_tokens** — one-time-use refresh tokens with TTL for JWT session rotation.
 - **storage_objects** — file bytes (BYTEA) keyed by `(bucket, path)` with `content_type`
   and `size`. Replaces Supabase Storage buckets; served through `/api/files`.
 

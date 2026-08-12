@@ -1,7 +1,27 @@
 # Aerojet Aviation Careers Portal — Undone Issues Tracker
 
 **Date:** 2026-08-11  
+**Updated:** 2026-08-12  
 **Purpose:** Track P0, P1, and P2 issues that were identified but not yet completed. These require dedicated sprints or manual intervention.
+
+> **Addendum (2026-08-12):** Many previously "undone" items were completed
+> during verification. See `docs/CHANGELOG_2026-08-12.md` for details.
+>
+> | Original undone item | Status |
+> |---|---|
+> | Extract inline form components from `ApplicationForm.tsx` | **Completed** — 13 reusable components in `components/forms/` |
+> | Reduce inline styles across page components | **Partially completed** — significant reduction, more remains |
+> | Align login page design system | **Completed** |
+> | Add responsive breakpoint to deployment preference grid | **Completed** |
+> | Add loading skeletons for async data pages | **Completed** (`Skeleton`, `SkeletonCard`) |
+> | Add salary ranges to job cards and detail pages | **Completed** |
+> | Add save-and-resume (draft applications) | **Completed** — localStorage drafts |
+> | Add simple FAQ page | **Completed** — `app/(public)/faq/page.tsx` |
+> | Implement structured logging | **Completed** — `lib/logger.ts` |
+> | Remove inline error messages from forms | **Completed** — `aria-invalid` borders only |
+> | Add touched-state validation | **Completed** |
+> | Fix ESLint errors (empty catch blocks) | **Completed** |
+> | Update outdated docs (README, CLAUDE, architecture) | **Completed** — this session |
 
 ---
 

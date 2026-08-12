@@ -1,9 +1,32 @@
 # Aerojet Aviation Careers Portal — Full Codebase Audit Report
 
 **Date:** 2026-08-11  
+**Updated:** 2026-08-12  
 **Project:** aerojet-careers (`C:\Projects\aerojet-careers`)  
 **Auditors:** LLM Council — 2 Senior Dev Engineers, 1 UI/UX Specialist, 1 Non-Technical User  
 **Scope:** Complete codebase audit across architecture, security, performance, design, accessibility, and usability
+
+> **Addendum (2026-08-12):** Many issues identified in this report have been
+> addressed in a subsequent verification pass. See `docs/CHANGELOG_2026-08-12.md`
+> for the full list of fixes. Key resolved items:
+>
+> | Original finding | Resolution |
+> |---|---|
+> | 688-line monolithic `ApplicationForm.tsx` | Refactored into 13 reusable `components/forms/*` |
+> | Inline error text below fields | Removed; errors shown via `aria-invalid` red borders only |
+> | Terse validation messages | Updated to friendly, field-specific prompts |
+> | Missing skip link | Added to `app/layout.tsx` |
+> | Mobile menu missing ARIA | Added `aria-label`, `aria-expanded`, `aria-controls` |
+> | iOS auto-zoom on inputs | Min `16px` font-size enforced on `.field-input` |
+> | 3-column grid no responsive breakpoint | Added mobile breakpoint |
+> | Job card no press feedback | Added `.job-card:active` scale transform |
+> | Text alignment inconsistencies | Standardized across all pages |
+> | Login page design misalignment | Migrated to design token classes |
+> | My-info page style issues | Fixed |
+> | Auth/me route type issue | Fixed |
+> | Admin documents route type issue | Fixed |
+> | ESLint empty catch blocks | Fixed in 6 script files |
+> | DashboardStats redeclare error | Fixed type import conflict |
 
 ---
 
