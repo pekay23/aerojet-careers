@@ -16,6 +16,8 @@
     <a href="../index.html">Index</a>
     <a href="../architecture/system-overview.html">Architecture</a>
     <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,7 +27,74 @@
   <h1 class="he-title">Deployment Guide</h1>
   <p class="he-deck">The portal deploys to <strong>Vercel</strong> (framework auto-detected as Next.js, region <code>lhr1</code> per <code>vercel.json</code>).</p>
 </header>
-<ol>
+
+<section class="he-section" id="environment-variables-vercel-project-settings-environment-variables">
+  <div class="he-section__num">01 · Environment variables (Vercel → Project → Settings → Environment Variables)</div>
+  <h2 class="he-section__title">Environment variables (Vercel → Project → Settings → Environment Variables)</h2><p>Required in every environment (Production, Preview, Development):</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DATABASE_URL</code></td>
+<td>Neon pooled connection string (<code>?sslmode=require</code>). Server-only.</td>
+</tr>
+<tr>
+<td><code>AUTH_SECRET</code></td>
+<td>Random 48+ byte secret used to sign session JWTs. Server-only. Rotating it logs everyone out.</td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_APP_URL</code></td>
+<td>Public site URL, e.g. <code>https://careers.aerojet-aviation.com</code>.</td>
+</tr>
+<tr>
+<td><code>EMAIL_FROM</code></td>
+<td>Sender address for transactional emails.</td>
+</tr>
+<tr>
+<td><code>RESEND_API_KEY</code></td>
+<td>Resend API key. Server-only.</td>
+</tr>
+</tbody></table>
+<p>Do <strong>not</strong> expose <code>DATABASE_URL</code> or <code>AUTH_SECRET</code> to the browser — there is no RLS
+fallback. Only <code>NEXT_PUBLIC_*</code> values are safe client-side.</p>
+
+<section class="he-section" id="first-deploy-against-a-fresh-neon-database">
+  <div class="he-section__num">02 · First deploy against a fresh Neon database</div>
+  <h2 class="he-section__title">First deploy against a fresh Neon database</h2><ol>
+<li>Set the env vars above in Vercel.</li>
+<li>Apply the schema once (from your machine or the Neon SQL editor):<pre><code class="language-bash">psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
+</code></pre>
+</li>
+<li>Seed the admin:<pre><code class="language-bash">node seed-admin.js
+</code></pre>
+</li>
+<li>Push to the deploy branch — Vercel runs <code>next build</code> automatically.</li>
+</ol>
+
+<section class="he-section" id="build">
+  <div class="he-section__num">03 · Build</div>
+  <h2 class="he-section__title">Build</h2><ul>
+<li>Build command: <code>next build</code> (<code>bun run build</code>).</li>
+<li>The build connects to Neon during static generation of a few pages (e.g. <code>/jobs</code>),
+so <code>DATABASE_URL</code> must be present at build time.</li>
+<li><code>next.config.js</code> sends the <code>/admin/*</code> security headers and allows Supabase image
+hosts (leftover; harmless).</li>
+</ul>
+
+<section class="he-section" id="domains-amp-headers">
+  <div class="he-section__num">04 · Domains &amp; headers</div>
+  <h2 class="he-section__title">Domains &amp; headers</h2><ul>
+<li>Security headers for <code>/admin/*</code> are defined in both <code>next.config.js</code> and <code>vercel.json</code>.</li>
+<li>The edge route guard (<code>proxy.ts</code>) is bundled automatically as Middleware/Proxy.</li>
+</ul>
+
+<section class="he-section" id="post-deploy-smoke-test">
+  <div class="he-section__num">05 · Post-deploy smoke test</div>
+  <h2 class="he-section__title">Post-deploy smoke test</h2><ol>
 <li>Visit <code>/jobs</code> — open roles render (public read path).</li>
 <li>Visit <code>/admin/login</code>, sign in with the seeded admin — you should reach <code>/admin/dashboard</code>.</li>
 <li>Hit <code>/api/admin/applications</code> while logged out — expect <code>401</code>.</li>
@@ -39,7 +108,7 @@
     <li class="he-toc__l2"><a href="#environment-variables-vercel-project-settings-environment-variables">Environment variables (Vercel → Project → Settings → Environment Variables)</a></li>
     <li class="he-toc__l2"><a href="#first-deploy-against-a-fresh-neon-database">First deploy against a fresh Neon database</a></li>
     <li class="he-toc__l2"><a href="#build">Build</a></li>
-    <li class="he-toc__l2"><a href="#domains-headers">Domains &amp; headers</a></li>
+    <li class="he-toc__l2"><a href="#domains-headers">Domains & headers</a></li>
     <li class="he-toc__l2"><a href="#post-deploy-smoke-test">Post-deploy smoke test</a></li>
   </ul>
 </aside>

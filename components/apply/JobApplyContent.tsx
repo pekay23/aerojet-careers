@@ -132,6 +132,9 @@ export default function JobApplyContent({ job }: { job: Job }) {
                     ['Category',   CAT_LABELS[j.category] || j.category],
                     ['Contract',   j.employment_type?.replace(/_/g, ' ')],
                     ['Vacancies',  j.target_count ? String(j.target_count) : 'Multiple'],
+                    ['Salary',     j.salary_range_min !== null && j.salary_range_max !== null
+                      ? `USD ${j.salary_range_min.toLocaleString()} – ${j.salary_range_max.toLocaleString()} per month`
+                      : 'Competitive'],
                     ['Ref',        j.ref_code],
                     ['Closes',     j.closes_at ? new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Rolling'],
                   ].map(([label, value]) => (

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,13 +9,13 @@ export async function GET(req: NextRequest) {
 
     const { data: settings, error } = await supabaseAdmin
       .from('system_settings')
-      .select('*')
+      .select('setting_key, setting_value, updated_by, updated_at')
       .order('setting_key')
 
     if (error) throw error
     return ApiResponse.success(settings)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     })
 
     return ApiResponse.success(data)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sendWelcomeEmail } from '@/lib/email-service'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   try {
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
       message: 'Candidate hired successfully. Credentials generated.' 
     })
 
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

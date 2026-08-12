@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authenticate, signSession, SESSION_COOKIE, SESSION_MAX_AGE } from '@/lib/auth'
 import { issueRefreshToken } from '@/lib/refresh-token'
 import { checkLoginRateLimit } from '@/lib/rate-limit'
+import { sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
       maxAge: SESSION_MAX_AGE * 30 / 7,
     })
     return res
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Login failed' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: sanitizeErrorMessage(err) }, { status: 500 })
   }
 }

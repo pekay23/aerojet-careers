@@ -61,6 +61,15 @@
   --aero-slate: var(--neutral-800);
   --aero-offwhite: #F9F9F9;
 
+  /* Legacy aliases used in inline styles across public pages */
+  --blue: var(--aero-sky);
+  --navy: var(--aero-blue-700);
+  --success: #788C5D;
+  --error: #B04A4A;
+  --warning: #C78E3F;
+  --info: #5C7CA3;
+  --muted-bg: var(--surface-subtle);
+
   /* Public-site palette */
   --public-primary: var(--aero-blue-800);
   --public-secondary: #1F7AD6;
@@ -126,6 +135,8 @@
   --warning-soft: #F5E9D2;
   --danger-soft: #F1DEDE;
   --info-soft: #DCE5F0;
+  --error-bg: #FEF2F2;
+  --error: #B04A4A;
 
   /* ── Layout ────────────────────────────────────────────────────────── */
   --col-narrow: 720px;
@@ -154,7 +165,6 @@
   --sp-2: 8px;
   --sp-3: 12px;
   --sp-4: 16px;
-  --sp-5: 24px;
   --sp-5: 24px;
   --sp-6: 32px;
   --sp-7: 48px;

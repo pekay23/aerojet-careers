@@ -59,6 +59,7 @@ export default function JobsAdminPage() {
     variant?: 'danger' | 'default'
     onConfirm: () => void
   } | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const openConfirm = (config: {
     title: string
@@ -125,7 +126,7 @@ export default function JobsAdminPage() {
 
   useEffect(() => {
     load(1)
-  }, [statusF, sortCol, sortDir])
+  }, [statusF, sortCol, sortDir, refreshKey])
 
   useEffect(() => {
     loadMetadata()
@@ -208,13 +209,7 @@ export default function JobsAdminPage() {
         toast.error(d.error || 'Failed to save job posting.')
       } else {
         setModal(null)
-        if (modal === 'edit') {
-          // Stay on the current page so the edited job stays in view
-          load(pageInfo.page)
-        } else {
-          setPageInfo(p => ({ ...p, page: 1 }))
-          load(1)
-        }
+        setRefreshKey(k => k + 1)
         toast.success(publishNow ? 'Job published' : 'Job saved as draft')
       }
     } catch (err: any) {
@@ -275,7 +270,7 @@ export default function JobsAdminPage() {
             toast.error(d.error || 'Failed to update visibility')
           } else {
             toast.success(`Job ${newStatus === 'open' ? 'published' : 'moved to draft'}`)
-            load()
+            setRefreshKey(k => k + 1)
           }
         } catch (err: any) {
           toast.error(err.message || 'Network error')
@@ -304,7 +299,7 @@ export default function JobsAdminPage() {
             toast.error(d.error || 'Failed to update status')
           } else {
             toast.success(`Status changed to ${newStatus}`)
-            load()
+            setRefreshKey(k => k + 1)
           }
         } catch (err: any) {
           toast.error(err.message || 'Network error')
@@ -324,7 +319,7 @@ export default function JobsAdminPage() {
           const res = await fetch(`/api/admin/jobs?id=${j.id}`, { method: 'DELETE' })
           if (res.ok) {
             toast.success('Job posting deleted')
-            load()
+            setRefreshKey(k => k + 1)
           } else {
             const d = await res.json()
             toast.error(d.error || 'Failed to delete job')

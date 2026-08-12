@@ -16,7 +16,7 @@ export const revalidate = 60
 export default async function JobsPage() {
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
-    .select('*')
+    .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at')
     .eq('status', 'open')
     .order('created_at', { ascending: false })
 
@@ -30,9 +30,9 @@ export default async function JobsPage() {
         height={360}
       />
 
-      <section style={{ background: 'white', padding: '3rem 1rem 4rem' }}>
+      <section className="section-white">
         <div className="container-max mx-auto">
-          <JobsClient initialJobs={jobs || []} />
+          <JobsClient initialJobs={jobs || []} loading={!jobs} />
         </div>
       </section>
 

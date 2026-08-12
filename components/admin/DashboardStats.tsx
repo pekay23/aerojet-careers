@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { SkeletonCard } from '@/components/ui'
 
 interface Snapshot {
   metric_name: string
@@ -20,7 +21,9 @@ interface Snapshot {
   snapshot_date: string
 }
 
-export default function DashboardStats({ stats }: { stats: any }) {
+import type { DashboardStats } from '@/types'
+
+export default function DashboardStats({ stats }: { stats: DashboardStats }) {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -93,62 +96,68 @@ export default function DashboardStats({ stats }: { stats: any }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {cards.map((card, i) => (
-        <motion.div
-          key={card.label}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
-          className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-xl hover:shadow-slate-200/50 transition-all cursor-default"
-        >
-          <div className="flex items-start justify-between mb-4 relative z-10">
+      {loading ? (
+        Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonCard key={i} lines={2} />
+        ))
+      ) : (
+        cards.map((card, i) => (
+          <motion.div
+            key={card.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-xl hover:shadow-slate-200/50 transition-all cursor-default"
+          >
+            <div className="flex items-start justify-between mb-4 relative z-10">
+              <div className={cn(
+                "p-3 rounded-xl transition-transform group-hover:scale-110",
+                card.color === 'blue' && "bg-blue-50 text-blue-600",
+                card.color === 'indigo' && "bg-indigo-50 text-indigo-600",
+                card.color === 'amber' && "bg-amber-50 text-amber-600",
+                card.color === 'emerald' && "bg-emerald-50 text-emerald-600",
+              )}>
+                <card.icon size={24} />
+              </div>
+              
+              <AnimatePresence>
+                 {card.trend && (
+                   <motion.div 
+                     initial={{ opacity: 0, scale: 0.8 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     className={cn(
+                      "flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter",
+                      card.trend.positive ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                    )}
+                   >
+                     {card.trend.positive ? <TrendingUp size={10} /> : <ArrowDownRight size={10} />}
+                     {card.trend.label}
+                   </motion.div>
+                 )}
+              </AnimatePresence>
+            </div>
+
+            <div className="relative z-10">
+              <p className="text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase mb-1">{card.label}</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-3xl font-bold text-slate-900 tracking-tighter">{card.value}</h3>
+                {card.subValue && <span className="text-xs font-bold text-slate-400">/ {card.subValue}</span>}
+              </div>
+            </div>
+
+            {/* Background Decoration */}
             <div className={cn(
-              "p-3 rounded-xl transition-transform group-hover:scale-110",
-              card.color === 'blue' && "bg-blue-50 text-blue-600",
-              card.color === 'indigo' && "bg-indigo-50 text-indigo-600",
-              card.color === 'amber' && "bg-amber-50 text-amber-600",
-              card.color === 'emerald' && "bg-emerald-50 text-emerald-600",
+              "absolute -right-4 -bottom-4 h-24 w-24 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity",
+              card.color === 'blue' && "text-blue-600",
+              card.color === 'indigo' && "text-indigo-600",
+              card.color === 'amber' && "text-amber-600",
+              card.color === 'emerald' && "text-emerald-600",
             )}>
-              <card.icon size={24} />
+              <card.icon size={120} strokeWidth={1} />
             </div>
-            
-            <AnimatePresence>
-               {card.trend && (
-                 <motion.div 
-                   initial={{ opacity: 0, scale: 0.8 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   className={cn(
-                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter",
-                    card.trend.positive ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
-                  )}
-                 >
-                   {card.trend.positive ? <TrendingUp size={10} /> : <ArrowDownRight size={10} />}
-                   {card.trend.label}
-                 </motion.div>
-               )}
-            </AnimatePresence>
-          </div>
-
-          <div className="relative z-10">
-            <p className="text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase mb-1">{card.label}</p>
-            <div className="flex items-baseline gap-2">
-              <h3 className="text-3xl font-bold text-slate-900 tracking-tighter">{card.value}</h3>
-              {card.subValue && <span className="text-xs font-bold text-slate-400">/ {card.subValue}</span>}
-            </div>
-          </div>
-
-          {/* Background Decoration */}
-          <div className={cn(
-            "absolute -right-4 -bottom-4 h-24 w-24 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity",
-            card.color === 'blue' && "text-blue-600",
-            card.color === 'indigo' && "text-indigo-600",
-            card.color === 'amber' && "text-amber-600",
-            card.color === 'emerald' && "text-emerald-600",
-          )}>
-            <card.icon size={120} strokeWidth={1} />
-          </div>
-        </motion.div>
-      ))}
+          </motion.div>
+        ))
+      )}
     </div>
   )
 }

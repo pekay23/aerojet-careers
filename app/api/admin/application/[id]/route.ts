@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(
   _req: NextRequest,
@@ -25,9 +25,9 @@ export async function GET(
       .is('deleted_at', null)
       .single()
 
-    if (error) return ApiResponse.error(error.message, 404)
+    if (error) return ApiResponse.error('Application not found', 404)
     return ApiResponse.success(data)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

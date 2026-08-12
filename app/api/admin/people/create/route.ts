@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sendWelcomeEmail } from '@/lib/email-service'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager'])
+    const auth = await verifyRole(['admin', 'hr_manager'], req)
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const body = await req.json()
@@ -16,7 +16,9 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Generate temporary password
-    const tempPassword = `Aerojet!${Math.random().toString(36).slice(-8)}`
+    const array = new Uint32Array(2)
+    crypto.getRandomValues(array)
+    const tempPassword = `Aerojet!${Array.from(array, v => v.toString(36)).join('').slice(-8)}`
 
     // 2. Create Auth User
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -77,10 +79,12 @@ export async function POST(req: NextRequest) {
 
     return ApiResponse.success({ 
       id: authUserId,
-      tempPassword 
+      email,
+      full_name: `${firstName} ${lastName}`,
+      role: role?.toLowerCase() || 'employee'
     })
 
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

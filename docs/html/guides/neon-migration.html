@@ -16,6 +16,8 @@
     <a href="../index.html">Index</a>
     <a href="../architecture/system-overview.html">Architecture</a>
     <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,7 +27,129 @@
   <h1 class="he-title">Neon Migration Runbook</h1>
   <p class="he-deck">This project was migrated off Supabase (Auth + Postgres + Storage) onto a plain <strong>Neon</strong> PostgreSQL database.</p>
 </header>
+
+<section class="he-section" id="what-changed">
+  <div class="he-section__num">01 · What changed</div>
+  <h2 class="he-section__title">What changed</h2><table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Before (Supabase)</th>
+<th>After (Neon)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Database</td>
+<td>Supabase Postgres + PostgREST</td>
+<td>Neon Postgres via <code>pg</code></td>
+</tr>
+<tr>
+<td>Query API</td>
+<td><code>supabase-js</code> query builder</td>
+<td>Compatible shim in <code>lib/db.ts</code></td>
+</tr>
+<tr>
+<td>Auth</td>
+<td>Supabase Auth (<code>auth.users</code>)</td>
+<td><code>auth_users</code> table + bcrypt + JWT cookie (<code>lib/auth.ts</code>)</td>
+</tr>
+<tr>
+<td>Sessions</td>
+<td>Supabase cookies</td>
+<td>Signed JWT in <code>aj_session</code> httpOnly cookie</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>Supabase Storage buckets</td>
+<td><code>storage_objects</code> table, served via <code>/api/files</code></td>
+</tr>
+<tr>
+<td>Route guard</td>
+<td>middleware + Supabase session</td>
+<td><code>proxy.ts</code> verifies the JWT cookie</td>
+</tr>
+</tbody></table>
+<p>The <code>supabaseAdmin</code>, <code>createSupabaseServer</code>, and browser <code>supabase</code> objects were
+kept as <strong>Neon-backed shims</strong> so the ~30 existing API routes and components did
+not need rewriting. They expose the same <code>.from().select()...</code>, <code>.auth.*</code>, and
+<code>.storage.*</code> surface.</p>
+
+<section class="he-section" id="key-files">
+  <div class="he-section__num">02 · Key files</div>
+  <h2 class="he-section__title">Key files</h2><ul>
+<li><code>db/neon-schema.sql</code> — full schema (ported from <code>supabase/migrations/*</code>). Idempotent.</li>
+<li><code>lib/db.ts</code> — connection pool + Supabase-style query builder.</li>
+<li><code>lib/auth.ts</code> — password hashing, JWT signing/verify, <code>getServerUser()</code>.</li>
+<li><code>lib/auth-admin.ts</code> — create / update / delete auth users.</li>
+<li><code>lib/storage.ts</code> + <code>lib/storage-compat.ts</code> — file storage.</li>
+<li><code>lib/supabase-admin.ts</code> / <code>lib/supabase-server.ts</code> / <code>lib/supabase.ts</code> — compat shims.</li>
+<li><code>proxy.ts</code> — edge route guard.</li>
+<li><code>app/api/auth/{login,logout,me}</code> — auth endpoints.</li>
+<li><code>app/api/files</code> + <code>app/api/storage/upload</code> — file serve/upload.</li>
+<li><code>seed-admin.js</code> — seeds the initial admin into Neon.</li>
+</ul>
+
+<section class="he-section" id="environment-variables">
+  <div class="he-section__num">03 · Environment variables</div>
+  <h2 class="he-section__title">Environment variables</h2><p>Set in <code>.env.local</code> (and in your host, e.g. Vercel):</p>
+<pre><code>DATABASE_URL=postgresql://&lt;user&gt;:&lt;pass&gt;@&lt;neon-host&gt;/&lt;db&gt;?sslmode=require
+AUTH_SECRET=&lt;random 48+ byte secret used to sign session JWTs&gt;
+</code></pre>
+<p>Rotating <code>AUTH_SECRET</code> invalidates all existing sessions (everyone must log in
+again). The legacy <code>NEXT_PUBLIC_SUPABASE_*</code> / <code>SUPABASE_SERVICE_ROLE_KEY</code> values
+are no longer used at runtime; they only remain for the one-time data export below.</p>
+
+<section class="he-section" id="first-time-setup-on-a-fresh-neon-database">
+  <div class="he-section__num">04 · First-time setup on a fresh Neon database</div>
+  <h2 class="he-section__title">First-time setup on a fresh Neon database</h2><ol>
+<li>Apply the schema:<pre><code class="language-bash">psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
+</code></pre>
+(or paste it into the Neon SQL editor).</li>
+<li>Seed the admin user:<pre><code class="language-bash">node seed-admin.js
+</code></pre>
+Default credentials: <code>admin@aerojet-aviation.com</code> / <code>Admin@2026</code>.
+Override with <code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code>.</li>
+<li>Build &amp; run:<pre><code class="language-bash">npm run build &amp;&amp; npm start
+</code></pre>
+</li>
+</ol>
+
+<section class="he-section" id="migrating-existing-data-out-of-supabase-when-unpaused">
+  <div class="he-section__num">05 · Migrating existing data out of Supabase (when unpaused)</div>
+  <h2 class="he-section__title">Migrating existing data out of Supabase (when unpaused)</h2><p>The legacy Supabase project still holds any pre-migration data. To move it:</p>
+<ol>
+<li><strong>Dump the Supabase tables</strong> (schema is compatible except auth/storage):<pre><code class="language-bash">pg_dump --data-only --no-owner \
+  --table=&#39;public.*&#39; \
+  &quot;postgres://&lt;supabase-connection-string&gt;&quot; &gt; supabase-data.sql
+</code></pre>
+</li>
+<li><strong>Load into Neon</strong>:<pre><code class="language-bash">psql &quot;$DATABASE_URL&quot; -f supabase-data.sql
+</code></pre>
+Load order matters because of foreign keys; if you hit FK errors, dump/load
+parent tables first (jobs, departments, applications) then children.</li>
+</ol>
+<h3 id="users-amp-passwords">Users &amp; passwords</h3><p>Supabase stored password hashes in <code>auth.users</code>, which is <strong>not</strong> exportable via
+the normal API and uses a different hashing scheme than our bcrypt setup.
+Existing users therefore cannot have their passwords carried over directly.
+Options:</p>
 <ul>
+<li>Re-invite users (they set a new password), <strong>or</strong></li>
+<li>For each Supabase user, insert an <code>auth_users</code> row and issue a temporary
+password with <code>updateAuthUserPassword()</code> / the hire flow, then require a reset.</li>
+</ul>
+<p>The <code>admin_users</code> / <code>staff_profiles</code> rows (roles, names) migrate normally since
+they live in <code>public</code>. Only the credential material needs re-establishing.</p>
+<h3 id="storage-files">Storage files</h3><p>Supabase Storage objects live in buckets, not in Postgres. To bring them over:</p>
+<ol>
+<li>Download each object from Supabase Storage (dashboard or <code>supabase storage cp</code>).</li>
+<li>Re-upload through the app&#39;s <code>/api/storage/upload</code> endpoint (or insert directly
+into <code>storage_objects(bucket, path, content, content_type, size)</code>), keeping the
+same <code>bucket</code> + <code>path</code> so existing <code>file_path</code> references stay valid.</li>
+</ol>
+
+<section class="he-section" id="notes">
+  <div class="he-section__num">06 · Notes</div>
+  <h2 class="he-section__title">Notes</h2><ul>
 <li>All access control is enforced in the app layer (<code>verifyRole</code>, <code>proxy.ts</code>).
 There is no Row Level Security on Neon, so never expose the <code>DATABASE_URL</code>
 connection to the browser.</li>
@@ -43,7 +167,7 @@ HR data.</li>
     <li class="he-toc__l2"><a href="#environment-variables">Environment variables</a></li>
     <li class="he-toc__l2"><a href="#first-time-setup-on-a-fresh-neon-database">First-time setup on a fresh Neon database</a></li>
     <li class="he-toc__l2"><a href="#migrating-existing-data-out-of-supabase-when-unpaused">Migrating existing data out of Supabase (when unpaused)</a></li>
-    <li class="he-toc__l3"><a href="#users-passwords">Users &amp; passwords</a></li>
+    <li class="he-toc__l3"><a href="#users-passwords">Users & passwords</a></li>
     <li class="he-toc__l3"><a href="#storage-files">Storage files</a></li>
     <li class="he-toc__l2"><a href="#notes">Notes</a></li>
   </ul>

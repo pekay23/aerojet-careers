@@ -87,22 +87,18 @@ export default async function HomePage() {
         height={420}
       />
 
-      <section style={{ background: 'white', padding: '2rem 1rem' }}>
+      <section className="section-white-sm">
         <div className="container-max mx-auto">
-          <div style={{ background: 'var(--surface-accent-soft)', borderLeft: '4px solid var(--aero-sky)', borderRadius: '3px', padding: '0.875rem 1.25rem', fontSize: '13px', color: 'var(--aero-blue)', lineHeight: 1.6 }}>
-
+          <div className="card" style={{ background: 'var(--surface-accent-soft)', borderLeft: '4px solid var(--aero-sky)', borderRadius: '3px', padding: '0.875rem 1.25rem', fontSize: '13px', color: 'var(--aero-blue)', lineHeight: 1.6 }}>
             <strong>Note:</strong> Aerojet Aviation is actively building its team ahead of the operational launch of our Accra MRO facility. We welcome applications from qualified professionals and early-career talent who share our vision.
           </div>
         </div>
       </section>
 
-      <section style={{ background: 'white', padding: '3rem 1rem 2rem' }}>
-        <div
-          className="container-max mx-auto"
-          style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto' }}
-        >
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.875rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '1rem' }}>Find Your Place at Aerojet</h2>
-          <p style={{ color: 'var(--muted-foreground)', fontSize: '1rem', lineHeight: 1.7, margin: 0 }}>
+      <section className="section-white">
+        <div className="container-max mx-auto section-center">
+          <h2 className="section-heading-xl">Find Your Place at Aerojet</h2>
+          <p className="section-subtitle">
             Whether you are an experienced aviation professional or just starting your career, Aerojet Aviation
             offers pathways to grow with a company building something extraordinary — a world-class MRO facility
             at the heart of Africa&apos;s aviation future.
@@ -110,15 +106,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section style={{ background: 'white', padding: '2rem 1rem 4rem' }}>
+      <section className="section-white-sm">
         <div className="container-max mx-auto">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '1.5rem',
-            }}
-          >
+          <div className="grid-auto">
             {TRACKS.map((track) => (
               <TrackCard key={track.id} track={track} />
             ))}
@@ -126,10 +116,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <div style={{ background: 'var(--aero-blue)', padding: '3rem 1rem' }}>
-        <div
-          className="container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
-        >
+      <section className="section-brand">
+        <div className="container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {displayStats.map((s) => (
             <div key={s.value}>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
@@ -139,32 +127,17 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <section style={{ background: 'white', padding: '4rem 1rem' }}>
+      <section className="section-white">
         <div className="container-max mx-auto">
-          <h2 style={{ fontFamily: 'var(--font-display)', textAlign: 'center', fontSize: '1.75rem', fontWeight: 800, color: 'var(--aero-blue)', marginBottom: '0.75rem' }}>
+          <h2 className="section-heading-xl" style={{ textAlign: 'center', marginBottom: '0.75rem' }}>
             Why Join Aerojet Aviation?
           </h2>
-          <p
-            style={{
-              textAlign: 'center',
-              color: 'var(--muted-foreground)',
-              maxWidth: 600,
-              margin: '0 auto 3rem',
-              fontSize: '0.95rem',
-              lineHeight: 1.7,
-            }}
-          >
+          <p className="section-subtitle" style={{ marginBottom: '3rem' }}>
             We are not just an employer — we are building Africa&apos;s aviation maintenance industry from the ground up.
           </p>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: '1.5rem',
-            }}
-          >
+          <div className="grid-auto">
             {[
               {
                 title: 'Pioneer Opportunity',
@@ -179,9 +152,8 @@ export default async function HomePage() {
                 body: "Your work will directly reduce Africa's reliance on overseas MRO — a mission with lasting regional significance.",
               },
             ].map((v) => (
-              <div key={v.title} className="card" style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'var(--surface-subtle)', border: '1px solid var(--aero-blue-100)' }}>
+              <div key={v.title} className="card card-inner" style={{ textAlign: 'center', border: '1px solid var(--aero-blue-100)' }}>
                 <h4 style={{ fontFamily: 'var(--font-display)', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 700, color: 'var(--aero-blue)' }}>{v.title}</h4>
-
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', lineHeight: 1.65, margin: 0 }}>
                   {v.body}
                 </p>
@@ -229,32 +201,17 @@ function TrackCard({ track }: { track: (typeof TRACKS)[number] }) {
               padding: '1.25rem 1.75rem',
               textDecoration: 'none',
               borderBottom: i < track.options.length - 1 ? '1px solid var(--border)' : 'none',
-              transition: 'background 0.15s',
             }}
           >
             <div>
-              <div
-                style={{
-                  fontWeight: 600,
-                  color: 'var(--aero-blue)',
-                  fontSize: '0.95rem',
-                  marginBottom: '0.3rem',
-                }}
-              >
+              <div style={{ fontWeight: 600, color: 'var(--aero-blue)', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                 {opt.label}
               </div>
               <div style={{ color: 'var(--muted-foreground)', fontSize: '0.82rem', lineHeight: 1.55 }}>
                 {opt.desc}
               </div>
             </div>
-            <span
-              style={{
-                color: 'var(--aero-sky)',
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                flexShrink: 0,
-              }}
-            >
+            <span style={{ color: 'var(--aero-sky)', fontSize: '1.25rem', fontWeight: 700, flexShrink: 0 }}>
               ›
             </span>
           </Link>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaLinkedin } from 'react-icons/fa';
 import { MAIN_SITE } from '@/lib/domain-config';
 
 const footerLinks = {
@@ -33,7 +33,7 @@ export default function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="footer-container">
-        {/* Main Grid: Brand | Careers | Company | Legal | Explore Openings | Contact */}
+        {/* Main Grid: Brand | Careers | Company | Follow Us | Legal | Explore Openings | Contact */}
         <div className="footer-grid">
 
           {/* Column 1: Brand */}
@@ -68,24 +68,42 @@ export default function SiteFooter() {
 
           {/* Column 3: Company */}
           <div className="footer-col py-4">
-            <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
-            <ul className="space-y-2 text-sm opacity-90">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    target={link.href.startsWith('http') ? '_blank' : undefined}
-                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-white hover:text-aero-accent transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+             <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
+             <ul className="space-y-2 text-sm opacity-90">
+               {footerLinks.company.map((link) => (
+                 <li key={link.label}>
+                   <a
+                     href={link.href}
+                     target={link.href.startsWith('http') ? '_blank' : undefined}
+                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                     className="text-white hover:text-aero-accent transition-colors"
+                   >
+                     {link.label}
+                   </a>
+                 </li>
+               ))}
+             </ul>
+           </div>
 
-          {/* Column 4: Legal */}
+           {/* Column 4: Follow Us */}
+           <div className="footer-col py-4">
+             <h4 className="text-lg font-bold text-aero-accent mb-4">Follow Us</h4>
+             <ul className="space-y-3 text-sm opacity-90">
+               <li>
+                 <a
+                   href="https://www.linkedin.com/company/aerojet-aviation"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="text-white hover:text-aero-accent transition-colors inline-flex items-center gap-3"
+                 >
+                   <FaLinkedin className="text-white" aria-hidden="true" />
+                   LinkedIn
+                 </a>
+               </li>
+             </ul>
+           </div>
+
+           {/* Column 5: Legal */}
           <div className="footer-col py-4">
             <h4 className="text-lg font-bold text-aero-accent mb-4">Legal</h4>
             <ul className="space-y-2 text-sm opacity-90">
@@ -99,7 +117,7 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          {/* Column 5: Explore Openings */}
+          {/* Column 6: Explore Openings */}
           <div className="footer-col py-4">
             <h4 className="text-lg font-bold text-aero-accent mb-4">Explore Openings</h4>
             <p className="text-sm opacity-80 mb-4">
@@ -121,7 +139,7 @@ export default function SiteFooter() {
             </div>
           </div>
 
-          {/* Column 6: Contact */}
+          {/* Column 7: Contact */}
           <div className="footer-col py-4">
             <h4 className="text-lg font-bold text-aero-accent mb-4">Contact</h4>
             <ul className="footer-contact space-y-3 text-sm opacity-90">
@@ -159,3 +177,4 @@ export default function SiteFooter() {
     </footer>
   );
 }
+

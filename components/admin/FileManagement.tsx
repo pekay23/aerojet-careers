@@ -28,7 +28,7 @@ interface File {
   is_external?: boolean
 }
 
-interface Folder {
+interface DocumentFolder {
   id: string
   name: string
   description?: string
@@ -41,9 +41,9 @@ export default function FileManagement({
   staffId?: string, 
   viewOnly?: boolean 
 }) {
-  const [folders, setFolders] = useState<Folder[]>([])
+  const [folders, setFolders] = useState<DocumentFolder[]>([])
   const [files, setFiles] = useState<File[]>([])
-  const [currentFolder, setCurrentFolder] = useState<Folder | null>(null)
+  const [currentFolder, setCurrentFolder] = useState<DocumentFolder | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -51,6 +51,8 @@ export default function FileManagement({
   const [filePage, setFilePage] = useState(1)
   const [fileTotal, setFileTotal] = useState(0)
   const fileLimit = 50
+  const [sortCol, setSortCol] = useState<'file_name' | 'created_at' | 'file_size'>('created_at')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -60,6 +62,9 @@ export default function FileManagement({
 
   useEffect(() => {
     if (currentFolder) {
+      setFiles([])
+      setFilePage(1)
+      setError(null)
       fetchFiles(currentFolder.id)
     }
   }, [currentFolder])
@@ -86,16 +91,21 @@ export default function FileManagement({
        const url = staffId 
          ? `/api/admin/documents?folderId=${folderId}&staffId=${staffId}&page=${filePage}&limit=${fileLimit}`
          : `/api/admin/documents?folderId=${folderId}&page=${filePage}&limit=${fileLimit}`
-      
+       
        const res = await fetch(url)
        const data = await res.json()
        if (data.success) {
          const d = data.data
          setFiles(d.data || d || [])
          setFileTotal(d.total || 0)
+       } else {
+         setError(data.error || 'Failed to load files')
+         setFiles([])
        }
     } catch (err: any) {
       console.error('Error fetching files:', err)
+      setError(err.message || 'Failed to load files')
+      setFiles([])
     }
   }
 
@@ -109,7 +119,7 @@ export default function FileManagement({
       const fileExt = file.name.split('.').pop()
       const fileName = `${staffId}/${currentFolder.name}/${Math.random().toString(36).substring(2)}.${fileExt}`
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('staff-documents')
         .upload(fileName, file)
 
@@ -166,6 +176,27 @@ export default function FileManagement({
   const filteredFolders = folders.filter(f => 
     f.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const setSort = (col: 'file_name' | 'created_at' | 'file_size') => {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(col)
+      setSortDir('asc')
+    }
+  }
+
+  const sortedFiles = [...files].sort((a, b) => {
+    let cmp = 0
+    if (sortCol === 'file_name') {
+      cmp = a.file_name.localeCompare(b.file_name)
+    } else if (sortCol === 'created_at') {
+      cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    } else {
+      cmp = (a.file_size || 0) - (b.file_size || 0)
+    }
+    return sortDir === 'asc' ? cmp : -cmp
+  })
 
   return (
     <div className="space-y-6">
@@ -269,9 +300,24 @@ export default function FileManagement({
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200">
                       <tr>
-                        <th className="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase">Documents</th>
-                        <th className="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase">Uploaded</th>
-                        <th className="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase">Size</th>
+                        {[
+                          { label: 'Documents', key: 'file_name' as const },
+                          { label: 'Uploaded', key: 'created_at' as const },
+                          { label: 'Size', key: 'file_size' as const },
+                        ].map(({ label, key }) => (
+                          <th
+                            key={key}
+                            onClick={() => setSort(key)}
+                            className="px-6 py-4 text-[10px] font-bold tracking-widest text-slate-500 uppercase cursor-pointer select-none hover:text-blue-600 transition-colors"
+                          >
+                            <span className="flex items-center gap-1">
+                              {label}
+                              {sortCol === key && (
+                                <span className="text-blue-600">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                              )}
+                            </span>
+                          </th>
+                        ))}
                         <th className="px-6 py-4 text-right"></th>
                       </tr>
                     </thead>
@@ -286,7 +332,7 @@ export default function FileManagement({
                           </td>
                         </tr>
                       ) : (
-                        files.map((file) => (
+                        sortedFiles.map((file) => (
                           <tr key={file.id} className="group hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">

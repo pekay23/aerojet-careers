@@ -1,75 +1,104 @@
-import { NextResponse } from 'next/server'
-import { createSupabaseServer } from './supabase-server'
-import { supabaseAdmin } from './supabase-admin'
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerUser } from './auth'
+import { pool } from './db'
+import { checkPublicRateLimit } from './rate-limit'
+import { logger } from './logger'
 
 /**
  * Standardized API Response Helper
  */
 export class ApiResponse {
-  static success(data?: any, status: number = 200) {
-    return NextResponse.json({ success: true, data }, { status })
+  static success(data?: any, status: number = 200, headers: Record<string, string> = {}) {
+    return NextResponse.json({ success: true, data }, { status, headers })
   }
 
-  static error(message: string, status: number = 400) {
-    return NextResponse.json({ success: false, error: message }, { status })
+  static error(message: string, status: number = 400, headers: Record<string, string> = {}) {
+    return NextResponse.json({ success: false, error: message }, { status, headers })
   }
+}
+
+/**
+ * Validates that the request Origin matches the application URL.
+ * Blocks simple CSRF attacks on state-changing endpoints.
+ */
+export function validateOrigin(req: NextRequest): boolean {
+  const origin = req.headers.get('origin')
+  const referer = req.headers.get('referer')
+  const host = req.headers.get('host')
+  if (!host) return false
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${host}`
+  const appOrigin = new URL(appUrl).origin
+
+  const isDev = process.env.NODE_ENV !== 'production'
+
+  if (origin && origin !== appOrigin) {
+    if (isDev) {
+      try {
+        const originUrl = new URL(origin)
+        const hostUrl = new URL(`http://${host}`)
+        if (originUrl.hostname === hostUrl.hostname) return true
+      } catch { /* ignore parse errors */ }
+    }
+    return false
+  }
+  if (!origin && referer && !referer.startsWith(appOrigin)) {
+    if (isDev) {
+      try {
+        const refererUrl = new URL(referer)
+        const hostUrl = new URL(`http://${host}`)
+        if (refererUrl.hostname === hostUrl.hostname) return true
+      } catch { /* ignore parse errors */ }
+    }
+    return false
+  }
+  return true
+}
+
+/**
+ * Applies rate limiting + CSRF origin check for public write endpoints.
+ */
+export async function withPublicProtection(req: NextRequest, action: string) {
+  const rl = await checkPublicRateLimit(req, action)
+  if (!rl.success) {
+    return { blocked: true as const, response: NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 }) }
+  }
+  if (!validateOrigin(req)) {
+    return { blocked: true as const, response: NextResponse.json({ error: 'Invalid request origin' }, { status: 403 }) }
+  }
+  return { blocked: false as const }
 }
 
 /**
  * Security Auth Guard for RBAC
  * @param allowedRoles List of roles permitted to access the route
-   * @returns Object containing user, role, and adminUserId if authorized, otherwise null
-   */
-    export async function verifyRole(allowedRoles: string[] | null = null) {
-    const supabase = await createSupabaseServer()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) return null
-
-    let { data: adminUser } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, role, is_active')
-      .eq('auth_user_id', user.id)
-      .maybeSingle()
-
-    if (!adminUser) {
-      const { data: authUser, error: authError } = await supabaseAdmin
-        .from('auth_users')
-        .select('email, user_metadata')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (authError || !authUser) return null
-
-      const role = (authUser.user_metadata?.role as string) || 'admin'
-      const fullName = authUser.user_metadata?.full_name || authUser.email.split('@')[0]
-
-      const { data: provisioned, error: provisionError } = await supabaseAdmin
-        .from('admin_users')
-        .insert({
-          auth_user_id: user.id,
-          email: authUser.email,
-          full_name: fullName,
-          role,
-          is_active: true,
-        })
-        .select('id, role, is_active')
-        .maybeSingle()
-
-      if (provisionError || !provisioned) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('[verifyRole] Auto-provisioning admin_users failed:', provisionError?.message)
-        }
-        return null
-      }
-
-      adminUser = provisioned
+ * @param req Optional NextRequest for CSRF origin validation
+ * @returns Object containing user, role, and adminUserId if authorized, otherwise null
+ */
+    export async function verifyRole(allowedRoles: string[] | null = null, req?: NextRequest) {
+    if (req && !validateOrigin(req)) {
+      return null
     }
 
-    if (!adminUser.is_active) return null
+    const user = await getServerUser()
+    if (!user) return null
 
-    if (adminUser.role === 'super_admin' || (allowedRoles && allowedRoles.includes(adminUser.role))) {
-      return { user, role: adminUser.role, adminUserId: adminUser.id }
+    let admin: { id: string; role: string; is_active: boolean } | null = null
+    try {
+      const res = await pool.query(
+        'SELECT id, role, is_active FROM admin_users WHERE auth_user_id = $1 LIMIT 1',
+        [user.id]
+      )
+      admin = res.rows[0] ?? null
+    } catch {
+      return null
+    }
+
+    if (!admin) return null
+    if (!admin.is_active) return null
+
+    if (admin.role === 'super_admin' || (allowedRoles && allowedRoles.includes(admin.role))) {
+      return { user, role: admin.role, adminUserId: admin.id }
     }
 
     return null
@@ -81,6 +110,25 @@ export class ApiResponse {
 export function cleanInput(s: any) {
   if (typeof s !== 'string') return s
   return s.trim()
+}
+
+/**
+ * Sanitizes error messages for API responses.
+ * Returns a generic message and logs the original error server-side.
+ */
+export function sanitizeErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    logger.error('API error', { message: err.message, stack: err.stack })
+    return err.message || 'Internal server error'
+  }
+  if (typeof err === 'object' && err !== null) {
+    const obj = err as Record<string, unknown>
+    const msg = typeof obj.message === 'string' ? obj.message : typeof obj.error === 'string' ? obj.error : JSON.stringify(obj)
+    logger.error('API error', { details: msg })
+    return msg || 'Internal server error'
+  }
+  logger.error('API error', { error: String(err) })
+  return String(err) || 'Internal server error'
 }
 
 /**
@@ -124,6 +172,35 @@ export const ALLOWED_UPDATE_KEYS = [
 export function sanitizeJobUpdate(raw: Record<string, unknown>): Record<string, unknown> {
   const safe: Record<string, unknown> = {}
   for (const key of ALLOWED_UPDATE_KEYS) {
+    if (key in raw) safe[key] = raw[key]
+  }
+  return safe
+}
+
+/**
+ * Allow-list of keys that the PATCH /api/admin/applications endpoint will accept.
+ */
+export const ALLOWED_APPLICATION_UPDATE_KEYS = [
+  'status',
+  'priority',
+  'assigned_to',
+  'recruiter_notes',
+  'rejection_reason',
+  'hr_transferred',
+  'hr_employee_id',
+  'reviewed_at',
+  'shortlisted_at',
+  'hired_at',
+  'deleted_at',
+  'updated_at',
+]
+
+/**
+ * Strips disallowed keys from an application-update payload.
+ */
+export function sanitizeApplicationUpdate(raw: Record<string, unknown>): Record<string, unknown> {
+  const safe: Record<string, unknown> = {}
+  for (const key of ALLOWED_APPLICATION_UPDATE_KEYS) {
     if (key in raw) safe[key] = raw[key]
   }
   return safe

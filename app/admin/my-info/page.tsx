@@ -27,7 +27,7 @@ export default async function MyInfoPage() {
     // Fetch detailed profile data
     const { data: profile } = await supabase
       .from('staff_profiles')
-      .select('*')
+      .select('id, auth_user_id, admin_user_id, application_id, first_name, last_name, email, avatar_url, phone, nationality, date_of_birth, bio, employee_id, job_title, department, reporting_manager_id, employment_status, employment_type, joined_at, created_at, updated_at')
       .eq('auth_user_id', user.id)
       .maybeSingle()
 

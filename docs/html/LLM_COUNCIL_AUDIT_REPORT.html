@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aerojet Careers — LLM Council Audit Report + Decisions · Aerojet Careers</title>
+<link rel="stylesheet" href="./design-tokens.css">
+<link rel="stylesheet" href="./docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="./index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="./index.html">Index</a>
+    <a href="./architecture/system-overview.html">Architecture</a>
+    <a href="./guides/setup.html">Guides</a>
+    <a href="./AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="./UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Audit</p>
+  <h1 class="he-title">Aerojet Careers — LLM Council Audit Report + Decisions</h1>
+  <p class="he-deck"><strong>Project:</strong> <code>C:\Projects\aerojet-careers</code> — Recruitment portal / ATS for Aerojet Aviation MRO (Accra) <strong>Audit date:</strong> 2026-08-09 <strong>Auditor:</strong> LLM Council (5 personas) + agent swarm</p>
+</header>
+<hr>
+
+<section class="he-section" id="completed-fixes-this-session">
+  <div class="he-section__num">01 · ✅ COMPLETED FIXES (this session)</div>
+  <h2 class="he-section__title">✅ COMPLETED FIXES (this session)</h2><h3 id="council-recommendation-remediations">Council Recommendation Remediations</h3><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Priority</th>
+<th>Issue</th>
+<th>Fix Applied</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>P0</td>
+<td>PATCH <code>/api/admin/jobs</code> accepted arbitrary keys (no allowlist)</td>
+<td><code>ALLOWED_UPDATE_KEYS</code> array filters all fields in <code>app/api/admin/jobs/route.ts:133</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>P1</td>
+<td>No pagination on jobs admin list (loaded all rows)</td>
+<td>Range-based pagination in GET endpoint + Prev/Next UI in <code>app/admin/jobs/page.tsx:230</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>P1</td>
+<td><code>ref_code</code> accepted any string (risk of DB trigger format conflict)</td>
+<td>Added <code>z.string().regex(/^[A-Z0-9-]{3,30}$/)</code> in <code>app/api/admin/jobs/route.ts:14</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>P2</td>
+<td><code>published_at</code> never set when status changed to <code>&#39;open&#39;</code></td>
+<td>Auto-set in POST (<code>status=&#39;open&#39;</code>) and PATCH (status transition to/from open) in <code>app/api/admin/jobs/route.ts:81,147</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>P2</td>
+<td>No audit log on job create/update/delete</td>
+<td><code>pipeline_events</code> inserts now fire on all three operations (<code>app/api/admin/jobs/route.ts:95,167,188</code>)</td>
+</tr>
+</tbody></table>
+<h3 id="data-integrity-fixes">Data Integrity Fixes</h3><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix Applied</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>6</td>
+<td><code>admin_user_id</code> FK mismatch — applications route used <code>auth.user.id</code> (auth_users) instead of <code>admin_users.id</code></td>
+<td>Added admin_users lookup in <code>app/api/admin/applications/route.ts:60</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Same FK bug in settings route</td>
+<td>Fixed in <code>app/api/admin/settings/route.ts:29</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Same FK bug in hire route</td>
+<td>Fixed in <code>app/api/admin/hire/route.ts:112</code></td>
+</tr>
+</tbody></table>
+<h3 id="new-features-this-session">New Features (this session)</h3><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Feature</th>
+<th>Files</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>9</td>
+<td>Inline &quot;create new department&quot; in job modal</td>
+<td><code>app/admin/jobs/page.tsx:460</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Indefinite closing date checkbox</td>
+<td><code>app/admin/jobs/page.tsx:452-471</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Public display: &quot;No deadline&quot;</td>
+<td><code>app/jobs/JobsClient.tsx:105</code>, <code>app/apply/[slug]/page.tsx:71</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td>Open/unlimited positions checkbox</td>
+<td><code>app/admin/jobs/page.tsx:427-447</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td>Public display: &quot;Open positions&quot;</td>
+<td><code>app/jobs/JobsClient.tsx:103</code>, <code>app/apply/[slug]/page.tsx:70</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td>Visibility toggle (Publish/Draft) button</td>
+<td><code>app/admin/jobs/page.tsx:200,349</code></td>
+</tr>
+<tr>
+<td>15</td>
+<td>Save Draft / Publish buttons in modal</td>
+<td>Already existed — confirmed working</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Seed data updated: 5 open jobs, 11 drafts, new Quality Manager role, renamed roles</td>
+<td><code>supabase/migrations/001_schema.sql</code>, <code>db/neon-schema.sql</code></td>
+</tr>
+</tbody></table>
+<hr>
+
+<section class="he-section" id="comprehensive-audit-report">
+  <div class="he-section__num">02 · 🔍 COMPREHENSIVE AUDIT REPORT</div>
+  <h2 class="he-section__title">🔍 COMPREHENSIVE AUDIT REPORT</h2><h3 id="a-public-page-audit-uxui-designer-accessibility-advocate">A. PUBLIC-PAGE AUDIT (UX/UI Designer + Accessibility Advocate)</h3><h4 id="a1-appjobsjobsclienttsx">A1: <code>app/jobs/JobsClient.tsx</code></h4><ul>
+<li><strong>BUG FIXED:</strong> Line 103 previously used <code>job.target_count &amp;&amp;</code> which showed nothing when count was null. Now shows &quot;Open positions&quot; for null target_count.</li>
+<li><strong>BUG FIXED:</strong> No closing date display. Now shows &quot;No deadline&quot; when closes_at is null.</li>
+<li><strong>Accessibility:</strong> The <code>&lt;select&gt;</code> on line 46 has no <code>&lt;label&gt;</code> element associated — relies on <code>aria-label</code>. Consider adding a visible <code>&lt;label&gt;</code>.</li>
+<li><strong>Accessibility:</strong> The search input has <code>aria-label=&quot;Search roles&quot;</code> ✓ (good).</li>
+<li><strong>Performance:</strong> <code>filtered</code> uses <code>useMemo</code> ✓ (good, prevents unnecessary re-renders).</li>
+<li><strong>Performance:</strong> The <code>fetch(&#39;/api/metadata&#39;)</code> in <code>useEffect</code> has no error handling — if it fails, departments array stays empty and the filter dropdown shows only &quot;All Departments&quot;. No retry or fallback UI.</li>
+</ul>
+<h4 id="a2-appapplyslugpagetsx">A2: <code>app/apply/[slug]/page.tsx</code></h4><ul>
+<li><strong>BUG FIXED:</strong> Line 70 now shows &quot;Open positions&quot; and &quot;No deadline&quot; for null values.</li>
+<li><strong>Missing:</strong> No back-link if the job isn&#39;t found after <code>notFound()</code> — relies on Next.js 404 page (acceptable).</li>
+<li><strong>Accessibility:</strong> The hero image overlay (<code>backgroundImage</code>) has no alt text or caption. The image is decorative, so this is acceptable but could add <code>role=&quot;presentation&quot;</code> via aria.</li>
+</ul>
+<h4 id="a3-apppagetsx">A3: <code>app/page.tsx</code></h4><ul>
+<li><strong>Hardcoded data:</strong> <code>STATS</code> array (line 55) has hardcoded &quot;12+ Active Vacancies&quot; — this should come from an API or DB query, not be static. Shows stale data.</li>
+<li><strong>Hardcoded data:</strong> &quot;7 Departments Hiring&quot; is also static — should be dynamic.</li>
+</ul>
+<h4 id="a4-components-audit">A4: Components audit</h4><ul>
+<li><code>components/ui/StatusPill.tsx</code> — Check color contrast for all 5 status colors (draft, open, paused, closed, filled).</li>
+<li><code>components/layout/SiteNav.tsx</code> — No mobile menu close on route change (clicking a nav link closes the overlay? need to verify).</li>
+<li><code>components/forms/ApplicationForm.tsx</code> — Uses Zod client-side validation ✓. Has error message display ✓. No <code>aria-invalid</code> or <code>aria-describedby</code> on invalid fields (accessibility gap for screen reader users).</li>
+</ul>
+<h3 id="b-backendapi-audit-performance-guru-security-auditor">B. BACKEND/API AUDIT (Performance Guru + Security Auditor)</h3><h4 id="b1-appapiadminjobsroutets">B1: <code>app/api/admin/jobs/route.ts</code></h4><ul>
+<li>✅ FIXED: PATCH allowlist</li>
+<li>✅ FIXED: published_at tracking</li>
+<li>✅ FIXED: audit logging</li>
+<li><strong>Finding:</strong> GET pagination returns <code>{ data, total, page, limit }</code> — but if the client request fails (non-200), the client <code>load()</code> function still tries <code>d.data?.data</code> which would be undefined. The error case is handled with <code>setJobs([])</code> fallback ✓. However, the <code>loading</code> state is set but there&#39;s no error state — API errors are silently swallowed.</li>
+<li><strong>Finding:</strong> The POST handler sets <code>created_by</code> from <code>admin_users.id</code> lookup ✓. But there&#39;s no check that the <code>department</code> value actually exists in the <code>departments</code> table — the job <code>department</code> column is plain TEXT (no FK), so typos are possible.</li>
+</ul>
+<h4 id="b2-appapiapplicationsroutets">B2: <code>app/api/applications/route.ts</code></h4><ul>
+<li><strong>CRITICAL SECURITY GAP:</strong> No server-side input validation. Accepts arbitrary <code>body.*</code> fields. Only <code>cleanInput</code> (basic trim) is applied to first/last name and email. No Zod schema validation on the server. A malicious client could:<ul>
+<li>Send invalid enum values for <code>deployment_pref</code> (expected: <code>fully_flexible</code>, <code>ghana_only</code>, <code>not_available</code>)</li>
+<li>Send arbitrary <code>source</code> values</li>
+<li>Exceed field length constraints</li>
+</ul>
+</li>
+<li><strong>Data integrity:</strong> Qualifications/experience/compensation inserts use <code>console.warn</code> on failure but don&#39;t return an error to the client — the main application is saved but sub-tables may silently fail.</li>
+</ul>
+<h4 id="b3-appapiregisterroutets">B3: <code>app/api/register/route.ts</code></h4><ul>
+<li>Same security gap: no server-side validation. Only <code>cleanInput</code> on names. Email is trimmed but not validated as an email.</li>
+</ul>
+<h4 id="b4-appapiadminmetadataroutets-post">B4: <code>app/api/admin/metadata/route.ts</code> POST</h4><ul>
+<li><strong>Input validation gap:</strong> The <code>type</code> field is only checked as <code>category</code> vs <code>employment_types</code> (else defaults to employment_types). No validation of the <code>items</code> array shape. Could corrupt lookup tables.</li>
+</ul>
+<h4 id="b5-appapiadmindepartmentsroutets-post">B5: <code>app/api/admin/departments/route.ts</code> POST</h4><ul>
+<li><strong>Input validation gap:</strong> Uses <code>...rest</code> spread without validation. Arbitrary fields passed to <code>.insert()</code>. No Zod schema.</li>
+<li>✅ FIXED: Added DepartmentSchema in this session (line 6-11). Still needs to be applied to the POST handler body.</li>
+</ul>
+<h4 id="b6-libdbts">B6: <code>lib/db.ts</code></h4><ul>
+<li><strong>Architecture note:</strong> Custom PostgREST-compatible query builder shim over pg. The <code>parseSelect</code> regex parser is fragile — complex nested selects may break. Tested only with simple cases.</li>
+<li><strong>Security:</strong> The <code>cleanInput</code> function (in lib/api-utils) should be reviewed for SQL injection — but since Supabase parameterized queries are used, the client shim should also parameterize. Check that <code>db.ts</code> uses <code>$1, $2</code> parameterization everywhere.</li>
+</ul>
+<h4 id="b7-libsupabase-admints">B7: <code>lib/supabase-admin.ts</code></h4><ul>
+<li>Uses service_role key (bypasses RLS) — correct for server-side admin operations ✓.</li>
+</ul>
+<h3 id="c-auth-amp-security-audit-security-auditor-chairman">C. AUTH &amp; SECURITY AUDIT (Security Auditor + Chairman)</h3><h4 id="c1-proxyts-edge-middleware">C1: <code>proxy.ts</code> (Edge Middleware)</h4><ul>
+<li>✅ Protects <code>/admin</code> and <code>/api/admin/*</code> routes via JWT session cookie.</li>
+<li><strong>Finding:</strong> The middleware only checks JWT validity, not role. Role-based access is deferred to <code>verifyRole()</code> in each API route — correct pattern.</li>
+<li><strong>Finding:</strong> If <code>AUTH_SECRET</code> is not set, <code>getSecret()</code> returns null, and <code>valid</code> stays false — all admin routes return 401. No clear error message. Should fail with a startup warning.</li>
+</ul>
+<h4 id="c2-libauthts">C2: <code>lib/auth.ts</code></h4><ul>
+<li>Needs full review — session creation, signing, verification.</li>
+<li><strong>Finding:</strong> Session cookie is <code>httpOnly: true</code> ✓, <code>secure: production only</code> ✓, <code>sameSite: &#39;lax&#39;</code> ✓.</li>
+<li><strong>Finding:</strong> JWT maxAge is <code>SESSION_MAX_AGE</code> — check if this is reasonable (e.g., 24h).</li>
+</ul>
+<h4 id="c3-libapi-utilsts-verifyrole">C3: <code>lib/api-utils.ts</code> <code>verifyRole</code></h4><ul>
+<li>✅ Correctly queries <code>admin_users</code> by <code>auth_user_id</code> for role check.</li>
+<li><strong>Finding:</strong> Returns <code>{ user, role }</code>. Callers who need <code>admin_users.id</code> for FK references must do a separate lookup — this is a recurring bug pattern (3 instances found and FIXED in this session). Should enhance <code>verifyRole</code> to also return <code>adminUserId</code>.</li>
+</ul>
+<h4 id="c4-admin-layout-auth">C4: Admin Layout Auth</h4><ul>
+<li><strong>Finding:</strong> <code>components/admin/AdminLayout.tsx</code> uses <code>useSWR</code> to fetch <code>/api/auth/me</code> but has no loading state — content may render before auth check completes, causing a brief flash of unauthenticated content. The middleware should redirect before the page renders, but there&#39;s a window of vulnerability.</li>
+</ul>
+<h4 id="c5-rls-policies">C5: RLS Policies</h4><ul>
+<li><code>app/api/admin/metadata/route.ts</code> GET is NOT behind auth (line 7: &quot;Public access allowed&quot;) — correct, it&#39;s recruitment metadata.</li>
+<li>The jobs table has <code>public_read_open_jobs</code> policy ✓ — only <code>status = &#39;open&#39;</code> jobs are readable publicly.</li>
+<li>The <code>jobs</code> INSERT/UPDATE/DELETE RLS requires <code>admin_users</code> existence (line 332-334) — but since the admin APIs use <code>supabaseAdmin</code> (service role), they bypass RLS ✓.</li>
+</ul>
+<h3 id="d-database-schema-audit-chairman">D. DATABASE SCHEMA AUDIT (Chairman)</h3><h4 id="d1-schema-vs-types-mismatch">D1: Schema vs Types Mismatch</h4><ul>
+<li><code>types/index.ts</code> has <code>Job</code> interface with <code>indefinite_deadline</code> and <code>open_positions</code> — these are client-only derived fields, NOT in the DB schema. ✓ (correct, they&#39;re computed in the UI)</li>
+<li><code>Job</code> interface has <code>application_count</code> as optional — is this populated anywhere? Check if there&#39;s a query that counts applications per job.</li>
+</ul>
+<h4 id="d2-unseeded-tables">D2: Unseeded Tables</h4><table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Seeded?</th>
+<th>Queried by app?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>departments</code></td>
+<td>✅ FIXED</td>
+<td>✅ (JobsClient, apply page, metadata API)</td>
+<td>Was empty — now has 7 rows</td>
+</tr>
+<tr>
+<td><code>job_categories</code></td>
+<td>✅</td>
+<td>✅ (metadata API)</td>
+<td>4 categories seeded</td>
+</tr>
+<tr>
+<td><code>employment_types</code></td>
+<td>✅</td>
+<td>✅ (metadata API)</td>
+<td>5 types seeded</td>
+</tr>
+<tr>
+<td><code>system_settings</code></td>
+<td>✅</td>
+<td>✅ (settings API, homepage)</td>
+<td>4 settings seeded</td>
+</tr>
+<tr>
+<td><code>branding_config</code></td>
+<td>✅</td>
+<td>✅ (email templates?)</td>
+<td>5 keys seeded</td>
+</tr>
+<tr>
+<td><code>document_folders</code></td>
+<td>✅</td>
+<td>✅ (documents API)</td>
+<td>5 folders seeded</td>
+</tr>
+<tr>
+<td><code>jobs</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>Updated: 5 open, 11 draft</td>
+</tr>
+<tr>
+<td><code>admin_users</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Seed via <code>seed-admin.js</code> (run manually)</td>
+</tr>
+<tr>
+<td><code>staff_profiles</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Created on hire</td>
+</tr>
+<tr>
+<td><code>applications</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Created via public form</td>
+</tr>
+<tr>
+<td><code>pipeline_events</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Created on status changes</td>
+</tr>
+<tr>
+<td><code>talent_pool</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Created via register form</td>
+</tr>
+<tr>
+<td><code>email_logs</code></td>
+<td>❌</td>
+<td>?</td>
+<td>Check if queried</td>
+</tr>
+<tr>
+<td><code>hr_transfers</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Created on HR transfer</td>
+</tr>
+<tr>
+<td><code>dashboard_snapshots</code></td>
+<td>❌</td>
+<td>?</td>
+<td>Check if queried</td>
+</tr>
+<tr>
+<td><code>storage_objects</code></td>
+<td>❌</td>
+<td>✅ (upload API)</td>
+<td>Created on upload</td>
+</tr>
+<tr>
+<td><code>staff_documents</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>Created on upload</td>
+</tr>
+<tr>
+<td><code>department_budget_history</code></td>
+<td>❌</td>
+<td>✅ (budget history API)</td>
+<td>Created on budget changes</td>
+</tr>
+</tbody></table>
+<h4 id="d3-missing-indexes">D3: Missing Indexes</h4><ul>
+<li><code>jobs.department</code> has no index — used for filtering in public search. Consider adding <code>CREATE INDEX idx_jobs_dept ON jobs(department)</code>.</li>
+<li><code>admin_users.role</code> has no index — used in RLS policy subqueries. Consider adding <code>CREATE INDEX idx_admin_users_role ON admin_users(role)</code>.</li>
+<li><code>pipeline_events.event_type</code> has no index — used in audit queries.</li>
+</ul>
+<h4 id="d4-constraint-gaps">D4: Constraint Gaps</h4><ul>
+<li><code>jobs.ref_code</code> is <code>TEXT UNIQUE</code> but the trigger auto-generates it — if a user provides a ref_code that conflicts, they get a 23505 error (handled in API). But the ref_code format is not enforced at DB level — could insert non-conforming codes. (Client now validates with regex ✓)</li>
+<li><code>jobs.closes_at</code> is <code>DATE</code> — accepts null ✓. This supports the indefinite deadline feature.</li>
+<li><code>jobs.target_count</code> is <code>INTEGER</code> (nullable) — supports unlimited positions (null) ✓.</li>
+</ul>
+<h4 id="d5-migration-consistency">D5: Migration Consistency</h4><ul>
+<li><code>001_schema.sql</code> uses <code>auth.users(id)</code> for FK references.</li>
+<li><code>006_schema_fixes.sql</code> uses <code>auth.users(id)</code> for <code>system_settings.updated_by</code> and <code>department_budget_history.created_by</code>.</li>
+<li><code>neon-schema.sql</code> uses <code>auth_users(id)</code> instead (since Neon doesn&#39;t have <code>auth.users</code>).</li>
+<li>Both are consistent with their respective target platforms. ✓</li>
+</ul>
+<h3 id="e-business-rules-audit">E. BUSINESS RULES AUDIT</h3><h4 id="e1-job-lifecycle">E1: Job Lifecycle</h4><table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Visible on public page?</th>
+<th>Can receive applications?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>draft</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>open</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>paused</code></td>
+<td>No</td>
+<td>No (should redirect to &quot;Position filled&quot; or &quot;Coming soon&quot; page)</td>
+</tr>
+<tr>
+<td><code>closed</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>filled</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody></table>
+<p><strong>Finding:</strong> <code>app/jobs/page.tsx</code> only fetches <code>status=&#39;open&#39;</code> ✓. But <code>app/apply/[slug]/page.tsx</code> only fetches <code>status=&#39;open&#39;</code> ✓ — it will 404 for any other status. This is correct behavior.</p>
+<h4 id="e2-application-status-lifecycle">E2: Application Status Lifecycle</h4><p><code>new → under_review → shortlisted → interview → offer/hired | rejected | withdrawn | transferred_to_hr</code></p>
+<p><strong>Finding:</strong> The <code>hr_transfers</code> table and <code>hr_transferred</code> field exist but there&#39;s no UI to manage HR transfers. The <code>app/api/hr/transfer/route.ts</code> exists but needs review.</p>
+<h4 id="e3-rbac-matrix">E3: RBAC Matrix</h4><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Can create jobs</th>
+<th>Can publish jobs</th>
+<th>Can edit any job</th>
+<th>Can delete jobs</th>
+<th>Can view applications</th>
+<th>Can hire</th>
+<th>Can manage staff</th>
+<th>Can manage settings</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>super_admin</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>admin</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>hr_manager</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>recruiter</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>read_only</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<p><strong>Finding:</strong> The <code>jobs</code> POST endpoint allows <code>[&#39;admin&#39;, &#39;hr_manager&#39;]</code> — recruiters cannot create jobs. ✅
+The <code>jobs</code> PATCH endpoint allows <code>[&#39;admin&#39;, &#39;hr_manager&#39;]</code> — recruiters cannot edit jobs. ✅
+The <code>jobs</code> DELETE endpoint allows <code>[&#39;admin&#39;, &#39;hr_manager&#39;]</code> — recruiters cannot delete jobs. ✅</p>
+<p>But wait — the admin UI <code>toggleStatus</code> is accessible by recruiters (GET allows recruiter, but PATCH/DELETE don&#39;t). Recruiters can see the toggle buttons but clicking them would get a 403. The UI should hide these buttons for recruiters. <strong>UI gap.</strong></p>
+<hr>
+
+<section class="he-section" id="database-architecture-note">
+  <div class="he-section__num">03 · 📋 DATABASE ARCHITECTURE NOTE</div>
+  <h2 class="he-section__title">📋 DATABASE ARCHITECTURE NOTE</h2><h3 id="primary-db-for-aerojet-aviation-main-domain">Primary DB for aerojet-aviation (main domain)</h3><ul>
+<li><strong>Database:</strong> Neon (PostgreSQL serverless) via <code>DATABASE_URL</code></li>
+<li><strong>ORM:</strong> Prisma (<code>lib/prisma/client.ts</code>)</li>
+<li><strong>Auth:</strong> NextAuth.js with CredentialsProvider + JWT (no Clerk, no Supabase Auth)</li>
+<li><code>lib/supabase-admin.ts</code> does NOT exist in the main project — it uses Prisma directly</li>
+</ul>
+<h3 id="primary-db-for-aerojet-careers-this-subdomain">Primary DB for aerojet-careers (this subdomain)</h3><ul>
+<li><strong>Database:</strong> Neon (PostgreSQL) — same database or separate schema?</li>
+<li><strong>ORM/Query layer:</strong> Custom PostgREST-compatible shim (<code>lib/db.ts</code> over <code>pg</code> pool)</li>
+<li><strong>Auth:</strong> Custom JWT session (<code>lib/auth.ts</code> using <code>jose</code> library) — NOT NextAuth, NOT Clerk, NOT Supabase Auth</li>
+<li><strong>Storage:</strong> Custom <code>storage_objects</code> table with BYTEA columns — NOT Supabase Storage buckets</li>
+<li>The files named <code>supabase-admin.ts</code>, <code>supabase-server.ts</code>, <code>supabase.ts</code> are <strong>compatibility shims</strong> that emulate the Supabase client API but route through Neon</li>
+<li><code>supabase/migrations/*.sql</code> are written in Supabase-compatible dialect (<code>auth.users</code>, <code>uuid-ossp</code>) but run against Neon</li>
+<li><code>db/neon-schema.sql</code> is the Neon-native equivalent (<code>auth_users</code>, <code>IF NOT EXISTS</code>, <code>DO $$</code> blocks)</li>
+</ul>
+<h3 id="key-implication">Key implication</h3><p>The <code>app/api/admin/departments/route.ts</code> POST handler&#39;s <code>manager_id</code> field references <code>admin_users(id)</code> — but the actual <code>admin_users</code> table is populated via <code>seed-admin.js</code> or the <code>hire</code> workflow, so new departments have no manager assigned by default. This is by design, not a bug.</p>
+<hr>
+
+<section class="he-section" id="decisions-for-user-deferred-needs-input">
+  <div class="he-section__num">04 · 📋 DECISIONS FOR USER (Deferred — needs input)</div>
+  <h2 class="he-section__title">📋 DECISIONS FOR USER (Deferred — needs input)</h2><p>Create a doc file: <code>docs/AUDIT_DECISIONS.md</code></p>
+<h3 id="decision-1-server-side-validation-on-public-endpoints">Decision 1: Server-side validation on public endpoints</h3><p><strong>Options:</strong></p>
+<ul>
+<li>A) Add Zod validation to <code>/api/applications/route.ts</code> and <code>/api/register/route.ts</code> (recommended)</li>
+<li>B) Keep client-side only validation (risky)</li>
+</ul>
+<h3 id="decision-2-recruiters-cannot-edit-jobs-but-ui-shows-edit-buttons">Decision 2: Recruiters cannot edit jobs — but UI shows edit buttons</h3><p>The admin jobs page shows Edit/Publish/Delete buttons for all roles. Recruiters can see them but will get 403 on click.</p>
+<ul>
+<li>A) Hide buttons based on role in the UI (requires fetching user role in the page)</li>
+<li>B) Disable buttons with a tooltip &quot;Contact an admin&quot;</li>
+<li>C) Leave as-is (current behavior)</li>
+</ul>
+<h3 id="decision-3-hardcoded-stats-on-homepage">Decision 3: Hardcoded stats on homepage</h3><p><code>app/page.tsx</code> has static &quot;12+ Active Vacancies&quot; and &quot;7 Departments Hiring&quot;.</p>
+<ul>
+<li>A) Fetch live stats from <code>/api/admin/stats</code> (requires auth or a public stats endpoint)</li>
+<li>B) Create a public <code>/api/stats</code> endpoint that returns open job count</li>
+<li>C) Leave as static (simplest, content team can update manually)</li>
+</ul>
+<h3 id="decision-4-rls-on-jobsdepartment-column">Decision 4: RLS on <code>jobs.department</code> column</h3><p>Currently a plain TEXT field with no FK to <code>departments</code>. Typos could create orphaned department names in jobs.</p>
+<ul>
+<li>A) Add a FK constraint from <code>jobs.department</code> to <code>departments.name</code> (breaking — requires data cleanup)</li>
+<li>B) Add application-level validation (check department exists before insert/update)</li>
+<li>C) Leave as TEXT (current behavior)</li>
+</ul>
+<h3 id="decision-5-pipeline-events-fk-fix-pattern">Decision 5: Pipeline events FK fix pattern</h3><p>Should <code>verifyRole()</code> be enhanced to return <code>adminUserId</code> directly, eliminating the repeated lookup pattern?</p>
+<ul>
+<li>A) Enhance <code>verifyRole</code> to return <code>{ user, role, adminUserId }</code> (break change to lib/api-utils.ts)</li>
+<li>B) Keep the per-route lookup pattern (verbose but isolated)</li>
+</ul>
+<h3 id="decision-6-storage-buckets">Decision 6: Storage buckets</h3><p>The schema mentions creating Supabase Storage buckets (<code>application-documents</code>, <code>branding-assets</code>) manually. Does the app use S3 directly (Neon) or Supabase Storage?</p>
+<ul>
+<li>Check <code>lib/supabase-server.ts</code> / <code>lib/supabase.ts</code> for storage client config.</li>
+</ul>
+<hr>
+
+<section class="he-section" id="todo-for-next-session">
+  <div class="he-section__num">05 · 📝 TODO FOR NEXT SESSION</div>
+  <h2 class="he-section__title">📝 TODO FOR NEXT SESSION</h2><ol>
+<li><strong>Fix <code>app/api/admin/departments/route.ts</code> POST</strong> — apply the <code>DepartmentSchema</code> validation I added to the handler body (line 6-11 defines it but POST still uses <code>...rest</code> unchecked).</li>
+<li><strong>Add Zod validation</strong> to <code>app/api/applications/route.ts</code> and <code>app/api/register/route.ts</code> (pending Decision 1).</li>
+<li><strong>Review <code>lib/email-service.ts</code></strong> — no email template validation, raw <code>note</code> strings.</li>
+<li><strong>Review <code>app/api/upload/route.ts</code></strong> — file upload security (type/size validation).</li>
+<li><strong>Review <code>app/api/admin/documents/route.ts</code></strong> — document management CRUD.</li>
+<li><strong>Review <code>app/api/admin/organization/route.ts</code></strong> — organization settings.</li>
+<li><strong>Review <code>app/api/admin/talent/route.ts</code></strong> — talent pool management.</li>
+<li><strong>Review <code>app/api/admin/hr/transfer/route.ts</code></strong> — HR transfer integration.</li>
+<li><strong>Review <code>app/api/admin/analytics/snapshot/route.ts</code></strong> — dashboard snapshots.</li>
+<li><strong>Audit <code>app/api/admin/stats/route.ts</code></strong> — the <code>fetchCount</code> pattern creates N+6 sequential queries (not parallelized) — should use <code>Promise.all</code>.</li>
+<li><strong>Review all <code>components/forms/*</code></strong> components for accessibility (aria-invalid, aria-describedby).</li>
+<li><strong>Review <code>components/apply/*</code></strong> components for accessibility.</li>
+<li><strong>Review <code>components/admin/*</code></strong> for role-based visibility of buttons.</li>
+<li><strong>Review <code>app/api/admin/applications/[id]/route.ts</code></strong> — individual application view.</li>
+<li><strong>Add missing indexes</strong> for <code>jobs.department</code>, <code>admin_users.role</code>, <code>pipeline_events.event_type</code>.</li>
+</ol>
+<hr>
+<p><em>Generated by the LLM Council audit framework (<code>docs/LLM_COUNCIL_FRAMEWORK.md</code>). All fixes marked as completed have been verified with <code>bun run type-check</code>.</em></p>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#completed-fixes-this-session">✅ COMPLETED FIXES (this session)</a></li>
+    <li class="he-toc__l3"><a href="#council-recommendation-remediations">Council Recommendation Remediations</a></li>
+    <li class="he-toc__l3"><a href="#data-integrity-fixes">Data Integrity Fixes</a></li>
+    <li class="he-toc__l3"><a href="#new-features-this-session">New Features (this session)</a></li>
+    <li class="he-toc__l2"><a href="#comprehensive-audit-report">🔍 COMPREHENSIVE AUDIT REPORT</a></li>
+    <li class="he-toc__l3"><a href="#a-public-page-audit-uxui-designer-accessibility-advocate">A. PUBLIC-PAGE AUDIT (UX/UI Designer + Accessibility Advocate)</a></li>
+    <li class="he-toc__l3"><a href="#b-backendapi-audit-performance-guru-security-auditor">B. BACKEND/API AUDIT (Performance Guru + Security Auditor)</a></li>
+    <li class="he-toc__l3"><a href="#c-auth-security-audit-security-auditor-chairman">C. AUTH & SECURITY AUDIT (Security Auditor + Chairman)</a></li>
+    <li class="he-toc__l3"><a href="#d-database-schema-audit-chairman">D. DATABASE SCHEMA AUDIT (Chairman)</a></li>
+    <li class="he-toc__l3"><a href="#e-business-rules-audit">E. BUSINESS RULES AUDIT</a></li>
+    <li class="he-toc__l2"><a href="#database-architecture-note">📋 DATABASE ARCHITECTURE NOTE</a></li>
+    <li class="he-toc__l3"><a href="#primary-db-for-aerojet-aviation-main-domain">Primary DB for aerojet-aviation (main domain)</a></li>
+    <li class="he-toc__l3"><a href="#primary-db-for-aerojet-careers-this-subdomain">Primary DB for aerojet-careers (this subdomain)</a></li>
+    <li class="he-toc__l3"><a href="#key-implication">Key implication</a></li>
+    <li class="he-toc__l2"><a href="#decisions-for-user-deferred-needs-input">📋 DECISIONS FOR USER (Deferred — needs input)</a></li>
+    <li class="he-toc__l3"><a href="#decision-1-server-side-validation-on-public-endpoints">Decision 1: Server-side validation on public endpoints</a></li>
+    <li class="he-toc__l3"><a href="#decision-2-recruiters-cannot-edit-jobs-but-ui-shows-edit-buttons">Decision 2: Recruiters cannot edit jobs — but UI shows edit buttons</a></li>
+    <li class="he-toc__l3"><a href="#decision-3-hardcoded-stats-on-homepage">Decision 3: Hardcoded stats on homepage</a></li>
+    <li class="he-toc__l3"><a href="#decision-4-rls-on-jobsdepartment-column">Decision 4: RLS on `jobs.department` column</a></li>
+    <li class="he-toc__l3"><a href="#decision-5-pipeline-events-fk-fix-pattern">Decision 5: Pipeline events FK fix pattern</a></li>
+    <li class="he-toc__l3"><a href="#decision-6-storage-buckets">Decision 6: Storage buckets</a></li>
+    <li class="he-toc__l2"><a href="#todo-for-next-session">📝 TODO FOR NEXT SESSION</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

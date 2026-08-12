@@ -53,6 +53,8 @@ export async function sendWelcomeEmail(email: string, fullName: string, tempPass
 
 export async function sendAcknowledgmentEmail(to: string, firstName: string, lastName: string, refCode: string, jobTitle: string) {
   const fromEmail = process.env.EMAIL_FROM || 'recruitment@aerojet-aviation.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const checkStatusUrl = `${appUrl}/check-status?ref=${encodeURIComponent(refCode)}`
   const subject = `Application received – ${jobTitle} [${refCode}]`
 
   const html = `
@@ -68,6 +70,12 @@ export async function sendAcknowledgmentEmail(to: string, firstName: string, las
       </p>
       <p>
         <strong>Reference Code:</strong> ${refCode}
+      </p>
+      <p>
+        You can check the status of your application at any time using the link below:
+      </p>
+      <p style="margin: 16px 0;">
+        <a href="${checkStatusUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">Check Application Status</a>
       </p>
       <p>
         We will contact you should your profile be shortlisted for the next stage.

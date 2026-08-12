@@ -16,6 +16,8 @@
     <a href="../index.html">Index</a>
     <a href="../architecture/system-overview.html">Architecture</a>
     <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,6 +27,114 @@
   <h1 class="he-title">Developer Handover</h1>
   <p class="he-deck">Onboarding notes for anyone taking over the Aerojet Careers portal.</p>
 </header>
+
+<section class="he-section" id="technical-stack">
+  <div class="he-section__num">01 · Technical stack</div>
+  <h2 class="he-section__title">Technical stack</h2><ul>
+<li><strong>Framework:</strong> Next.js 16 (App Router), React 19, TypeScript</li>
+<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong> primary, <strong>Supabase</strong> retained as backup)</li>
+<li><strong>Data access:</strong> custom Supabase-compatible query builder (<code>lib/db.ts</code>) — no ORM</li>
+<li><strong>Auth:</strong> local bcrypt + JWT session cookie (<code>lib/auth.ts</code>), no external auth provider</li>
+<li><strong>Storage:</strong> files in a <code>storage_objects</code> table, served via <code>/api/files</code></li>
+<li><strong>Styling:</strong> Tailwind CSS 4 + shadcn/ui + Radix, Framer Motion</li>
+<li><strong>Email:</strong> Resend (<code>lib/email-service.ts</code>)</li>
+<li><strong>Hosting:</strong> Vercel</li>
+</ul>
+
+<section class="he-section" id="the-most-important-thing-to-understand">
+  <div class="he-section__num">02 · The most important thing to understand</div>
+  <h2 class="he-section__title">The most important thing to understand</h2><p>This project was migrated off Supabase. Rather than rewrite ~30 routes, the three
+Supabase client objects are now <strong>Neon-backed compatibility shims</strong> that keep the
+old <code>supabase-js</code> surface:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Replaces</th>
+<th>Backed by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>lib/supabase-admin.ts</code></td>
+<td>service-role client</td>
+<td><code>lib/db.ts</code>, <code>lib/auth-admin.ts</code>, <code>lib/storage-compat.ts</code></td>
+</tr>
+<tr>
+<td><code>lib/supabase-server.ts</code></td>
+<td>server SSR client</td>
+<td><code>lib/db.ts</code>, <code>lib/auth.ts</code></td>
+</tr>
+<tr>
+<td><code>lib/supabase.ts</code></td>
+<td>browser client</td>
+<td><code>/api/auth/*</code>, <code>/api/storage/upload</code>, <code>/api/files</code></td>
+</tr>
+</tbody></table>
+<p>So when you see <code>supabaseAdmin.from(&#39;applications&#39;).select(...)</code>, it is <strong>not</strong> talking
+to Supabase — it runs SQL against Neon through the query builder. Full details in the
+<a href="./neon-migration.html">Neon migration guide</a>.</p>
+
+<section class="he-section" id="where-things-live">
+  <div class="he-section__num">03 · Where things live</div>
+  <h2 class="he-section__title">Where things live</h2><pre><code>lib/
+  db.ts              Neon pool + Supabase-style query builder (the core)
+  auth.ts            bcrypt hashing, JWT sign/verify, getServerUser()
+  auth-admin.ts      create/update/delete auth_users
+  storage.ts         low-level storage_objects read/write
+  storage-compat.ts  supabase.storage-shaped wrapper over storage.ts
+  supabase*.ts        the three compat shims
+  api-utils.ts       ApiResponse + verifyRole (authorization)
+  email-service.ts   Resend templates (welcome, acknowledgement)
+
+proxy.ts             edge route guard (JWT cookie check)
+db/neon-schema.sql   full schema
+seed-admin.js        seeds the first admin into Neon
+
+app/
+  (public)/          legal pages
+  (root routes)      public careers site (jobs, apply, register, programs)
+  admin/             authenticated HR/admin portal
+  api/               REST API
+
+components/
+  admin/             portal UI (PeopleDirectory, PipelineView, OrgChart, …)
+  forms/             ApplicationForm
+  layout/ ui/        site chrome + shared primitives
+</code></pre>
+
+<section class="he-section" id="common-tasks">
+  <div class="he-section__num">04 · Common tasks</div>
+  <h2 class="he-section__title">Common tasks</h2><h3 id="add-an-admin-api-route">Add an admin API route</h3><ol>
+<li>Create <code>app/api/admin/&lt;name&gt;/route.ts</code>.</li>
+<li>Start each handler with <code>const auth = await verifyRole([...]); if (!auth) return ApiResponse.error(&#39;Unauthorized&#39;, 403)</code>.</li>
+<li>Query with <code>supabaseAdmin.from(&#39;&lt;table&gt;&#39;)...</code> and return <code>ApiResponse.success(data)</code>.</li>
+</ol>
+<h3 id="add-a-table-column">Add a table / column</h3><ol>
+<li>Edit <code>db/neon-schema.sql</code> (keep it idempotent).</li>
+<li>Apply it: <code>psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql</code>.</li>
+<li>If you add a new relational embed, add a rule to <code>resolveRelationship()</code> in <code>lib/db.ts</code>.</li>
+</ol>
+<h3 id="reset-add-an-admin">Reset / add an admin</h3><pre><code class="language-bash">SEED_ADMIN_EMAIL=you@example.com SEED_ADMIN_PASSWORD=&#39;Secret@2026&#39; node seed-admin.js
+</code></pre>
+
+<section class="he-section" id="known-constraints-gotchas">
+  <div class="he-section__num">05 · Known constraints / gotchas</div>
+  <h2 class="he-section__title">Known constraints / gotchas</h2><ul>
+<li><strong>No RLS.</strong> All security is app-layer (<code>proxy.ts</code> + <code>verifyRole</code>). Never leak <code>DATABASE_URL</code>.</li>
+<li><strong>Query builder is a subset.</strong> It supports what the app uses (<code>eq/neq/in/ilike/or/contains/range</code>,
+embeds, <code>count</code>, <code>upsert</code>). If you need an unsupported operator, extend <code>lib/db.ts</code>
+rather than reaching for raw SQL scattered across routes (use the exported <code>query()</code> helper for one-offs).</li>
+<li><strong>Supabase passwords can&#39;t be imported</strong> (different hashing, not exportable) — migrated
+users need a reset. See the migration guide.</li>
+<li><strong><code>AUTH_SECRET</code> rotation logs everyone out.</strong></li>
+<li><strong>Build hits the DB</strong> during static generation of <code>/jobs</code>, so <code>DATABASE_URL</code> must be set at build time.</li>
+</ul>
+
+<section class="he-section" id="verifying-a-change">
+  <div class="he-section__num">06 · Verifying a change</div>
+  <h2 class="he-section__title">Verifying a change</h2><pre><code class="language-bash">bun run type-check   # tsc --noEmit
+bun run build        # next build (also type-checks + static-generates)
+</code></pre>
 <p>Both should pass clean before shipping.</p>
 
 </main>

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,8 +50,8 @@ export async function GET(req: NextRequest) {
       newApplications,
       hiredCount
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('Stats route critical error:', err)
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aerojet Aviation Careers Portal — Full Codebase Audit Report</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #003366;
+      --accent-light: #eaf3fa;
+      --danger: #b04a4a;
+      --warning: #c78e3f;
+      --success: #788c5d;
+      --info: #5c7ca3;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Montserrat', var(--font-sans);
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    header {
+      background: linear-gradient(135deg, var(--accent) 0%, #001a3c 100%);
+      color: white;
+      padding: 3rem 1.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 4px solid #00aeeF;
+    }
+    header .container {
+      padding: 0;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header h1 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    header .meta {
+      opacity: 0.85;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    header .meta strong { opacity: 1; }
+    .grade-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+    .grade-chip {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.85rem;
+      backdrop-filter: blur(4px);
+    }
+    .grade-chip strong {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.7;
+      margin-bottom: 0.15rem;
+    }
+    .grade-chip .val {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    .toc h2 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .toc ol { padding-left: 1.25rem; }
+    .toc li { margin-bottom: 0.35rem; }
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    section h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    section h3 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    section h3:first-of-type { margin-top: 0; }
+    p, li {
+      margin-bottom: 0.6rem;
+      font-size: 0.95rem;
+    }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { font-weight: 600; }
+    code {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85em;
+      color: #334155;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+    }
+    thead th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    tbody td {
+      padding: 0.6rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #f8fafc; }
+    .severity-critical { color: var(--danger); font-weight: 700; }
+    .severity-high { color: #d97706; font-weight: 600; }
+    .severity-medium { color: var(--warning); font-weight: 600; }
+    .severity-low { color: var(--info); font-weight: 600; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-critical { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    .badge-high { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .badge-medium { background: #fffbeb; color: var(--warning); border: 1px solid #fde68a; }
+    .badge-low { background: #eff6ff; color: var(--info); border: 1px solid #bfdbfe; }
+    .badge-p0 { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    .badge-p1 { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-p2 { background: #fefce8; color: #a16207; border: 1px solid #fef08a; }
+    .badge-p3 { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-light);
+      padding: 1rem 1.25rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 1rem 0;
+    }
+    .callout.danger {
+      border-left-color: var(--danger);
+      background: #fef2f2;
+    }
+    .callout strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .file-ref {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85em;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      section { padding: 1.25rem; }
+      header { padding: 2rem 1rem; }
+      header h1 { font-size: 1.35rem; }
+      table { font-size: 0.8rem; }
+      thead th, tbody td { padding: 0.5rem 0.6rem; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Aerojet Aviation Careers Portal — Full Codebase Audit Report</h1>
+      <div class="meta">
+        <strong>Date:</strong> 2026-08-11 &nbsp;|&nbsp;
+        <strong>Project:</strong> aerojet-careers &nbsp;|&nbsp;
+        <strong>Auditors:</strong> LLM Council — 2 Senior Dev Engineers, 1 UI/UX Specialist, 1 Non-Technical User
+      </div>
+      <div class="meta" style="margin-top:0.35rem;">
+        <strong>Scope:</strong> Complete codebase audit across architecture, security, performance, design, accessibility, and usability
+      </div>
+      <div class="grade-bar">
+        <div class="grade-chip"><strong>Overall</strong><div class="val">C+</div></div>
+        <div class="grade-chip"><strong>Architecture</strong><div class="val">B-</div></div>
+        <div class="grade-chip"><strong>Security</strong><div class="val" style="color:#fca5a5;">D+</div></div>
+        <div class="grade-chip"><strong>Performance</strong><div class="val">B</div></div>
+        <div class="grade-chip"><strong>UI/UX</strong><div class="val">C+</div></div>
+        <div class="grade-chip"><strong>Usability</strong><div class="val">B-</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="toc">
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#executive-summary">Executive Summary</a></li>
+        <li><a href="#part1">Part 1: Senior Dev Engineer 1 — Architecture &amp; Code Quality</a></li>
+        <li><a href="#part2">Part 2: Senior Dev Engineer 2 — Security, Performance &amp; Maintainability</a></li>
+        <li><a href="#part3">Part 3: UI/UX Specialist — Design, Accessibility &amp; UX</a></li>
+        <li><a href="#part4">Part 4: Non-Technical User — Usability, Content &amp; Trust</a></li>
+        <li><a href="#critical-issues">Consolidated Critical Issues</a></li>
+        <li><a href="#recommendations">Consolidated Recommendations</a></li>
+        <li><a href="#appendix">Appendix: Files Analyzed</a></li>
+      </ol>
+    </nav>
+
+    <section id="executive-summary">
+      <h2>Executive Summary</h2>
+      <p>The Aerojet Aviation Careers Portal is a <strong>Next.js 16 App Router</strong> application serving as a dual-portal system (public careers site + admin recruitment dashboard). The codebase demonstrates strong engineering fundamentals—comprehensive RBAC, Zod validation, type-safe TypeScript, and a well-structured design token system—but has <strong>3 critical security vulnerabilities</strong> and significant usability barriers that must be addressed before production scale.</p>
+      <div class="callout danger">
+        <strong>Overall Grade: C+ (Production-ready with critical remediations required)</strong>
+        <table style="margin-top:0.75rem; margin-bottom:0;">
+          <thead>
+            <tr><th>Domain</th><th>Grade</th><th>Critical Issues</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Architecture &amp; Code Quality</td><td><strong>B-</strong></td><td>Monolithic components, mixed styling paradigms</td></tr>
+            <tr><td>Security</td><td><strong style="color:var(--danger);">D+</strong></td><td>3 critical vulnerabilities, missing CSRF, unauthenticated uploads</td></tr>
+            <tr><td>Performance</td><td><strong>B</strong></td><td>Missing caching, N+1 queries, large bundle concerns</td></tr>
+            <tr><td>UI/UX &amp; Accessibility</td><td><strong>C+</strong></td><td>Broken CSS variables, missing skip link, inline style dominance</td></tr>
+            <tr><td>Usability &amp; Trust</td><td><strong>B-</strong></td><td>Aviation jargon, missing salary data, no candidate login</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="part3">
+      <h2>Part 3: UI/UX Specialist — Design, Accessibility &amp; UX</h2>
+
+      <h3>3.1 Design System Assessment</h3>
+      <p><strong>Design Tokens (<code>lib/design-tokens.css</code>)</strong></p>
+      <ul>
+        <li><strong>Strengths:</strong> Well-structured token system with navy/sky brand anchors, full tonal scales, semantic palette, surface tokens, gradients, and z-index hierarchy</li>
+        <li><span class="severity-critical">Critical Issues:</span>
+          <ul>
+            <li><code>var(--blue)</code>, <code>var(--navy)</code>, <code>var(--success)</code>, <code>var(--error)</code>, <code>var(--warning)</code>, <code>var(--info)</code> are used extensively in inline styles but <strong>never defined</strong> — resolve to <code>undefined</code> at runtime, causing broken colors</li>
+            <li><code>--muted-bg</code> is referenced in <code>globals.css</code> but never defined</li>
+            <li>Duplicate <code>--sp-5</code> declaration at line 158</li>
+            <li>Duplicate <code>.cta-section</code> block in <code>globals.css</code> (lines 342-368 and 496-522)</li>
+            <li>Playfair Display declared in tokens but never loaded in <code>app/layout.tsx</code></li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>3.2 Visual Consistency</h3>
+      <div class="callout danger">
+        <strong>Major Issue: Inline Style Dominance</strong>
+        <p style="margin-top:0.5rem; margin-bottom:0;"><code>app/page.tsx</code>, <code>JobsClient.tsx</code>, <code>graduate-program/page.tsx</code>, <code>skilled-training/page.tsx</code> use hundreds of lines of inline <code>style={{}}</code> objects instead of existing CSS classes.</p>
+        <p style="margin-top:0.5rem; margin-bottom:0;">Existing components (<code>StatusPill</code>, <code>EmptyState</code>) are underutilized — <code>JobsClient.tsx</code> has custom empty state markup instead of reusing <code>EmptyState</code>.</p>
+        <p style="margin-top:0.5rem; margin-bottom:0;">Login page uses different visual language (Tailwind slate utilities) vs. careers portal's token system — feels like a separate product.</p>
+      </div>
+      <p><strong>Brand Alignment:</strong></p>
+      <ul>
+        <li>Navy/sky usage is consistent across nav, hero, CTAs, and footer</li>
+        <li>Hero overlays use hardcoded <code>#1c2a38/60</code> instead of tokenized values</li>
+        <li>Image references (<code>logo-navbar.png</code>, <code>logo-footer.png</code>) may 404 if not in expected <code>public/</code> subdirectory</li>
+      </ul>
+
+      <h3>3.3 Typography &amp; Readability</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Three web fonts loaded correctly (Montserrat, Inter, Outfit) with <code>preconnect</code> hints</li>
+        <li>Good hierarchy in <code>PageHero</code> and <code>SiteNav</code></li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li>Many headings use arbitrary inline <code>fontSize</code> values (<code>'1.75rem'</code>, <code>'1.5rem'</code>, <code>'1.35rem'</code>) bypassing the token type scale</li>
+        <li><code>--muted-foreground: #64748B</code> (slate-500) on white has contrast ~4.5:1 — passes AA for large text only, used extensively for body text</li>
+        <li>Stats labels use 13px — too small for prominent blocks</li>
+      </ul>
+
+      <h3>3.4 Layout &amp; Responsiveness</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Responsive grids with <code>auto-fit, minmax()</code> collapse gracefully</li>
+        <li>Mobile nav breakpoint at 900px with 44px touch targets</li>
+        <li><code>minmax(0, 1fr)</code> pattern prevents grid overflow</li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li>3-column deployment grid in <code>ApplicationForm.tsx:488</code> without responsive breakpoint — cramped on mobile</li>
+        <li>Sticky sidebar on job detail may overlap fixed nav on small screens</li>
+        <li>Cookie banner may overlap content on small screens</li>
+      </ul>
+
+      <h3>3.5 Accessibility Audit</h3>
+      <p><strong>Good:</strong></p>
+      <ul>
+        <li><code>prefers-reduced-motion</code> respected globally</li>
+        <li><code>:focus-visible</code> outlines defined</li>
+        <li>ARIA labels on search inputs (<code>JobsClient.tsx:39</code>, <code>49</code>)</li>
+        <li><code>role="note"</code> on NoticeBanner</li>
+        <li><code>aria-live="polite"</code> on cookie banner and error alerts</li>
+        <li><code>aria-pressed</code> on deployment preference cards</li>
+        <li><code>aria-expanded</code> on "Apply Now" button</li>
+      </ul>
+      <p><strong>Critical Issues:</strong></p>
+      <ul>
+        <li><span class="severity-critical">Missing skip link:</span> CSS class <code>.skip-link</code> defined in <code>globals.css:1037-1055</code> but never rendered in <code>app/layout.tsx</code></li>
+        <li><span class="severity-critical">Mobile menu toggle lacks ARIA:</span> No <code>aria-label</code>, <code>aria-expanded</code>, or <code>aria-controls</code> (<code>SiteNav.tsx:101-106</code>)</li>
+        <li><span class="severity-critical">CookieBanner lacks focus trap &amp; aria-modal:</span> <code>role="dialog"</code> without <code>aria-modal="true"</code></li>
+        <li><span class="severity-critical">Form labels missing <code>htmlFor</code>/<code>id</code> in <code>register/page.tsx:127-153</code>:</span> Nationality, country, experience, qualification selects</li>
+        <li><span class="severity-critical">File upload inputs lack accessible labeling:</span> Hidden inputs with no <code>aria-label</code> or <code>&lt;label&gt;</code> association</li>
+      </ul>
+
+      <h3>3.6 UX Patterns &amp; Flows</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Multi-step application form with progress indicator and per-step validation</li>
+        <li>Deferred form reveal pattern in job detail page</li>
+        <li>Sticky sidebar CTA on job detail</li>
+        <li>Toast notifications with framer-motion animations</li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li>Search state is client-side only — no URL-based sharing or bookmarking</li>
+        <li>No pagination on jobs listing — long lists create unusably long pages</li>
+        <li>No sort options on jobs page</li>
+        <li>No loading skeletons for async data (despite README convention)</li>
+        <li>ToastContainer component exists but not mounted in layout</li>
+      </ul>
+
+      <h3>3.7 Key Recommendations</h3>
+      <table>
+        <thead><tr><th>Priority</th><th>Action</th><th>File</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Define missing CSS custom properties (<code>--blue</code>, <code>--navy</code>, <code>--success</code>, etc.)</td><td><code>lib/design-tokens.css</code></td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Add skip link to <code>app/layout.tsx</code></td><td><code>app/layout.tsx</code></td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Verify image assets exist (logo-navbar.png, logo-footer.png)</td><td><code>public/</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add ARIA attributes to mobile menu toggle</td><td><code>SiteNav.tsx:101-106</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add focus trap and aria-modal to CookieBanner and ConfirmDialog</td><td><code>CookieBanner.tsx</code>, <code>ConfirmDialog.tsx</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Reduce inline styles — extract TrackCard, Section, and other repeated patterns</td><td><code>page.tsx</code>, <code>graduate-program/page.tsx</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Fix form label associations in register page</td><td><code>register/page.tsx:127-153</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Replace inline hover handlers with CSS</td><td><code>JobsClient.tsx:92-93</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Use EmptyState component in JobsClient</td><td><code>JobsClient.tsx:64-69</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Mount ToastContainer in layout</td><td><code>app/layout.tsx</code></td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Remove duplicate CSS blocks in globals.css</td><td><code>globals.css</code></td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Align login page design system</td><td><code>app/login/LoginClient.tsx</code></td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add responsive breakpoint to deployment grid</td><td><code>ApplicationForm.tsx:488</code></td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add accessible labels to file upload zones</td><td><code>ApplicationForm.tsx</code>, <code>register/page.tsx</code></td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Extract inline helper components from ApplicationForm</td><td><code>components/forms/</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="part4">
+      <h2>Part 4: Non-Technical User — Usability, Content &amp; Trust</h2>
+
+      <h3>4.1 First Impressions &amp; Credibility</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Strong hero messaging: <em>"Build the future of African aviation"</em></li>
+        <li>Professional design with consistent navy/sky branding</li>
+        <li>Physical address visible: <em>Accra International Airport, Accra, Ghana</em></li>
+        <li>Local Ghana phone number: <code>+233-20-984-8423</code></li>
+        <li>Transparent notice banners explain program status honestly</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li><span class="severity-high">Jargon overload:</span> <em>"MRO facility"</em> appears in hero and across pages without definition</li>
+        <li><span class="severity-medium">Stats fallback values:</span> Hardcoded "12+ Active Vacancies" and "1st Planned MRO Hub" when API fails undermines credibility</li>
+        <li><span class="severity-medium">No social proof:</span> No employee testimonials, team photos, partner logos, or media mentions</li>
+        <li><span class="severity-medium">"Actively building ahead of operational launch"</span> may trigger anxiety about job security</li>
+      </ul>
+
+      <h3>4.2 Navigation &amp; Information Architecture</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Fixed top navigation with clear "View All Jobs" CTA</li>
+        <li>Mobile hamburger menu with adequate touch target</li>
+        <li>Comprehensive footer sitemap with 6 columns</li>
+        <li>Breadcrumbs on job application pages</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li><span class="severity-high">Breadcrumbs missing on 5+ major pages:</span> Homepage, Jobs, Graduate Program, Skilled Training, Register</li>
+        <li><span class="severity-high">No skip-to-content link rendered</span> — keyboard users tab through full nav</li>
+        <li><span class="severity-medium">External link confusion:</span> Newsroom and Contact point to main <code>aerojet-aviation.com</code> domain</li>
+        <li><span class="severity-critical">Admin login at <code>/login</code>:</span> Candidates searching for "login" or "my application" hit a staff portal</li>
+      </ul>
+
+      <h3>4.3 Job Discovery Experience</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Client-side search filters by title, department, and tags</li>
+        <li>Department dropdown dynamically populated</li>
+        <li>Job cards show location, type, vacancies, deadline, and tags</li>
+        <li>Empty state gracefully redirects to general application</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li><span class="severity-medium">No salary information</span> on job cards or detail pages</li>
+        <li><span class="severity-low">No pagination or "Load more"</span> — long lists create unusably long pages</li>
+        <li><span class="severity-low">No sort options</span> — hardcoded to <code>created_at</code> descending</li>
+        <li><span class="severity-low">No "Save job" or email alerts</span></li>
+        <li><span class="severity-low">Search state not URL-based</span> — cannot share or bookmark filtered results</li>
+      </ul>
+
+      <h3>4.4 Application Flow</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Progressive disclosure — 5-step form hidden behind "Apply Now" gate</li>
+        <li>Clear progress indicator with back-navigation</li>
+        <li>Per-step validation gates</li>
+        <li>Confirmation screen with reference code</li>
+        <li>WhatsApp sharing of job links</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li><span class="severity-medium">Extreme length and complexity:</span> Step 2 requires EASA Part-66 licence knowledge — non-EASA candidates (FAA, GCAA) may not know how to answer</li>
+        <li><span class="severity-medium">No save-and-resume:</span> Browser close or connectivity loss = lost progress</li>
+        <li><span class="severity-low">Terse error messages:</span> "Required", "Invalid email" give no guidance</li>
+        <li><span class="severity-low">No time estimate:</span> Says "about five minutes" but realistically takes 15-20 minutes</li>
+        <li><span class="severity-medium">Compensation step asks for salary expectations</span> but job never disclosed a range</li>
+        <li><span class="severity-low">No confirmation email guarantee:</span> Success screen claims email sent, but if API fails user sees false confirmation</li>
+      </ul>
+
+      <h3>4.5 Content Quality</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Local relevance: WAEC/WASSCE, Ghanaian nationality, GHS currency, Ghana Data Protection Act</li>
+        <li>Transparent program status via NoticeBanners</li>
+        <li>WhatsApp and LinkedIn sharing matches West African communication habits</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li><span class="severity-medium">Aviation jargon overload:</span> Cat A pathway, Part-66, type ratings, AOG, outstation, ULD, DG — all unexplained</li>
+        <li><span class="severity-medium">Terms of Use contradicts reality:</span> Mentions "application fees are non-refundable" but no fees are charged</li>
+        <li><span class="severity-low">No FAQ or help center:</span> Common questions unanswered</li>
+        <li><span class="severity-low">Graduate Program is a stub:</span> Page openly admits it's a placeholder</li>
+      </ul>
+
+      <h3>4.6 Mobile Experience</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Responsive grids collapse gracefully</li>
+        <li>Mobile nav with 44px touch target</li>
+        <li>Single-column layout on mobile for job detail</li>
+        <li>Footer grid steps up from 1 → 2 → 3 → 6 columns</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li>Sticky sidebar on job detail may overlap fixed nav on small screens</li>
+        <li>3-column deployment grid compresses on 320px screens</li>
+        <li>No mobile-specific error presentation</li>
+        <li>No viewport meta set explicitly (relies on Next.js default)</li>
+      </ul>
+
+      <h3>4.7 Trust &amp; Transparency</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Legal compliance: Privacy policy references Ghana Data Protection Act, ISO/IEC 27001:2022</li>
+        <li>Clear data subject rights enumeration</li>
+        <li>Consent checkboxes with plain-language summaries</li>
+        <li>Cookie consent with accept/reject options</li>
+        <li>Physical address and local phone number in footer</li>
+      </ul>
+      <p><strong>Concerns:</strong></p>
+      <ul>
+        <li><span class="severity-medium">Inconsistent contact emails:</span> Terms uses <code>info@aerojet-aviation.com</code>, footer/forms use <code>careers@aerojet-aviation.com</code></li>
+        <li><span class="severity-medium">Terms of Use references non-existent fees</span> — creates fear of hidden costs</li>
+        <li><span class="severity-low">No security indicators:</span> No SSL badge, no "secure application" icon, no encryption mention</li>
+        <li><span class="severity-low">No company legitimacy signals:</span> No registration number, no GRA references, no press mentions</li>
+      </ul>
+
+      <h3>4.8 Key Recommendations</h3>
+      <table>
+        <thead><tr><th>Priority</th><th>Action</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Create candidate-facing status page or clearly label admin login as "Staff Portal"</td><td>Eliminates login confusion</td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Add plain-language aviation glossary or tooltips for MRO, LAE, Part-66, etc.</td><td>Enables non-specialist applicants</td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Implement save-and-resume on 5-step application form</td><td>Reduces abandonment</td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Correct Terms of Use fee language or add "no fees" statement</td><td>Builds trust</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add salary ranges or compensation statements to job cards</td><td>Saves candidate time</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add "Save job" and "Set up job alert" buttons</td><td>Increases engagement</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add breadcrumbs to homepage, jobs, programs, register</td><td>Improves navigation</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add help widget or visible helpline (WhatsApp)</td><td>Reduces drop-off</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Consolidate contact emails or add routing explanation</td><td>Reduces confusion</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add French language option</td><td>Widens West African reach</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add employee testimonials or "Meet the team" section</td><td>Humanizes brand</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add "Back to top" button on long pages</td><td>Improves mobile UX</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add pagination or "Load more" to jobs listing</td><td>Prevents unusably long pages</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add sort controls to jobs page</td><td>Improves discoverability</td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Add social media links to footer</td><td>Increases followability</td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Add company timeline or "Our story" page</td><td>Builds legitimacy</td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Render skip-link in layout</td><td>Keyboard accessibility</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="critical-issues">
+      <h2>Consolidated Critical Issues (All Perspectives)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Issue</th>
+            <th>Severity</th>
+            <th>Domain</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1</strong></td>
+            <td><strong>Live production secrets on disk</strong> (<code>.env.local</code> with real credentials)</td>
+            <td><span class="badge badge-critical">CRITICAL</span></td>
+            <td>Security</td>
+            <td><code>.env.local</code></td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td><strong>Completely unauthenticated file upload</strong> (<code>/api/upload/talent</code>)</td>
+            <td><span class="badge badge-critical">CRITICAL</span></td>
+            <td>Security</td>
+            <td><code>app/api/upload/talent/route.ts</code></td>
+          </tr>
+          <tr>
+            <td><strong>3</strong></td>
+            <td><strong>No CSRF protection</strong> on state-changing endpoints</td>
+            <td><span class="badge badge-critical">CRITICAL</span></td>
+            <td>Security</td>
+            <td>All API routes</td>
+          </tr>
+          <tr>
+            <td><strong>4</strong></td>
+            <td><strong>Password returned in API response</strong> (<code>tempPassword</code> in JSON)</td>
+            <td><span class="badge badge-critical">CRITICAL</span></td>
+            <td>Security</td>
+            <td><code>app/api/admin/people/create/route.ts:80</code></td>
+          </tr>
+          <tr>
+            <td><strong>5</strong></td>
+            <td><strong>Undefined CSS variables</strong> (<code>--blue</code>, <code>--navy</code>, etc.) causing broken colors</td>
+            <td><span class="badge badge-critical">CRITICAL</span></td>
+            <td>UI/UX</td>
+            <td>All page components</td>
+          </tr>
+          <tr>
+            <td><strong>6</strong></td>
+            <td><strong>Missing skip link</strong> (CSS exists but never rendered)</td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Accessibility</td>
+            <td><code>app/layout.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>7</strong></td>
+            <td><strong>No rate limiting on public write endpoints</strong></td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Security</td>
+            <td><code>/api/register</code>, <code>/api/applications</code></td>
+          </tr>
+          <tr>
+            <td><strong>8</strong></td>
+            <td><strong>Unauthenticated memory rate limiter fallback</strong> (broken in serverless)</td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Security</td>
+            <td><code>lib/rate-limit.ts</code></td>
+          </tr>
+          <tr>
+            <td><strong>9</strong></td>
+            <td><strong>File access control gaps</strong> (<code>/api/files</code>, <code>/api/admin/download</code>)</td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Security</td>
+            <td><code>app/api/files/route.ts</code></td>
+          </tr>
+          <tr>
+            <td><strong>10</strong></td>
+            <td><strong>Auto-provisioning admin_users</strong> from <code>user_metadata.role</code></td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Security</td>
+            <td><code>lib/api-utils.ts:36-67</code></td>
+          </tr>
+          <tr>
+            <td><strong>11</strong></td>
+            <td><strong>Unvalidated PATCH updates</strong> on applications</td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Security</td>
+            <td><code>app/api/admin/applications/route.ts:44</code></td>
+          </tr>
+          <tr>
+            <td><strong>12</strong></td>
+            <td><strong>Mobile menu toggle lacks ARIA attributes</strong></td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td>Accessibility</td>
+            <td><code>SiteNav.tsx:101-106</code></td>
+          </tr>
+          <tr>
+            <td><strong>13</strong></td>
+            <td><strong>Form labels missing <code>htmlFor</code>/<code>id</code></strong> in register page</td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Accessibility</td>
+            <td><code>register/page.tsx:127-153</code></td>
+          </tr>
+          <tr>
+            <td><strong>14</strong></td>
+            <td><strong>Duplicate Zod schemas with divergent validation logic</strong></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Architecture</td>
+            <td><code>lib/validation/schemas.ts</code> vs <code>ApplicationForm.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>15</strong></td>
+            <td><strong>Monolithic 688-line ApplicationForm component</strong></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Architecture</td>
+            <td><code>components/forms/ApplicationForm.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>16</strong></td>
+            <td><strong>~15 instances of <code>any</code> type</strong> undermining TypeScript strictness</td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Architecture</td>
+            <td>Multiple files</td>
+          </tr>
+          <tr>
+            <td><strong>17</strong></td>
+            <td><strong>Inline styles dominate page components</strong> (~60% of styling)</td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Architecture</td>
+            <td><code>page.tsx</code>, <code>register/page.tsx</code>, others</td>
+          </tr>
+          <tr>
+            <td><strong>18</strong></td>
+            <td><strong>Dual auth systems</strong> (Supabase Auth + local JWT)</td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Architecture</td>
+            <td><code>lib/auth.ts</code> vs <code>supabase-*</code> shims</td>
+          </tr>
+          <tr>
+            <td><strong>19</strong></td>
+            <td><strong>No salary transparency</strong> on job cards</td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Usability</td>
+            <td><code>JobsClient.tsx</code>, <code>JobApplyContent.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>20</strong></td>
+            <td><strong>Aviation jargon without definitions</strong></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Usability</td>
+            <td>Multiple pages and form fields</td>
+          </tr>
+          <tr>
+            <td><strong>21</strong></td>
+            <td><strong>No save-and-resume on application form</strong></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Usability</td>
+            <td><code>ApplicationForm.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>22</strong></td>
+            <td><strong>Terms of Use mentions non-existent fees</strong></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td>Usability</td>
+            <td><code>app/(public)/terms/page.tsx:56</code></td>
+          </tr>
+          <tr>
+            <td><strong>23</strong></td>
+            <td><strong>Client-side-only search with no URL state</strong></td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td>UX</td>
+            <td><code>JobsClient.tsx:24-30</code></td>
+          </tr>
+          <tr>
+            <td><strong>24</strong></td>
+            <td><strong>No pagination on jobs listing</strong></td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td>Performance/UX</td>
+            <td><code>app/jobs/page.tsx:35</code></td>
+          </tr>
+          <tr>
+            <td><strong>25</strong></td>
+            <td><strong>Duplicate CSS blocks</strong> in globals.css</td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td>UI/UX</td>
+            <td><code>globals.css:342-368, 496-522</code></td>
+          </tr>
+          <tr>
+            <td><strong>26</strong></td>
+            <td><strong>Login page visual divergence</strong> from design system</td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td>UI/UX</td>
+            <td><code>app/login/LoginClient.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>27</strong></td>
+            <td><strong>ToastContainer not mounted in layout</strong></td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td>UI/UX</td>
+            <td><code>components/ui/ToastContainer.tsx</code></td>
+          </tr>
+          <tr>
+            <td><strong>28</strong></td>
+            <td><strong>3-column grid without responsive breakpoint</strong></td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td>UI/UX</td>
+            <td><code>ApplicationForm.tsx:488</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="recommendations">
+      <h2>Consolidated Recommendations (Prioritized)</h2>
+
+      <h3>P0 — Fix Immediately</h3>
+      <ol>
+        <li><strong>Rotate ALL secrets</strong> — <code>.env.local</code> contains live production credentials. Rotate Neon DB passwords, AUTH_SECRET, RESEND_API_KEY, Upstash tokens, Supabase keys. Migrate to Vercel Environment Variables or a secrets manager.</li>
+        <li><strong>Add authentication to <code>/api/upload/talent</code></strong> — This endpoint must require a valid session, ideally restricted to admin/hr_manager roles.</li>
+        <li><strong>Implement CSRF protection</strong> — Add CSRF tokens to all mutation endpoints or enforce <code>SameSite: 'strict'</code> + <code>Origin</code> header validation.</li>
+        <li><strong>Remove <code>tempPassword</code> from API response</strong> — Send credentials via email only, or generate a password reset link.</li>
+        <li><strong>Add rate limiting to all public write endpoints</strong> — <code>/api/register</code>, <code>/api/applications</code> should have the same rate limiting as login.</li>
+        <li><strong>Define all missing CSS custom properties</strong> — Add <code>--blue</code>, <code>--navy</code>, <code>--success</code>, <code>--error</code>, <code>--warning</code>, <code>--info</code>, <code>--muted-bg</code> to <code>lib/design-tokens.css</code> or create a centralized aliases file.</li>
+        <li><strong>Render skip link in <code>app/layout.tsx</code></strong> — <code>&lt;a href="#main-content" class="skip-link"&gt;Skip to main content&lt;/a&gt;</code></li>
+        <li><strong>Remove auto-provisioning from <code>verifyRole()</code></strong> — Require explicit <code>admin_users</code> records. Auto-creation from <code>user_metadata.role</code> is a privilege escalation vector.</li>
+      </ol>
+
+      <h3>P1 — High Priority (This Sprint)</h3>
+      <ol>
+        <li><strong>Add authorization checks to <code>/api/files</code> and <code>/api/admin/download</code></strong> — Users should only access files belonging to their own applications/records.</li>
+        <li><strong>Fix Upstash fallback behavior</strong> — When Redis is unavailable, return 429 instead of silently falling back to ineffective memory limiting.</li>
+        <li><strong>Sanitize error messages</strong> — Replace raw <code>err.message</code> with generic messages in API responses. Log details server-side only.</li>
+        <li><strong>Add security headers</strong> — Implement <code>Strict-Transport-Security</code>, <code>X-XSS-Protection</code>, <code>Permissions-Policy</code>, and upgrade-insecure-requests.</li>
+        <li><strong>Add ARIA attributes to mobile menu toggle</strong> — <code>aria-label</code>, <code>aria-expanded</code>, <code>aria-controls</code>.</li>
+        <li><strong>Add <code>aria-modal="true"</code> and focus trap to CookieBanner</strong> and ConfirmDialog.</li>
+        <li><strong>Fix form label associations in <code>register/page.tsx</code></strong> — Add <code>htmlFor</code> attributes to labels and matching <code>id</code> attributes to selects.</li>
+        <li><strong>Replace inline hover handlers in <code>JobsClient.tsx</code></strong> with CSS <code>.card:hover</code> or a dedicated <code>.job-row</code> class.</li>
+        <li><strong>Use EmptyState component in JobsClient</strong> instead of inline markup.</li>
+        <li><strong>Mount ToastContainer in <code>app/layout.tsx</code></strong> so toasts are globally available.</li>
+        <li><strong>Consolidate Zod schemas</strong> — Move all step schemas to <code>lib/validation/schemas.ts</code> and import them in <code>ApplicationForm.tsx</code>.</li>
+        <li><strong>Extract inline form components</strong> from <code>ApplicationForm.tsx</code> into <code>components/forms/</code> or <code>components/ui/</code>. Make them typed and testable.</li>
+        <li><strong>Reduce inline styles</strong> in page components. Create reusable components for repeated patterns.</li>
+        <li><strong>Add unit tests</strong> for <code>lib/auth.ts</code> (session lifecycle), <code>lib/api-utils.ts</code> (sanitization functions), and extracted form components.</li>
+        <li><strong>Unify auth strategy</strong> — Decide: Supabase Auth OR local JWT, not both.</li>
+        <li><strong>Add Zod validation</strong> to <code>app/api/admin/applications/route.ts</code> PATCH handler with allow-list similar to <code>ALLOWED_UPDATE_KEYS</code>.</li>
+      </ol>
+
+      <h3>P2 — Medium Priority (Next Sprint)</h3>
+      <ol>
+        <li><strong>Batch signed URL generation</strong> — Fetch all signed URLs in parallel instead of sequential per-document calls.</li>
+        <li><strong>Add response caching</strong> — Implement <code>Cache-Control</code> headers on read-only endpoints and Next.js <code>revalidate</code> tags for server components.</li>
+        <li><strong>Replace <code>select('*')</code> with specific columns</strong> in admin list endpoints.</li>
+        <li><strong>Add <code>output: 'standalone'</code></strong> to <code>next.config.js</code> for optimized Docker deployments.</li>
+        <li><strong>Implement structured logging</strong> — Replace <code>console.error</code> with a logger that supports levels, redaction, and request correlation.</li>
+        <li><strong>Remove duplicate CSS blocks</strong> in <code>globals.css</code>.</li>
+        <li><strong>Remove duplicate <code>--sp-5</code> declaration</strong> in <code>lib/design-tokens.css</code>.</li>
+        <li><strong>Align login page design system</strong> — Update to use careers portal's CSS component classes.</li>
+        <li><strong>Add responsive breakpoint to deployment preference grid</strong> in <code>ApplicationForm.tsx</code>.</li>
+        <li><strong>Add accessible labels to file upload zones</strong>.</li>
+        <li><strong>Add loading skeletons</strong> for async data pages (jobs, stats).</li>
+        <li><strong>Add salary ranges or compensation statements</strong> to job cards and detail pages.</li>
+        <li><strong>Add save-and-resume (draft applications)</strong> — Store form state in <code>localStorage</code> or database, send resume link via email.</li>
+        <li><strong>Add simple FAQ page</strong> — Address common questions (fees, visas, review timeline, MRO definition).</li>
+        <li><strong>Correct Terms of Use fee language</strong> — Remove "application fees are non-refundable" or add "no fees charged" statement.</li>
+        <li><strong>Consolidate contact emails</strong> — Use <code>careers@aerojet-aviation.com</code> everywhere, or add routing explanation.</li>
+      </ol>
+
+      <h3>P3 — Low Priority / Technical Debt</h3>
+      <ol>
+        <li><strong>Reduce Framer Motion bundle impact</strong> — Consider code-splitting animation libraries or using CSS transitions for simpler animations.</li>
+        <li><strong>Add input sanitization library</strong> — Implement DOMPurify or similar for any future rich-text features.</li>
+        <li><strong>Add column name validation to query builder <code>or()</code> parser</strong> — Whitelist allowed columns to prevent SQL injection.</li>
+        <li><strong>Implement database query logging in non-production</strong> — Add query duration logging to identify slow queries.</li>
+        <li><strong>Add automated dependency scanning</strong> — Configure <code>bun audit</code> or <code>npm audit</code> in CI pipeline.</li>
+        <li><strong>Add multi-browser E2E tests</strong> (Firefox, WebKit).</li>
+        <li><strong>Enable <code>fullyParallel: true</code></strong> in Playwright config.</li>
+        <li><strong>Extract AdminLayout sub-components</strong> (sidebar, topbar, user menu) into separate files.</li>
+        <li><strong>Add social media links</strong> to footer.</li>
+        <li><strong>Add company timeline or "Our story" page</strong>.</li>
+        </ol>
+      </section>
+
+    <section id="appendix">
+      <h2>Appendix: Files Analyzed</h2>
+
+      <h3>Core Application</h3>
+      <ul>
+        <li><code>package.json</code>, <code>next.config.js</code>, <code>tsconfig.json</code>, <code>vercel.json</code></li>
+        <li><code>app/layout.tsx</code>, <code>app/page.tsx</code>, <code>app/globals.css</code></li>
+        <li><code>app/jobs/page.tsx</code>, <code>app/jobs/JobsClient.tsx</code></li>
+        <li><code>app/skilled-training/page.tsx</code>, <code>app/graduate-program/page.tsx</code></li>
+        <li><code>app/register/page.tsx</code>, <code>app/login/page.tsx</code>, <code>app/login/LoginClient.tsx</code></li>
+        <li><code>app/apply/[slug]/page.tsx</code>, <code>app/not-found.tsx</code></li>
+        <li><code>app/(public)/terms/page.tsx</code>, <code>app/(public)/privacy/page.tsx</code>, <code>app/(public)/cookies/page.tsx</code></li>
+      </ul>
+
+      <h3>Admin Application</h3>
+      <ul>
+        <li><code>app/admin/layout.tsx</code>, <code>app/admin/dashboard/page.tsx</code></li>
+        <li><code>app/admin/applications/page.tsx</code>, <code>app/admin/applications/[id]/page.tsx</code></li>
+        <li><code>app/admin/jobs/page.tsx</code>, <code>app/admin/people/page.tsx</code></li>
+        <li><code>app/admin/settings/page.tsx</code>, <code>app/admin/talent/page.tsx</code></li>
+        <li><code>app/admin/documents/page.tsx</code>, <code>app/admin/organization/page.tsx</code></li>
+      </ul>
+
+      <h3>API Routes</h3>
+      <ul>
+        <li><code>app/api/admin/jobs/route.ts</code>, <code>app/api/admin/applications/route.ts</code></li>
+        <li><code>app/api/admin/applications/[id]/route.ts</code>, <code>app/api/admin/people/create/route.ts</code></li>
+        <li><code>app/api/admin/departments/route.ts</code>, <code>app/api/admin/settings/route.ts</code></li>
+        <li><code>app/api/applications/route.ts</code>, <code>app/api/register/route.ts</code></li>
+        <li><code>app/api/auth/login/route.ts</code>, <code>app/api/auth/me/route.ts</code></li>
+        <li><code>app/api/upload/route.ts</code>, <code>app/api/upload/talent/route.ts</code></li>
+        <li><code>app/api/stats/route.ts</code>, <code>app/api/metadata/route.ts</code></li>
+        <li><code>app/api/files/route.ts</code></li>
+      </ul>
+
+      <h3>Components</h3>
+      <ul>
+        <li><code>components/layout/SiteNav.tsx</code>, <code>components/layout/SiteFooter.tsx</code></li>
+        <li><code>components/ui/PageHero.tsx</code>, <code>components/ui/NoticeBanner.tsx</code></li>
+        <li><code>components/ui/FormCard.tsx</code>, <code>components/ui/StatusPill.tsx</code></li>
+        <li><code>components/ui/CTAButtons.tsx</code>, <code>components/ui/EmptyState.tsx</code></li>
+        <li><code>components/ui/CookieBanner.tsx</code>, <code>components/ui/ToastContainer.tsx</code></li>
+        <li><code>components/ui/index.tsx</code></li>
+        <li><code>components/forms/ApplicationForm.tsx</code>, <code>components/apply/JobApplyContent.tsx</code></li>
+      </ul>
+
+      <h3>Libraries</h3>
+      <ul>
+        <li><code>lib/auth.ts</code>, <code>lib/api-utils.ts</code>, <code>lib/rate-limit.ts</code></li>
+        <li><code>lib/supabase.ts</code>, <code>lib/supabase-admin.ts</code>, <code>lib/supabase-server.ts</code></li>
+        <li><code>lib/domain-config.ts</code>, <code>lib/validation/schemas.ts</code></li>
+        <li><code>lib/db.ts</code>, <code>lib/email-service.ts</code>, <code>lib/toast.ts</code></li>
+      </ul>
+
+      <h3>Configuration &amp; Types</h3>
+      <ul>
+        <li><code>types/index.ts</code>, <code>proxy.ts</code>, <code>vitest.config.ts</code>, <code>playwright.config.ts</code></li>
+      </ul>
+    </section>
+
+    <hr>
+    <p style="text-align:center; color:var(--muted); font-size:0.85rem; margin-top:2rem;">
+      Report generated by LLM Council audit framework. All file references include line numbers for direct navigation.
+    </p>
+  </div>
+</body>
+</html>
+
+    <section id="part1">
+      <h2>Part 1: Senior Dev Engineer 1 — Architecture &amp; Code Quality</h2>
+
+      <h3>1.1 Project Structure</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Clear dual-portal separation: <code>app/</code> (public) and <code>app/admin/</code> (protected)</li>
+        <li>Barrel exports in <code>components/ui/index.tsx</code> prevent component divergence</li>
+        <li>Centralized types in <code>types/index.ts</code> with comprehensive domain interfaces</li>
+        <li>Shared utilities in <code>lib/</code> (<code>api-utils.ts</code>, <code>auth.ts</code>, <code>domain-config.ts</code>)</li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li><code>app/page.tsx</code> (265 lines) mixes data fetching, layout, and presentation with heavy inline styles</li>
+        <li><code>components/forms/ApplicationForm.tsx</code> (688 lines) is a monolithic wizard containing 5 steps, 13 inline sub-components, and business logic</li>
+        <li><code>components/admin/AdminLayout.tsx</code> (369 lines) bundles sidebar state, user menu, settings fetch, and responsive logic</li>
+      </ul>
+
+      <h3>1.2 Next.js App Router Usage</h3>
+      <p><strong>Good patterns:</strong></p>
+      <ul>
+        <li>Server components fetch data directly via <code>supabaseAdmin</code> (<code>app/page.tsx</code>, <code>app/jobs/page.tsx</code>)</li>
+        <li>Client components correctly use <code>'use client'</code> (<code>JobsClient.tsx</code>, <code>register/page.tsx</code>, <code>LoginClient.tsx</code>)</li>
+        <li>ISR on jobs page with <code>revalidate = 60</code> (<code>app/jobs/page.tsx:14</code>)</li>
+        <li>Lazy loading for login client with <code>Suspense</code></li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li><code>app/login/page.tsx:5</code> sets <code>dynamic = 'force-dynamic'</code> on a purely client-side page — unnecessary SSR</li>
+        <li><code>app/admin/dashboard/page.tsx:16</code> uses <code>force-dynamic</code> with no caching strategy</li>
+        <li><code>app/jobs/JobsClient.tsx:14-22</code> fetches departments client-side, causing empty-state flash</li>
+      </ul>
+
+      <h3>1.3 TypeScript &amp; Type Safety</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li><code>strict: true</code> enabled in <code>tsconfig.json</code></li>
+        <li>Path aliases (<code>@/*</code>) used consistently</li>
+        <li>Comprehensive union types for enums in <code>types/index.ts</code></li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li>~15 instances of <code>any</code> type undermining safety (<code>lib/api-utils.ts:44</code>, <code>app/register/page.tsx:21</code>, <code>ApplicationForm.tsx:16</code>, <code>app/admin/dashboard/page.tsx:112</code>)</li>
+        <li>Duplicate Zod schemas: <code>lib/validation/schemas.ts</code> vs <code>ApplicationForm.tsx:50-90</code> with divergent validation logic</li>
+        <li>Duplicate <code>isAdult</code> function in two locations</li>
+      </ul>
+
+      <h3>1.4 Styling Approach</h3>
+      <div class="callout danger">
+        <strong>Critical inconsistency: THREE styling paradigms coexist</strong>
+        <ol style="margin-top:0.5rem; margin-bottom:0;">
+          <li><strong>Tailwind CSS v4 utilities</strong> — used in login page and some admin components</li>
+          <li><strong>CSS custom properties via <code>globals.css</code></strong> — used in shared component classes</li>
+          <li><strong>Inline <code>style={{}}</code> objects</strong> — used in ~60% of page components</li>
+        </ol>
+        <p style="margin-top:0.75rem; margin-bottom:0;">This is the single largest maintainability issue. <code>app/page.tsx</code> has 50+ inline style objects. <code>app/register/page.tsx</code> has 30+.</p>
+      </div>
+
+      <h3>1.5 API Design</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>RESTful routes with proper HTTP methods (GET/POST/PATCH/DELETE)</li>
+        <li>Standardized response format via <code>ApiResponse</code> class</li>
+        <li>Sort column allow-listing prevents SQL injection (<code>SORTABLE_COLUMNS</code>)</li>
+        <li>UUID validation on delete operations</li>
+      </ul>
+      <p><strong>Issues:</strong></p>
+      <ul>
+        <li>No CSRF protection on state-changing endpoints</li>
+        <li>No rate limiting on public endpoints despite <code>@upstash/ratelimit</code> being installed</li>
+        <li><code>PATCH /api/admin/applications</code> accepts unvalidated updates</li>
+      </ul>
+
+      <h3>1.6 Testing Strategy</h3>
+      <p><strong>Strengths:</strong></p>
+      <ul>
+        <li>Vitest configured with V8 coverage</li>
+        <li>Playwright configured for E2E</li>
+        <li>Unit tests exist for validation, security, and API utilities</li>
+      </ul>
+      <p><strong>Gaps:</strong></p>
+      <ul>
+        <li>No unit tests for <code>lib/auth.ts</code>, <code>lib/api-utils.ts</code>, or <code>ApplicationForm.tsx</code></li>
+        <li>No E2E test for application submission flow</li>
+        <li>No E2E test for admin CRUD operations</li>
+        <li>Only Chromium tested — no Firefox/Safari</li>
+      </ul>
+
+      <h3>1.7 Key Recommendations</h3>
+      <table>
+        <thead><tr><th>Priority</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Consolidate Zod schemas — move all step schemas to <code>lib/validation/schemas.ts</code></td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Extract inline form components from <code>ApplicationForm.tsx</code> into typed, testable files</td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Reduce inline styles — create reusable components for repeated patterns</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Remove <code>any</code> types and replace with proper interfaces</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Unify auth strategy — Supabase Auth OR local JWT, not both</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add Open Graph metadata to all pages</td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Extract <code>AdminLayout</code> sub-components into separate files</td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Add Husky + lint-staged for pre-commit enforcement</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="part2">
+      <h2>Part 2: Senior Dev Engineer 2 — Security, Performance &amp; Maintainability</h2>
+
+      <h3>2.1 Security Posture</h3>
+      <h4>Authentication &amp; Session Management</h4>
+      <ul>
+        <li><strong>Good:</strong> JWT sessions with <code>jose</code> (<code>HS256</code>), httpOnly cookies, <code>secure</code> flag in production, <code>sameSite: 'lax'</code></li>
+        <li><strong>Good:</strong> Refresh token rotation with one-time-use tokens stored in DB</li>
+        <li><strong>Good:</strong> Secret fallback chain (<code>AUTH_SECRET || JWT_SECRET || NEXTAUTH_SECRET</code>)</li>
+        <li><strong>Concern:</strong> No MFA, no password complexity requirements, bcrypt cost 10 (acceptable but could be 12)</li>
+      </ul>
+
+      <h4>Rate Limiting</h4>
+      <ul>
+        <li><strong>Good:</strong> Login rate limiting implemented with Upstash Redis + in-memory fallback</li>
+        <li><span class="severity-critical">Critical Gap:</span> Rate limiting is <strong>ONLY</strong> on <code>/api/auth/login</code>. All other public write endpoints (<code>/api/register</code>, <code>/api/applications</code>, <code>/api/upload/talent</code>) have <strong>NO rate limiting</strong></li>
+        <li><span class="severity-critical">Critical Gap:</span> Memory fallback is <strong>broken in production</strong> — on Vercel serverless, each function instance has isolated memory, so rate limiting becomes ineffective across instances</li>
+      </ul>
+
+      <h4>Input Validation</h4>
+      <ul>
+        <li><strong>Good:</strong> Zod schemas on most mutation endpoints</li>
+        <li><strong>Good:</strong> UUID validation consistently applied</li>
+        <li><strong>Good:</strong> Sort column allow-listing</li>
+        <li><strong>Concern:</strong> <code>cleanInput()</code> only trims whitespace — no XSS sanitization (relies on React JSX escaping)</li>
+        <li><strong>Concern:</strong> No <code>dangerouslySetInnerHTML</code> found — good</li>
+      </ul>
+
+      <h4>XSS / CSRF Protection</h4>
+      <ul>
+        <li><span class="severity-critical">Critical:</span> No CSRF tokens anywhere in the application</li>
+        <li><strong>Missing:</strong> No <code>X-XSS-Protection</code> header configured</li>
+        <li><strong>Missing:</strong> No CSP nonces — <code>unsafe-inline</code> used for scripts in dev</li>
+        <li><strong>Concern:</strong> CSP <code>connect-src 'self'</code> in admin blocks all external API calls</li>
+      </ul>
+
+      <h4>Data Exposure</h4>
+      <ul>
+        <li><span class="severity-critical">Critical:</span> Error messages from internal operations returned directly to clients</li>
+        <li><strong>Concern:</strong> Console.error statements may leak sensitive data to Vercel logs</li>
+        <li><span class="severity-critical">Critical:</span> <code>/api/files</code> serves files based on bucket+path with only session authentication — any authenticated user can access any file by guessing paths</li>
+      </ul>
+
+      <h3>2.2 API Security</h3>
+      <h4>Authorization</h4>
+      <ul>
+        <li><strong>Good:</strong> Centralized <code>verifyRole()</code> with RBAC</li>
+        <li><span class="severity-critical">Critical Anti-pattern:</span> <code>verifyRole()</code> auto-creates <code>admin_users</code> records from <code>user_metadata.role</code> if no record exists. If any code path allows setting <code>user_metadata.role</code> during registration, it enables privilege escalation</li>
+        <li><strong>Good:</strong> Recruiter soft-delete pattern for applications</li>
+        <li><strong>Good:</strong> Employee self-service for documents</li>
+      </ul>
+
+      <h4>Data Leakage</h4>
+      <ul>
+        <li><span class="severity-critical">Critical:</span> <code>/api/admin/download</code> allows any admin/hr_manager/recruiter to download ANY file by path without checking application ownership</li>
+        <li><span class="severity-critical">Critical:</span> <code>/api/files</code> allows any authenticated user to read any storage object by path</li>
+        <li><span class="severity-critical">Critical:</span> <code>/api/upload/talent</code> has <strong>NO authentication check whatsoever</strong> — completely unauthenticated file upload</li>
+      </ul>
+
+      <h3>2.3 Performance</h3>
+      <ul>
+        <li><code>app/admin/dashboard/page.tsx:16</code> uses <code>force-dynamic</code> with 6+ parallel DB queries and no caching</li>
+        <li>No <code>next: { tags: [...] }</code> caching on any API route or server component</li>
+        <li><code>select('*')</code> used in multiple places where specific columns would suffice</li>
+        <li>Zero API response caching — no <code>Cache-Control</code> headers, no Next.js revalidation tags</li>
+        <li>Next.js Image remote patterns configured for Supabase storage, but app migrated to Neon</li>
+        <li>Framer Motion v12 — heavy dependency used extensively in admin modals</li>
+        <li>@xyflow/react (React Flow) for org chart — large bundle impact</li>
+      </ul>
+
+      <h3>2.4 Infrastructure &amp; Config</h3>
+      <ul>
+        <li><span class="severity-critical">Critical:</span> <code>.env.local</code> exists on disk with live production credentials (Neon DB passwords, AUTH_SECRET, RESEND_API_KEY, Upstash tokens)</li>
+        <li>Legacy Supabase keys remain in <code>.env.local</code> despite migration to Neon</li>
+        <li><strong>Missing:</strong> <code>output: 'standalone'</code> in <code>next.config.js</code> — <code>CLAUDE.md</code> claims it exists but it doesn't</li>
+        <li>No build-time environment validation</li>
+        <li><strong>Missing:</strong> No HSTS (<code>Strict-Transport-Security</code>) header</li>
+        <li><strong>Missing:</strong> No <code>Permissions-Policy</code> header</li>
+        <li><strong>Missing:</strong> No <code>X-XSS-Protection</code> header</li>
+      </ul>
+
+      <h3>2.5 Error Handling &amp; Resilience</h3>
+      <ul>
+        <li>Consistent try/catch in all API route handlers</li>
+        <li>Error responses sometimes leak internal details (raw <code>err.message</code>)</li>
+        <li>Graceful degradation: Upstash Redis falls back to memory</li>
+        <li>Email failures are non-blocking — application submission succeeds even if acknowledgment fails</li>
+        <li>Console.error/warn used throughout — no structured logging, no request IDs, no error tracking service</li>
+      </ul>
+
+      <h3>2.6 Database &amp; Data Layer</h3>
+      <ul>
+        <li>Custom PostgREST query builder (<code>lib/db.ts</code>) with parameterized queries — no string concatenation</li>
+        <li><strong>Risk:</strong> SQL injection risk in <code>or()</code> parser — <code>sanitizeSearch()</code> strips special characters but parser doesn't validate column names against allowlist</li>
+        <li>N+1 risk in document listing — each document triggers separate <code>createSignedUrl</code> call</li>
+        <li>N+1 in talent CV lookup — individual <code>talent_pool</code> lookup per file path</li>
+        <li>No RLS — authorization is entirely application-layer</li>
+      </ul>
+
+      <h3>2.7 Key Recommendations</h3>
+      <table>
+        <thead><tr><th>Priority</th><th>Action</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Rotate ALL secrets immediately</td><td><code>.env.local</code></td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Add authentication to <code>/api/upload/talent</code></td><td><code>app/api/upload/talent/route.ts</code></td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Implement CSRF protection</td><td>All API routes</td></tr>
+          <tr><td><span class="badge badge-p0">P0</span></td><td>Add rate limiting to all public write endpoints</td><td><code>/api/register</code>, <code>/api/applications</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Remove auto-provisioning from <code>verifyRole()</code></td><td><code>lib/api-utils.ts:36-67</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add authorization checks to <code>/api/files</code> and <code>/api/admin/download</code></td><td><code>app/api/files/route.ts</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Fix Upstash fallback — return 429 instead of silently bypassing</td><td><code>lib/rate-limit.ts:53-63</code></td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Sanitize error messages — replace raw <code>err.message</code> with generic messages</td><td>All API routes</td></tr>
+          <tr><td><span class="badge badge-p1">P1</span></td><td>Add security headers (HSTS, X-XSS-Protection, Permissions-Policy)</td><td><code>next.config.js</code>, <code>vercel.json</code></td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Batch signed URL generation in parallel</td><td><code>app/api/admin/documents/route.ts</code></td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add response caching on read-only endpoints</td><td>All API routes</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Replace <code>select('*')</code> with specific columns</td><td>Admin list endpoints</td></tr>
+          <tr><td><span class="badge badge-p2">P2</span></td><td>Add <code>output: 'standalone'</code> to <code>next.config.js</code></td><td><code>next.config.js</code></td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Reduce Framer Motion bundle impact</td><td><code>components/admin/*</code></td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Add column name validation to query builder <code>or()</code> parser</td><td><code>lib/db.ts:265-322</code></td></tr>
+          <tr><td><span class="badge badge-p3">P3</span></td><td>Add automated dependency scanning in CI</td><td>CI config</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+</body>
+</html>

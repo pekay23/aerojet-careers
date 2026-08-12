@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,14 +10,14 @@ export async function GET(req: NextRequest) {
     // Fetch snapshots for the last 30 days
     const { data: snapshots, error } = await supabaseAdmin
       .from('dashboard_snapshots')
-      .select('*')
+      .select('id, metric_name, metric_value, snapshot_date, created_at')
       .order('snapshot_date', { ascending: false })
       .limit(100)
 
     if (error) throw error
     return ApiResponse.success(snapshots)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -37,10 +37,10 @@ export async function POST(req: NextRequest) {
         newApps,
         hired
       ] = await Promise.all([
-        supabaseAdmin.from('jobs').select('*', { count: 'exact', head: true }),
-        supabaseAdmin.from('applications').select('*', { count: 'exact', head: true }).is('deleted_at', null),
-        supabaseAdmin.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'new').is('deleted_at', null),
-        supabaseAdmin.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'hired').is('deleted_at', null)
+        supabaseAdmin.from('jobs').select('id', { count: 'exact', head: true }),
+        supabaseAdmin.from('applications').select('id', { count: 'exact', head: true }).is('deleted_at', null),
+        supabaseAdmin.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'new').is('deleted_at', null),
+        supabaseAdmin.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'hired').is('deleted_at', null)
       ])
 
       const today = new Date().toISOString().split('T')[0]
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     }
 
     return ApiResponse.error('Invalid request body', 400)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

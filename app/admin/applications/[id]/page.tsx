@@ -131,7 +131,7 @@ export default function ApplicationDetailPage() {
        })
        const { success, error } = await res.json()
        if (success) {
-         setApp(a => a ? { ...a, status: newStatus as any } : a)
+         setApp(a => a ? { ...a, status: newStatus as typeof app.status } : a)
          toast.success('Status updated successfully')
        } else {
          toast.error(`Failed to update status: ${error}`)
@@ -359,8 +359,8 @@ export default function ApplicationDetailPage() {
                   <Detail label="Phone Number" value={app.phone} icon={Smartphone} />
                   <Detail label="Nationality" value={app.nationality} />
                   <Detail label="Current Location" value={app.country_of_residence} />
-                  <Detail label="Date of birth" value={app.date_of_birth || '—'} />
-                  <Detail label="Valid Passport" value={app.has_valid_passport ? 'Yes' : 'No'} />
+                   <Detail label="Date of birth" value={app.date_of_birth ? new Date(app.date_of_birth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'} />
+                   <Detail label="Valid Passport" value={app.has_valid_passport === true ? 'Yes' : app.has_valid_passport === false ? 'No' : '—'} />
                   <Detail label="Availability" value={app.availability || 'Immediate'} />
                 </Grid2>
               </Section>
@@ -403,7 +403,7 @@ export default function ApplicationDetailPage() {
                     <Detail label="License Type" value={app.qualifications.licence_type} />
                     <Detail label="License Number" value={app.qualifications.licence_number} />
                     <Detail label="Issuing Authority" value={app.qualifications.issuing_authority} />
-                    <Detail label="License Expiry" value={app.qualifications.licence_expiry} />
+                    <Detail label="License Expiry" value={app.qualifications.licence_expiry ? new Date(app.qualifications.licence_expiry).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'} />
                   </Grid2>
                   <div className="mt-8 space-y-4">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Type Ratings</div>

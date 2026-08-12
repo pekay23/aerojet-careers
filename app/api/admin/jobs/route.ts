@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole, ALLOWED_UPDATE_KEYS } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, ALLOWED_UPDATE_KEYS, sanitizeErrorMessage } from '@/lib/api-utils'
 
 const JobStatusSchema = z.enum(['draft', 'open', 'paused', 'closed', 'filled'])
 const JobCategorySchema = z.enum(['experienced_professional', 'graduate_program', 'skilled_training', 'general_application'])
@@ -54,21 +54,21 @@ export async function GET(req: NextRequest) {
 
     let q = supabaseAdmin
       .from('jobs')
-      .select('*', { count: 'exact' })
+      .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at', { count: 'exact' })
       .order(sortCol, { ascending: sortDir === 'asc' })
       .range(from, to)
     if (status) q = q.eq('status', status)
     const { data, error, count } = await q
     if (error) throw error
-    return ApiResponse.success({ data, total: count, page, limit })
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.success({ data, total: count, page, limit }, 200, { 'Cache-Control': 'private, max-age=30' })
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager'])
+    const auth = await verifyRole(['admin', 'hr_manager'], req)
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const body = await req.json()
@@ -116,17 +116,17 @@ export async function POST(req: NextRequest) {
     })
 
     return ApiResponse.success(data)
-  } catch (err: any) {
-    if (err?.code === '23505') {
+  } catch (err) {
+    if ((err as { code?: string })?.code === '23505') {
       return ApiResponse.error('A job with this title or reference code already exists', 409)
     }
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
 export async function PATCH(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager'])
+    const auth = await verifyRole(['admin', 'hr_manager'], req)
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const body = await req.json()
@@ -198,17 +198,17 @@ export async function PATCH(req: NextRequest) {
     }
 
     return ApiResponse.success(data)
-  } catch (err: any) {
-    if (err?.code === '23505') {
+  } catch (err) {
+    if ((err as { code?: string })?.code === '23505') {
       return ApiResponse.error('A job with this title or reference code already exists', 409)
     }
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager'])
+    const auth = await verifyRole(['admin', 'hr_manager'], req)
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const id = new URL(req.url).searchParams.get('id')
@@ -228,7 +228,7 @@ export async function DELETE(req: NextRequest) {
     })
 
     return ApiResponse.success({ message: 'Job deleted' })
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

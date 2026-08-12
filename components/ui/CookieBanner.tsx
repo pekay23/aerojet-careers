@@ -1,18 +1,61 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 const STORAGE_KEY = 'cookie_preferences'
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false)
+  const bannerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (window.location.pathname.startsWith('/admin')) return
     setVisible(!localStorage.getItem(STORAGE_KEY))
   }, [])
+
+  useEffect(() => {
+    if (!visible || !bannerRef.current) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ analytics: false, functional: false }))
+        setVisible(false)
+      }
+    }
+
+    const focusable = bannerRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      if (focusable.length === 0) return
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keydown', handleTab)
+    first?.focus()
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keydown', handleTab)
+    }
+  }, [visible])
 
   if (!visible) return null
 
@@ -30,7 +73,9 @@ export function CookieBanner() {
 
   return (
     <div
+      ref={bannerRef}
       role="dialog"
+      aria-modal="true"
       aria-live="polite"
       style={{
         position: 'fixed',

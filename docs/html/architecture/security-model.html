@@ -16,6 +16,8 @@
     <a href="../index.html">Index</a>
     <a href="../architecture/system-overview.html">Architecture</a>
     <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,7 +27,91 @@
   <h1 class="he-title">Security Model</h1>
   <p class="he-deck">Authentication and authorization are handled entirely in the application layer (no Supabase Auth, no Row Level Security).</p>
 </header>
+
+<section class="he-section" id="session-lifecycle">
+  <div class="he-section__num">01 · Session lifecycle</div>
+  <h2 class="he-section__title">Session lifecycle</h2><pre><code>POST /api/auth/login
+  → authenticate(email, password)          verify bcrypt hash in auth_users
+  → signSession(user)                       sign JWT (jose, HS256, AUTH_SECRET)
+  → Set-Cookie: aj_session=&lt;jwt&gt;            httpOnly, SameSite=Lax, 30-day maxAge
+                                            Secure in production
+
+GET  /api/auth/me                          decode cookie → user + admin_users row
+POST /api/auth/logout                      clear the cookie
+</code></pre>
 <ul>
+<li>Sessions are stateless: the JWT itself carries the user id/email, so no session
+table lookup is needed to validate a request.</li>
+<li>Rotating <code>AUTH_SECRET</code> invalidates every existing session (forces re-login).</li>
+</ul>
+
+<section class="he-section" id="layer-1-edge-route-guard-proxyts">
+  <div class="he-section__num">02 · Layer 1 — edge route guard (proxy.ts)</div>
+  <h2 class="he-section__title">Layer 1 — edge route guard (<code>proxy.ts</code>)</h2><p>Runs on the Edge runtime for every matched request. Verifies the <code>aj_session</code> JWT
+using <code>jose.jwtVerify</code> (no DB / no <code>next/headers</code>, so it is edge-safe).</p>
+<pre><code>Request → proxy.ts
+  → /admin/login is exempt → allow
+  → not /admin/* and not /api/admin/* → allow
+  → no valid JWT:
+       /api/admin/*  → 401 JSON
+       /admin/*      → redirect /admin/login?redirect=&lt;path&gt;
+  → valid JWT → allow
+</code></pre>
+<p>Matcher: <code>[&#39;/admin/:path*&#39;, &#39;/api/admin/:path*&#39;]</code>.</p>
+
+<section class="he-section" id="layer-2-role-checks-verifyrole">
+  <div class="he-section__num">03 · Layer 2 — role checks (verifyRole)</div>
+  <h2 class="he-section__title">Layer 2 — role checks (<code>verifyRole</code>)</h2><p>API route handlers call <code>verifyRole([...])</code> from <code>lib/api-utils.ts</code>:</p>
+<pre><code class="language-ts">const auth = await verifyRole([&#39;admin&#39;, &#39;hr_manager&#39;])
+if (!auth) return ApiResponse.error(&#39;Unauthorized&#39;, 403)
+</code></pre>
+<p>It resolves the session user, loads their <code>admin_users.role</code>, and returns
+<code>{ user, role }</code> only if the role is allowed. <code>super_admin</code> bypasses all role checks.</p>
+<h3 id="role-capability">Role → capability</h3><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Typical access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>super_admin</code></td>
+<td>Everything, including hard-deletes of staff</td>
+</tr>
+<tr>
+<td><code>admin</code></td>
+<td>Full recruitment + people/HR management</td>
+</tr>
+<tr>
+<td><code>hr_manager</code></td>
+<td>Applications, hiring, people, transfers</td>
+</tr>
+<tr>
+<td><code>recruiter</code></td>
+<td>Applications + talent pool (soft-delete only)</td>
+</tr>
+<tr>
+<td><code>read_only</code></td>
+<td>View access</td>
+</tr>
+<tr>
+<td><code>employee</code></td>
+<td>Own profile (<code>/admin/my-info</code>) only</td>
+</tr>
+</tbody></table>
+<p>Exact allow-lists are defined per route via the <code>verifyRole([...])</code> argument.</p>
+
+<section class="he-section" id="layer-3-file-access">
+  <div class="he-section__num">04 · Layer 3 — file access</div>
+  <h2 class="he-section__title">Layer 3 — file access</h2><p><code>/api/files</code> and <code>/api/storage/upload</code> both call <code>getServerUser()</code> and reject
+unauthenticated requests. Stored objects are never exposed via a public URL —
+<code>getPublicUrl()</code> in the shims returns an internal <code>/api/files?...</code> link that still
+passes through the session check. Every bucket holds private HR data (CVs, licence
+scans, passports).</p>
+
+<section class="he-section" id="other-measures">
+  <div class="he-section__num">05 · Other measures</div>
+  <h2 class="he-section__title">Other measures</h2><ul>
 <li><strong>Input sanitisation</strong> — <code>sanitizeSearch()</code> strips PostgREST/ILIKE special
 characters before building <code>or()</code> filters; the query builder always uses
 parameterised queries (<code>$1, $2, …</code>), never string interpolation of values.</li>

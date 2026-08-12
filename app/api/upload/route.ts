@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse } from '@/lib/api-utils'
+import { ApiResponse, sanitizeErrorMessage } from '@/lib/api-utils'
 
 const ALLOWED_DOC_TYPES = ['cv', 'licence_scan', 'passport_scan', 'other'] as const
 const ALLOWED_MIME_TYPES = [
@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
     })
 
     return ApiResponse.success({ path })
-  } catch (err: any) {
+  } catch (err) {
     console.error('Upload error:', err)
-    return ApiResponse.error(err.message || 'Internal server error', 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

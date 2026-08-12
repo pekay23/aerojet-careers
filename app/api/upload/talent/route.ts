@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyRole(['admin', 'hr_manager'], req)
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     if (!file) {
@@ -11,11 +17,9 @@ export async function POST(req: NextRequest) {
 
     const talentId = formData.get('talent_pool_id') as string | null
     if (!talentId) {
-      console.warn('Talent Upload 400: Missing talent_pool_id')
       return NextResponse.json({ error: 'talent_pool_id is required' }, { status: 400 })
     }
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(talentId)) {
-      console.warn('Talent Upload 400: Invalid talent_pool_id', { talentId })
       return NextResponse.json({ error: 'talent_pool_id must be a valid UUID' }, { status: 400 })
     }
 
@@ -32,7 +36,6 @@ export async function POST(req: NextRequest) {
       'image/webp'
     ]
     if (!allowed.includes(file.type)) {
-      console.warn('Talent Upload 400: Invalid file type', { type: file.type })
       return NextResponse.json({ error: 'File type not permitted' }, { status: 400 })
     }
 
@@ -45,25 +48,21 @@ export async function POST(req: NextRequest) {
       .upload(path, bytes, { contentType: file.type, upsert: false })
 
     if (uploadErr) {
-      console.error('Talent Storage upload error:', uploadErr)
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
     }
 
-    // Update talent_pool table with cv_path
     const { error: dbErr } = await supabaseAdmin
       .from('talent_pool')
       .update({ cv_path: path })
       .eq('id', talentId)
 
     if (dbErr) {
-      console.error('Talent DB update error:', dbErr)
       return NextResponse.json({ error: 'Failed to update talent record' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, path })
 
   } catch (err) {
-    console.error('Talent upload error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: sanitizeErrorMessage(err) }, { status: 500 })
   }
 }

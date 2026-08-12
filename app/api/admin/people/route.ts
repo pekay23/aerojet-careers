@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,6 +22,9 @@ export async function GET(req: NextRequest) {
         full_name,
         role,
         is_active,
+        last_login,
+        created_at,
+        updated_at,
         staff_profiles (
         id,
         first_name,
@@ -39,8 +42,8 @@ export async function GET(req: NextRequest) {
 
     if (error) throw error
     return ApiResponse.success({ data, total: count, page, limit })
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -93,8 +96,8 @@ export async function DELETE(req: NextRequest) {
       return ApiResponse.success({ message: 'User permanently removed' })
     }
 
-  } catch (err: any) {
+  } catch (err) {
     console.error('People delete error:', err)
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

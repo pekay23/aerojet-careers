@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse } from '@/lib/api-utils'
+import { ApiResponse, sanitizeErrorMessage } from '@/lib/api-utils'
+import { NextResponse } from 'next/server'
 
 /**
  * Public metadata endpoint for recruitment data (departments, categories, employment types).
@@ -8,17 +9,21 @@ import { ApiResponse } from '@/lib/api-utils'
 export async function GET() {
   try {
     const [categories, empTypes, departments] = await Promise.all([
-      supabaseAdmin.from('job_categories').select('*').eq('is_active', true).order('label'),
-      supabaseAdmin.from('employment_types').select('*').eq('is_active', true).order('label'),
+      supabaseAdmin.from('job_categories').select('value, label, is_active, created_at').eq('is_active', true).order('label'),
+      supabaseAdmin.from('employment_types').select('value, label, is_active, created_at').eq('is_active', true).order('label'),
       supabaseAdmin.from('departments').select('name, code').order('name')
     ])
 
-    return ApiResponse.success({
+    return NextResponse.json({
       categories: categories.data || [],
       employment_types: empTypes.data || [],
       departments: departments.data || []
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      }
     })
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     // 1. Fetch Talent
     const { data: talent, error: tErr } = await supabaseAdmin
       .from('talent_pool')
-      .select('*')
+      .select('id, first_name, last_name, email, phone, nationality, country, years_experience, qualification, departments_interest, statement, cv_path, source, is_active, contacted_at, notes, assigned_to, created_at, updated_at')
       .eq('id', talentId)
       .single()
     
@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
       refCode: app.ref_code
     })
 
-  } catch (err: any) {
+  } catch (err) {
     console.error('Talent assignment error:', err)
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

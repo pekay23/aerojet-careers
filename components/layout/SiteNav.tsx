@@ -101,6 +101,9 @@ export default function SiteNav() {
         <button
           className={`lg:hidden text-2xl ${linkColor}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-menu"
         >
           {mobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -108,7 +111,7 @@ export default function SiteNav() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-         <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden">
+         <div id="mobile-menu" className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden">
           {menuItems.map((item) => (
             <Link
               key={item.name}

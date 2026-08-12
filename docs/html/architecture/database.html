@@ -16,6 +16,8 @@
     <a href="../index.html">Index</a>
     <a href="../architecture/system-overview.html">Architecture</a>
     <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,7 +27,110 @@
   <h1 class="he-title">Database Schema</h1>
   <p class="he-deck">PostgreSQL on <strong>Neon</strong>.</p>
 </header>
-<p>Unlike the Supabase original, there are no RLS policies. All access control is
+
+<section class="he-section" id="auth-amp-staff">
+  <div class="he-section__num">01 · Auth &amp; staff</div>
+  <h2 class="he-section__title">Auth &amp; staff</h2><ul>
+<li><strong>auth_users</strong> — replaces Supabase <code>auth.users</code>. Holds <code>email</code>, bcrypt <code>password_hash</code>,
+<code>user_metadata</code> (JSONB), <code>email_confirmed</code>, <code>last_login</code>.</li>
+<li><strong>admin_users</strong> — portal identity linked to <code>auth_users</code> via <code>auth_user_id</code>. Carries
+<code>role</code> (<code>admin_role</code> enum), <code>full_name</code>, <code>is_active</code>. This is the table <code>verifyRole</code>
+reads for authorization.</li>
+<li><strong>staff_profiles</strong> — HR profile for hired staff (<code>first_name</code>, <code>last_name</code>, <code>job_title</code>,
+<code>department</code>, <code>employee_id</code>, <code>employment_status</code>, <code>avatar_url</code>, etc.); linked to both
+<code>auth_user_id</code> and <code>admin_user_id</code>.</li>
+</ul>
+
+<section class="he-section" id="recruitment">
+  <div class="he-section__num">02 · Recruitment</div>
+  <h2 class="he-section__title">Recruitment</h2><ul>
+<li><strong>jobs</strong> — job postings (<code>title</code>, <code>slug</code>, <code>department</code>, <code>category</code>, <code>employment_type</code>,
+<code>status</code>, <code>requirements</code>, <code>tags</code>, <code>closes_at</code>, salary range).</li>
+<li><strong>applications</strong> — candidate applications (personal info, <code>status</code>, <code>priority</code>,
+<code>assigned_to</code>, <code>recruiter_notes</code>, soft-delete via <code>deleted_at</code>, HR-transfer flags,
+lifecycle timestamps).</li>
+<li><strong>application_qualifications</strong> — licences, type ratings, certifications (1:1 with application).</li>
+<li><strong>application_experience</strong> — employment history + motivation (1:1 with application).</li>
+<li><strong>application_compensation</strong> — current/expected pay, benefits, availability (1:1 with application).</li>
+<li><strong>application_documents</strong> — uploaded file metadata (<code>file_path</code>, <code>storage_bucket</code>,
+<code>document_type</code> enum); bytes live in <code>storage_objects</code>.</li>
+<li><strong>pipeline_events</strong> — status-change audit trail per application (<code>from_status</code>,
+<code>to_status</code>, <code>note</code>, <code>admin_user_id</code>).</li>
+<li><strong>talent_pool</strong> — general-interest candidates not tied to a specific job.</li>
+<li><strong>hr_transfers</strong> — records of pushing a hired candidate into an external HR platform
+(<code>hr_platform</code> enum, <code>payload</code>, <code>status</code>, <code>external_id</code>).</li>
+</ul>
+
+<section class="he-section" id="system-amp-config">
+  <div class="he-section__num">03 · System &amp; config</div>
+  <h2 class="he-section__title">System &amp; config</h2><ul>
+<li><strong>system_settings</strong> — key-value admin-editable configuration (company name, portal status, branding).</li>
+<li><strong>branding_config</strong> — brand strings (org name, careers URL, logo paths); pre-seeded.</li>
+<li><strong>departments</strong> / <strong>department_budget_history</strong> — org departments and budget change log.</li>
+<li><strong>employment_types</strong>, <strong>job_categories</strong> — lookup/metadata tables.</li>
+<li><strong>document_folders</strong> / <strong>staff_documents</strong> — internal HR document library.</li>
+<li><strong>email_logs</strong> — every transactional email send (status, provider id, errors).</li>
+<li><strong>dashboard_snapshots</strong> — cached analytics snapshots.</li>
+<li><strong>storage_objects</strong> — file bytes (BYTEA) keyed by <code>(bucket, path)</code> with <code>content_type</code>
+and <code>size</code>. Replaces Supabase Storage buckets; served through <code>/api/files</code>.</li>
+</ul>
+
+<section class="he-section" id="enums">
+  <div class="he-section__num">04 · Enums</div>
+  <h2 class="he-section__title">Enums</h2><table>
+<thead>
+<tr>
+<th>Enum</th>
+<th>Values</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>application_status</code></td>
+<td>new, under_review, shortlisted, interview, offer, hired, rejected, transferred_to_hr, withdrawn</td>
+</tr>
+<tr>
+<td><code>job_status</code></td>
+<td>draft, open, paused, closed, filled</td>
+</tr>
+<tr>
+<td><code>job_category</code></td>
+<td>experienced_professional, graduate_program, skilled_training, general_application</td>
+</tr>
+<tr>
+<td><code>employment_type</code></td>
+<td>full_time, part_time, contract, trainee, internship</td>
+</tr>
+<tr>
+<td><code>admin_role</code></td>
+<td>super_admin, admin, hr_manager, recruiter, read_only, employee</td>
+</tr>
+<tr>
+<td><code>hr_platform</code></td>
+<td>bamboohr, workday, sap, zoho, csv, custom</td>
+</tr>
+<tr>
+<td><code>doc_type</code></td>
+<td>cv, licence_scan, passport_scan, other</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="relationships-amp-embeds">
+  <div class="he-section__num">05 · Relationships &amp; embeds</div>
+  <h2 class="he-section__title">Relationships &amp; embeds</h2><p>The query builder resolves supabase-style nested selects (e.g.
+<code>applications.select(&#39;*, experience:application_experience(*)&#39;)</code>) into correlated
+JSON subqueries. Known relationships are declared in <code>resolveRelationship()</code> in
+<code>lib/db.ts</code>:</p>
+<ul>
+<li><code>applications</code> → <code>application_qualifications</code> / <code>application_experience</code> / <code>application_compensation</code> (read as single objects)</li>
+<li><code>application_documents</code> → <code>applications</code> (parent lookup)</li>
+<li><code>admin_users</code> → <code>staff_profiles</code> (1:1)</li>
+</ul>
+<p>New embeds either follow the generic <code>&lt;base_singular&gt;_id</code> convention or need a rule
+added to <code>resolveRelationship()</code>.</p>
+
+<section class="he-section" id="no-row-level-security">
+  <div class="he-section__num">06 · No Row Level Security</div>
+  <h2 class="he-section__title">No Row Level Security</h2><p>Unlike the Supabase original, there are no RLS policies. All access control is
 enforced in the app layer — see the <a href="./security-model.html">security model</a>.</p>
 
 </main>
@@ -33,11 +138,11 @@ enforced in the app layer — see the <a href="./security-model.html">security m
 <aside class="he-toc" aria-label="On this page">
   <p class="he-toc__label">On this page</p>
   <ul>
-    <li class="he-toc__l2"><a href="#auth-staff">Auth &amp; staff</a></li>
+    <li class="he-toc__l2"><a href="#auth-staff">Auth & staff</a></li>
     <li class="he-toc__l2"><a href="#recruitment">Recruitment</a></li>
-    <li class="he-toc__l2"><a href="#system-config">System &amp; config</a></li>
+    <li class="he-toc__l2"><a href="#system-config">System & config</a></li>
     <li class="he-toc__l2"><a href="#enums">Enums</a></li>
-    <li class="he-toc__l2"><a href="#relationships-embeds">Relationships &amp; embeds</a></li>
+    <li class="he-toc__l2"><a href="#relationships-embeds">Relationships & embeds</a></li>
     <li class="he-toc__l2"><a href="#no-row-level-security">No Row Level Security</a></li>
   </ul>
 </aside>

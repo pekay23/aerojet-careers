@@ -28,7 +28,7 @@ export default async function ApplyPage({ params }: Props) {
   const { slug } = await params
   const { data: job } = await supabaseAdmin
     .from('jobs')
-    .select('*')
+    .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at')
     .eq('slug', slug)
     .eq('status', 'open')
     .single()

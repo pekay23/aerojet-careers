@@ -11,7 +11,7 @@ export type EmploymentStatus = 'active' | 'on_leave' | 'terminated'
 
 export interface Job {
   id: string
-  ref_code: string
+  ref_code: string | null
   title: string
   slug: string
   department: string
@@ -180,17 +180,18 @@ export interface StaffProfile {
   employment_status: EmploymentStatus
   employment_type: EmploymentType
   joined_at: string
+  bio: string | null
   created_at: string
   updated_at: string
 }
 
 export interface DashboardStats {
-  total: number
-  new_today: number
-  shortlisted: number
-  open_jobs: number
-  hired: number
-  pending_transfer: number
+  activeJobs: number
+  totalJobs: number
+  totalCandidates: number
+  talentPoolCount: number
+  newApplications: number
+  hiredCount: number
 }
 
 export interface ApplicationFormData {
@@ -215,6 +216,7 @@ export interface ApplicationFormData {
   other_type_ratings?: string
   certifications: string[]
   highest_qualification?: string
+  highest_qualification_other?: string
   // Step 3
   current_employer: string
   job_title?: string
@@ -222,6 +224,7 @@ export interface ApplicationFormData {
   role_end_date?: string
   total_years_exp: string
   work_types: string[]
+  work_types_other?: string
   outstation_exp?: string
   stations_worked?: string
   notice_period?: string
@@ -236,12 +239,14 @@ export interface ApplicationFormData {
   payment_preference?: string
   accommodation_important?: string
   deployment_arrangement?: string
+  deployment_arrangement_other?: string
   earliest_start_date?: string
   additional_notes?: string
   // Meta
   source?: string
+  source_other?: string
   job_id?: string
-  job_title_applied?: string  // The position being applied for — maps to applications.job_title in the DB
+  job_title_applied?: string
 }
 
 export interface StaffDocument {

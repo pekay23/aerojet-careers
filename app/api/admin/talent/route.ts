@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole, sanitizeSearch } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeSearch, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -45,9 +45,9 @@ export async function GET(req: NextRequest) {
       limit 
     })
 
-  } catch (err: any) {
+  } catch (err) {
     console.error('Admin talent route error:', err)
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -63,8 +63,8 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error
 
     return ApiResponse.success({ message: 'Candidate removed from talent pool' })
-  } catch (err: any) {
+  } catch (err) {
     console.error('Talent delete error:', err)
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

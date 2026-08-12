@@ -383,6 +383,7 @@ class QueryBuilder implements PromiseLike<any> {
 
   // ── Execute ─────────────────────────────────────────────────
   private async run(): Promise<{ data: any; error: any; count: number | null }> {
+    const start = process.env.NODE_ENV !== 'production' ? Date.now() : 0
     try {
       if (this.op === 'select') return await this.runSelect()
       if (this.op === 'insert') return await this.runInsert()
@@ -396,6 +397,13 @@ class QueryBuilder implements PromiseLike<any> {
         data: this.single_ ? null : null,
         error: { message: e.message, code: e.code, details: e.detail },
         count: null,
+      }
+    } finally {
+      if (start > 0) {
+        const duration = Date.now() - start
+        if (duration > 100) {
+          console.warn(`[DB SLOW] ${this.op} ${this.table} took ${duration}ms`)
+        }
       }
     }
   }
@@ -693,6 +701,14 @@ function splitTopLevel(s: string, delim: string): string[] {
   return out
 }
 
+const ALLOWED_OR_COLUMNS = new Set([
+  'first_name', 'last_name', 'email', 'ref_code',
+  'title', 'slug', 'department', 'location', 'status',
+  'name', 'code', 'full_name', 'job_title',
+  'metric_name', 'snapshot_date',
+  'setting_key', 'setting_value',
+])
+
 function parseOrExpr(
   expr: string
 ): { col: string; opr: string; val: string } | null {
@@ -704,6 +720,7 @@ function parseOrExpr(
   const col = expr.slice(0, first).trim()
   const opr = expr.slice(first + 1, second).trim()
   const val = expr.slice(second + 1)
+  if (!ALLOWED_OR_COLUMNS.has(col)) return null
   return { col, opr, val }
 }
 

@@ -52,8 +52,8 @@ export default function TermsPage() {
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', marginTop: '2rem', marginBottom: '1rem' }}>3. Applications & Submissions</h3>
               <ul style={{ listStyle: 'disc', paddingLeft: '1.5rem', marginBottom: '1.5rem' }}>
                 <li>All application materials (CV, documents, qualifications) must be authentic and accurate.</li>
-                <li>Fraudulent or forged documents result in immediate disqualification, fee forfeiture, and permanent ban.</li>
-                <li>Application fees are non-refundable unless otherwise stated in the specific programme terms.</li>
+                <li>Fraudulent or forged documents result in immediate disqualification and permanent ban.</li>
+                <li>There are no application fees. Aerojet Aviation does not charge any fees for applying to any programme or role.</li>
                 <li>We reserve the right to verify all submitted information with issuing authorities.</li>
               </ul>
 
@@ -121,8 +121,8 @@ export default function TermsPage() {
                 For questions about these Terms, contact:
               </p>
               <p style={{ marginBottom: '0.5rem' }}>
-                <a href="mailto:info@aerojet-aviation.com" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
-                  info@aerojet-aviation.com
+                <a href="mailto:careers@aerojet-aviation.com" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
+                  careers@aerojet-aviation.com
                 </a>
               </p>
             </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { CookieBanner } from '@/components/ui/CookieBanner'
+import ToastContainer from '@/components/ui/ToastContainer'
 
 export const metadata: Metadata = {
   title: {
@@ -36,7 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body suppressHydrationWarning>
-        {children}
+        <a href="#main-content" className="skip-link">Skip to main content</a>
+        <div id="main-content">{children}</div>
+        <ToastContainer />
         <CookieBanner />
       </body>
     </html>

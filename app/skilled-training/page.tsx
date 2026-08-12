@@ -31,7 +31,7 @@ export default function SkilledTrainingPage() {
         <SiteNav />
       <PageHero title="Skilled Training Program" subtitle="For Engineering Technicians, Mechanics and Ramp Operatives" image="/images/2-DEJI4YEv.jpg" height={360} />
 
-      <section style={{ background: 'white', padding: '3rem 1rem' }}>
+      <section className="section-white">
         <div className="container-max mx-auto">
           <div style={{ marginBottom: '2rem' }}>
             <NoticeBanner>
@@ -39,17 +39,15 @@ export default function SkilledTrainingPage() {
             </NoticeBanner>
           </div>
 
-          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 3rem' }}>
-            <h2 style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>Choose Your Training Track</h2>
-            <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.7, margin: 0 }}>
+          <div className="section-center" style={{ marginBottom: '4rem' }}>
+            <h2 className="section-heading-xl" style={{ marginTop: 0 }}>Choose Your Training Track</h2>
+            <p className="section-subtitle">
               Two training pathways — one for aspiring aircraft technicians and mechanics, one for ground handling and ramp operatives.
               Both lead to industry-recognised qualifications and a permanent role at Aerojet.
             </p>
           </div>
 
-          {/* Two tracks */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
-
+          <div className="grid-auto" style={{ marginBottom: '4rem' }}>
             {[
               { id: 'eng', title: 'Engineering Technicians & Mechanics', sub: 'Hands-on aircraft maintenance training with a pathway to AME Licence', Icon: Wrench, desc: 'Join Aerojet\'s structured apprenticeship programme for aircraft maintenance. You\'ll train alongside qualified LAEs, work on real aircraft, and progress towards an EASA / GCAA Part-66 licence.', roles: ENG_ROLES },
               { id: 'ramp', title: 'Ground Handling & Ramp Operatives', sub: 'Airside operations training with IATA-recognised certifications', Icon: Plane, desc: 'Start your aviation career on the ramp. Our training covers aircraft marshalling, towing, pushback, servicing, dangerous goods, and airside safety — with IATA Dangerous Goods certification included.', roles: RAMP_ROLES },
@@ -66,7 +64,7 @@ export default function SkilledTrainingPage() {
                   <p style={{ color: 'var(--muted)', fontSize: '0.875rem', lineHeight: 1.65, marginBottom: '1.25rem' }}>{track.desc}</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: '1.25rem' }}>
                     {track.roles.map(r => (
-                      <div key={r.title} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.875rem', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 3 }}>
+                      <div key={r.title} className="card" style={{ padding: '0.625rem 0.875rem', background: 'var(--bg)', border: '1px solid var(--border)' }}>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)' }}>{r.title}</div>
                           <div style={{ fontSize: 11, color: 'var(--muted)' }}>{r.sub}</div>
@@ -83,15 +81,13 @@ export default function SkilledTrainingPage() {
             ))}
           </div>
 
-          {/* Entry requirements */}
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1.25rem', textAlign: 'center' }}>Entry Requirements</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-
+          <h2 className="section-heading-xl" style={{ textAlign: 'center', marginBottom: '1.25rem' }}>Entry Requirements</h2>
+          <div className="grid-auto">
             {[
               { title: 'Engineering Technicians Track', items: ['Minimum WAEC/WASSCE passes in Mathematics and Physics (Grade C or above)','OND in Mechanical, Electrical or Aeronautical Engineering preferred','Less than 3 years formal employment (trainees welcome)','Strong numerical and mechanical aptitude','Must be able to work shifts and pass a medical assessment','Willing to be based full-time in Accra, Ghana'] },
               { title: 'Ground Handling & Ramp Track', items: ['Minimum WAEC/WASSCE passes including English','Valid driving licence (light vehicle minimum)','No prior aviation experience required — full training provided','Good physical fitness for an active outdoor ramp environment','Must pass airside security clearance and medical assessment','Willing to work shifts including nights, weekends and public holidays'] },
             ].map(box => (
-              <div key={box.title} className="card" style={{ padding: '1.5rem', background: 'var(--bg-light)' }}>
+              <div key={box.title} className="card card-inner">
                 <h4 style={{ marginBottom: '0.875rem', paddingBottom: '0.5rem', borderBottom: '2px solid var(--blue)', fontSize: '0.95rem' }}>{box.title}</h4>
                 <ul style={{ paddingLeft: '1.25rem', margin: 0 }}>
                   {box.items.map(item => <li key={item} style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: 1.8 }}>{item}</li>)}

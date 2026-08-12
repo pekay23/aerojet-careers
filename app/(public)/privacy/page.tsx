@@ -165,9 +165,9 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <p style={{ fontSize: '0.875rem' }}>
                   Email:{' '}
-                  <a href="mailto:info@aerojet-aviation.com" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
-                    info@aerojet-aviation.com
-                  </a>
+                   <a href="mailto:careers@aerojet-aviation.com" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
+                     careers@aerojet-aviation.com
+                   </a>
                 </p>
               </div>
             </div>

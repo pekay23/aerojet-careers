@@ -1,7 +1,7 @@
 'use client'
 
 import { X } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -24,30 +24,92 @@ export default function ConfirmDialog({
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
-  if (!open) return null
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(open)
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open && mounted) {
+      const timer = setTimeout(() => setMounted(false), 200)
+      return () => clearTimeout(timer)
+    }
+  }, [open, mounted])
+
+  useEffect(() => {
+    if (!open) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      if (e.key !== 'Tab') return
+
+      const dialog = dialogRef.current
+      if (!dialog) return
+
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    const dialog = dialogRef.current
+    if (dialog) {
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      focusable[0]?.focus()
+    }
+
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, onClose])
 
   const handleConfirm = async () => {
     await onConfirm()
     onClose()
   }
 
+  if (!mounted) return null
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <motion.div
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+      <div
+        className={`absolute inset-0 bg-slate-900/60 backdrop-blur-md ${open ? 'dialog-backdrop-enter' : 'dialog-backdrop-exit'}`}
         onClick={onClose}
         aria-hidden="true"
       />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 z-[10000]"
+      <div
+        ref={dialogRef}
+        className={`relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 z-[10000] ${open ? 'dialog-content-enter' : 'dialog-content-exit'}`}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby={description ? 'confirm-dialog-desc' : undefined}
       >
         <button
           onClick={onClose}
@@ -57,9 +119,9 @@ export default function ConfirmDialog({
           <X size={18} />
         </button>
 
-        <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight mb-2">{title}</h3>
+        <h3 id="confirm-dialog-title" className="text-xl font-bold text-slate-900 uppercase tracking-tight mb-2">{title}</h3>
         {description && (
-          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mb-8 leading-relaxed">{description}</p>
+          <p id="confirm-dialog-desc" className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mb-8 leading-relaxed">{description}</p>
         )}
 
         <div className="flex gap-4">
@@ -80,7 +142,8 @@ export default function ConfirmDialog({
             {confirmLabel}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
+

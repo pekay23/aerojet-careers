@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,8 +37,8 @@ export async function GET(req: NextRequest) {
       if (folder?.name === 'Recruitment Scans') {
         let appDocsQuery = supabaseAdmin
           .from('application_documents')
-          .select('*, application:applications(first_name, last_name)')
-          .order('created_at', { ascending: false })
+          .select('id, application_id, document_type, file_name, file_path, file_size, mime_type, storage_bucket, uploaded_at')
+          .order('uploaded_at', { ascending: false })
         
         // If staffId is provided, only show docs for that specific person's application
         if (staffId) {
@@ -50,7 +51,6 @@ export async function GET(req: NextRequest) {
           if (staff?.application_id) {
             appDocsQuery = appDocsQuery.eq('application_id', staff.application_id)
           } else {
-            // Staff exists but no linked application - return empty
             return ApiResponse.success([])
           }
         }
@@ -59,15 +59,21 @@ export async function GET(req: NextRequest) {
         if (appDocsErr) throw appDocsErr
 
         // Map application_documents to the format expected by FileManagement
-        const mapped = await Promise.all(appDocs.map(async (d: any) => {
-          const { data: signed } = await supabaseAdmin.storage
-            .from(d.storage_bucket)
-            .createSignedUrl(d.file_path, 3600) // 1 hour
+        const mapped = await Promise.all((appDocs || []).map(async (d: any) => {
+          let signedUrl = ''
+          try {
+            const { data: signed } = await supabaseAdmin.storage
+              .from(d.storage_bucket || 'application-documents')
+              .createSignedUrl(d.file_path, 3600)
+            signedUrl = signed?.signedUrl || ''
+          } catch (e) {
+            console.error('Failed to create signed URL for', d.file_path, e)
+          }
 
           return {
             id: d.id,
-            file_name: `${d.document_type.toUpperCase()} - ${d.application?.first_name} ${d.application?.last_name}`,
-            file_url: signed?.signedUrl,
+            file_name: `${d.document_type?.toUpperCase() || 'DOC'} - ${d.file_name}`,
+            file_url: signedUrl,
             file_type: d.mime_type,
             file_size: d.file_size,
             created_at: d.uploaded_at,
@@ -88,78 +94,79 @@ export async function GET(req: NextRequest) {
           try {
             const { data: talentDocs } = await supabaseAdmin
               .from('talent_pool')
-              .select('id, first_name, last_name, cv_path, created_at')
-              .order('created_at', { ascending: false })
+              .select('id, first_name, last_name, cv_path')
+              .order('id', { ascending: false })
 
             if (talentDocs) {
-              for (const t of talentDocs) {
-                if (!t.cv_path) continue
-                if (seen.has(t.cv_path)) continue
-                seen.add(t.cv_path)
-
-                const { data: signed } = await supabaseAdmin.storage
-                  .from('application-documents')
-                  .createSignedUrl(t.cv_path, 3600)
-
-                mapped.push({
-                  id: `talent-${t.id}`,
-                  file_name: `CV - ${t.first_name} ${t.last_name}`,
-                  file_url: signed?.signedUrl || '',
-                  file_type: 'application/pdf',
-                  file_size: null,
-                  created_at: t.created_at,
-                  folder_id: folderId,
-                  is_external: true
+              const talentPromises = talentDocs
+                .filter((t: any) => t.cv_path && !seen.has(t.cv_path))
+                .map((t: any) => {
+                  seen.add(t.cv_path)
+                  return supabaseAdmin.storage
+                    .from('application-documents')
+                    .createSignedUrl(t.cv_path, 3600)
+                    .then(({ data: signed }) => ({
+                      id: `talent-${t.id}`,
+                      file_name: `CV - ${t.first_name} ${t.last_name}`,
+                      file_url: signed?.signedUrl || '',
+                      file_type: 'application/pdf',
+                      file_size: null,
+                      created_at: new Date().toISOString(),
+                      folder_id: folderId,
+                      is_external: true
+                    }))
                 })
-              }
+
+              const talentResults = await Promise.all(talentPromises)
+              mapped.push(...talentResults)
             }
           } catch (e) {
-            // ignore — fall through to storage_objects
+            // talent_pool table may not have created_at or may not exist on older DBs
           }
 
           // Source 2: storage_objects fallback (files without cv_path set)
           try {
             const { data: talentFiles } = await supabaseAdmin
               .from('storage_objects')
-              .select('path, content_type, size, created_at')
+              .select('path, content_type, size')
               .eq('bucket', 'application-documents')
               .ilike('path', 'talent-pool/%')
-              .order('created_at', { ascending: false })
 
             if (talentFiles) {
-              for (const f of talentFiles) {
-                if (seen.has(f.path)) continue
-                seen.add(f.path)
+              const filePromises = talentFiles
+                .filter((f: any) => !seen.has(f.path))
+                .map(async (f: any) => {
+                  seen.add(f.path)
+                  const seg = f.path.split('/')
+                  const talentId = seg[1]
+                  const fileName = seg[seg.length - 1] || 'CV'
 
-                // Derive the talent's name from the path: talent-pool/{id}/{file}
-                const seg = f.path.split('/')
-                const talentId = seg[1]
-                const fileName = seg[seg.length - 1] || 'CV'
+                  const { data: talent } = await supabaseAdmin
+                    .from('talent_pool')
+                    .select('first_name, last_name')
+                    .eq('id', talentId)
+                    .maybeSingle()
 
-                // Look up the talent's name for a friendly label
-                const { data: talent } = await supabaseAdmin
-                  .from('talent_pool')
-                  .select('first_name, last_name')
-                  .eq('id', talentId)
-                  .maybeSingle()
+                  const { data: signed } = await supabaseAdmin.storage
+                    .from('application-documents')
+                    .createSignedUrl(f.path, 3600)
 
-                const { data: signed } = await supabaseAdmin.storage
-                  .from('application-documents')
-                  .createSignedUrl(f.path, 3600)
-
-                mapped.push({
-                  id: `talent-${talentId}-${f.path}`,
-                  file_name: talent
-                    ? `CV - ${talent.first_name} ${talent.last_name}`
-                    : `CV - ${fileName}`,
-                  file_url: signed?.signedUrl || '',
-                  file_type: f.content_type || 'application/pdf',
-                  file_size: f.size,
-                  created_at: f.created_at,
-                  folder_id: folderId,
-                  is_external: true
+                  return {
+                    id: `talent-${talentId}-${f.path}`,
+                    file_name: talent
+                      ? `CV - ${talent.first_name} ${talent.last_name}`
+                      : `CV - ${fileName}`,
+                    file_url: signed?.signedUrl || '',
+                    file_type: f.content_type || 'application/pdf',
+                    file_size: f.size,
+                    created_at: new Date().toISOString(),
+                    folder_id: folderId,
+                    is_external: true
+                  }
                 })
-              }
+
+              const fileResults = await Promise.all(filePromises)
+              mapped.push(...fileResults)
             }
           } catch (e) {
             // ignore — storage_objects may not exist on older DBs
@@ -175,7 +182,7 @@ export async function GET(req: NextRequest) {
 
     let query = supabaseAdmin
       .from('staff_documents')
-      .select('*', { count: 'exact' })
+      .select('id, staff_id, folder_id, file_name, file_url, file_type, file_size, uploaded_by, created_at, updated_at', { count: 'exact' })
       .order('created_at', { ascending: false })
 
     if (staffId) query = query.eq('staff_id', staffId)
@@ -191,14 +198,17 @@ export async function GET(req: NextRequest) {
     }
 
     const { data: documents, error, count } = await query
-    if (error) throw error
+    if (error) {
+      logger.error('Documents query failed', { error: error.message, code: error.code, details: error.details, hint: error.hint, folderId, staffId })
+      throw error
+    }
 
     if (folderId) {
       return ApiResponse.success({ data: documents, total: count, page, limit })
     }
     return ApiResponse.success(documents)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -243,8 +253,8 @@ export async function POST(req: NextRequest) {
     if (error) throw error
 
     return ApiResponse.success(document)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -293,7 +303,7 @@ export async function DELETE(req: NextRequest) {
     if (deleteError) throw deleteError
 
     return ApiResponse.success({ message: 'Document deleted successfully' })
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

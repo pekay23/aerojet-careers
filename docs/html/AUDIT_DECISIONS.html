@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LLM Council Audit — Decisions (All Resolved) · Aerojet Careers</title>
+<link rel="stylesheet" href="./design-tokens.css">
+<link rel="stylesheet" href="./docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="./index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="./index.html">Index</a>
+    <a href="./architecture/system-overview.html">Architecture</a>
+    <a href="./guides/setup.html">Guides</a>
+    <a href="./AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="./UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Audit</p>
+  <h1 class="he-title">LLM Council Audit — Decisions (All Resolved)</h1>
+  <p class="he-deck">All 9 decisions have been resolved.</p>
+</header>
+
+<section class="he-section" id="decision-1-server-side-validation-on-public-endpoints-completed">
+  <div class="he-section__num">01 · Decision 1: Server-side validation on public endpoints — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 1: Server-side validation on public endpoints — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option A — Added Zod schemas to <code>/api/applications/route.ts</code> and <code>/api/register/route.ts</code>.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Created <code>lib/validation/schemas.ts</code> with <code>ApplicationSchema</code>, <code>RegistrationSchema</code>, and step-level schemas (<code>ApplicationStep1Schema</code>, <code>ApplicationStep2Schema</code>, <code>ApplicationStep3Schema</code>, <code>ApplicationStep4Schema</code>)</li>
+<li>Both public API routes now validate inputs with <code>.safeParse()</code> before inserting into the DB</li>
+<li>Error responses include field-level validation messages from <code>parsed.error.issues</code> (Zod v4 API)</li>
+</ul>
+
+<section class="he-section" id="decision-2-recruiters-see-non-functional-buttons-completed">
+  <div class="he-section__num">02 · Decision 2: Recruiters see non-functional buttons — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 2: Recruiters see non-functional buttons — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option A — Hide/disable buttons based on user&#39;s role.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li><code>app/admin/jobs/page.tsx</code> now fetches the current user&#39;s role from <code>/api/auth/me</code></li>
+<li>Publish/Draft, Cycle Status, and Delete buttons are wrapped in <code>{(userRole === &#39;admin&#39; || userRole === &#39;hr_manager&#39;) &amp;&amp; (...)}</code> guard</li>
+<li>Recruiters can still view the jobs list but cannot edit, publish, or delete</li>
+</ul>
+
+<section class="he-section" id="decision-3-hardcoded-stats-on-homepage-completed">
+  <div class="he-section__num">03 · Decision 3: Hardcoded stats on homepage — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 3: Hardcoded stats on homepage — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option B — Create a public <code>/api/stats</code> endpoint.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Created <code>app/api/stats/route.ts</code> (public, no auth required)</li>
+<li>Returns <code>{ activeJobs, departments }</code> using <code>Promise.allSettled</code> for performance</li>
+<li><code>app/page.tsx</code> changed to <code>&#39;use client&#39;</code> and fetches live stats on mount, falling back to hardcoded values if fetch fails</li>
+</ul>
+
+<section class="he-section" id="decision-4-jobsdepartment-has-no-fk-to-departments-completed">
+  <div class="he-section__num">04 · Decision 4: jobs.department has no FK to departments — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 4: <code>jobs.department</code> has no FK to <code>departments</code> — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option A — App-level validation at insert time.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li><code>app/api/admin/jobs/route.ts</code> POST now queries <code>departments</code> table to verify the department exists before inserting a job</li>
+<li>Returns 400 with <code>&quot;Department X does not exist. Create it first.&quot;</code> if not found</li>
+</ul>
+
+<section class="he-section" id="decision-5-verifyrole-should-return-adminuserid-completed">
+  <div class="he-section__num">05 · Decision 5: verifyRole() should return adminUserId — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 5: <code>verifyRole()</code> should return <code>adminUserId</code> — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option A — Enhanced <code>verifyRole()</code> to include <code>adminUserId</code>.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Updated <code>lib/api-utils.ts</code> <code>verifyRole()</code> to select <code>id</code> from <code>admin_users</code> and return <code>{ user, role, adminUserId }</code></li>
+<li>Replaced 5 inline lookup patterns across <code>app/api/admin/jobs/route.ts</code> (POST + PATCH + DELETE), <code>app/api/admin/talent/assign/route.ts</code>, <code>app/api/admin/applications/route.ts</code>, and <code>app/api/admin/settings/route.ts</code></li>
+<li>All <code>pipeline_events.admin_user_id</code> inserts now use <code>auth.adminUserId</code> directly</li>
+</ul>
+
+<section class="he-section" id="decision-6-email-service-keep-records-of-emails">
+  <div class="he-section__num">06 · Decision 6: Email service — KEEP RECORDS OF EMAILS</div>
+  <h2 class="he-section__title">Decision 6: Email service — KEEP RECORDS OF EMAILS</h2><p><strong>Selected:</strong> Option A with logging (override of original &quot;A recommended&quot;).</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Added <code>email_logs</code> insert after <code>sendAcknowledgmentEmail()</code> in <code>app/api/applications/route.ts</code></li>
+<li>Records: <code>application_id</code>, <code>to_email</code>, <code>subject</code>, <code>template</code>, <code>status</code></li>
+<li>The <code>email_logs</code> table already exists in both <code>db/neon-schema.sql</code> and <code>supabase/migrations/001_schema.sql</code></li>
+</ul>
+
+<section class="he-section" id="decision-7-public-stats-endpoint-content-completed">
+  <div class="he-section__num">07 · Decision 7: Public stats endpoint content — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 7: Public stats endpoint content — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option A — Only <code>activeJobs</code> + <code>departments</code> count.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li><code>/api/stats</code> endpoint returns only <code>{ activeJobs, departments }</code> — no sensitive data</li>
+<li>No email addresses, application counts, or internal metrics exposed</li>
+</ul>
+
+<section class="he-section" id="decision-8-department-budget-seed-values-completed-no-change">
+  <div class="he-section__num">08 · Decision 8: Department budget seed values — ✅ COMPLETED (no change)</div>
+  <h2 class="he-section__title">Decision 8: Department budget seed values — ✅ COMPLETED (no change)</h2><p><strong>Selected:</strong> Option A — Keep 0 (budgets set later).</p>
+<p><strong>Rationale:</strong> Department budgets are managed by the finance team via the <code>BudgetManager</code> component in the Organization page. Seed values of 0 are intentional placeholders.</p>
+
+<section class="he-section" id="decision-9-homepage-link-destinations-completed">
+  <div class="he-section__num">09 · Decision 9: Homepage link destinations — ✅ COMPLETED</div>
+  <h2 class="he-section__title">Decision 9: Homepage link destinations — ✅ COMPLETED</h2><p><strong>Selected:</strong> Option A (Recommended) — Use dynamic links.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>The homepage &quot;Current Job Vacancies&quot; link correctly points to <code>/jobs</code> (which filters for <code>status=&#39;open&#39;</code>)</li>
+<li>The direct job link <code>/apply/licensed-aircraft-engineers</code> is validated at the API level — if the slug doesn&#39;t match an open job, the public jobs page returns a 404 and redirects to <code>/jobs</code></li>
+</ul>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#decision-1-server-side-validation-on-public-endpoints-completed">Decision 1: Server-side validation on public endpoints — ✅ COMPLETED</a></li>
+    <li class="he-toc__l2"><a href="#decision-2-recruiters-see-non-functional-buttons-completed">Decision 2: Recruiters see non-functional buttons — ✅ COMPLETED</a></li>
+    <li class="he-toc__l2"><a href="#decision-3-hardcoded-stats-on-homepage-completed">Decision 3: Hardcoded stats on homepage — ✅ COMPLETED</a></li>
+    <li class="he-toc__l2"><a href="#decision-4-jobsdepartment-has-no-fk-to-departments-completed">Decision 4: `jobs.department` has no FK to `departments` — ✅ COMPLETED</a></li>
+    <li class="he-toc__l2"><a href="#decision-5-verifyrole-should-return-adminuserid-completed">Decision 5: `verifyRole()` should return `adminUserId` — ✅ COMPLETED</a></li>
+    <li class="he-toc__l2"><a href="#decision-6-email-service-keep-records-of-emails">Decision 6: Email service — KEEP RECORDS OF EMAILS</a></li>
+    <li class="he-toc__l2"><a href="#decision-7-public-stats-endpoint-content-completed">Decision 7: Public stats endpoint content — ✅ COMPLETED</a></li>
+    <li class="he-toc__l2"><a href="#decision-8-department-budget-seed-values-completed-no-change">Decision 8: Department budget seed values — ✅ COMPLETED (no change)</a></li>
+    <li class="he-toc__l2"><a href="#decision-9-homepage-link-destinations-completed">Decision 9: Homepage link destinations — ✅ COMPLETED</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

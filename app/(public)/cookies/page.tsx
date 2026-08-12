@@ -149,8 +149,8 @@ export default function CookiePolicyPage() {
                 For questions about this Cookie Policy or our use of cookies, contact:
               </p>
               <p style={{ marginBottom: '0.5rem' }}>
-                <a href="mailto:info@aerojet-aviation.com" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
-                  info@aerojet-aviation.com
+                <a href="mailto:careers@aerojet-aviation.com" style={{ fontWeight: 600, color: 'var(--aero-sky)' }}>
+                  careers@aerojet-aviation.com
                 </a>
               </p>
             </div>

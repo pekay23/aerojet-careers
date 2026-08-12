@@ -1,4 +1,5 @@
 import 'server-only'
+import { NextRequest } from 'next/server'
 
 const MAX_ATTEMPTS = 5
 const WINDOW_MS = 15 * 60 * 1000
@@ -57,6 +58,38 @@ export async function checkLoginRateLimit(identifier: string): Promise<RateLimit
   if (limiter) {
   const { success } = await limiter.limit(key)
   return { success, remaining: 0 }
+  }
+
+  return memoryLimit(key)
+}
+
+function getClientIp(req: NextRequest): string {
+  const xff = req.headers.get('x-forwarded-for')
+  if (xff) {
+    const ip = xff.split(',')[0]?.trim()
+    if (ip && /^[0-9a-fA-F:.]+$/.test(ip)) {
+      return ip
+    }
+  }
+  const xri = req.headers.get('x-real-ip')
+  if (xri && /^[0-9a-fA-F:.]+$/.test(xri)) {
+    return xri
+  }
+  return 'unknown'
+}
+
+export async function checkPublicRateLimit(req: NextRequest, action: string): Promise<RateLimitResult> {
+  const ip = getClientIp(req)
+  const key = `public:${action}:${ip.toLowerCase().trim()}`
+  const limiter = await getUpstashLimiter()
+
+  if (limiter) {
+    const { success } = await limiter.limit(key)
+    return { success, remaining: 0 }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return { success: true, remaining: MAX_ATTEMPTS }
   }
 
   return memoryLimit(key)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { verifyRole } from '@/lib/api-utils'
+import { verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   const auth = await verifyRole(['admin', 'hr_manager'])
@@ -81,13 +81,13 @@ export async function POST(req: NextRequest) {
 
       results.push({ id: appId, status: 'success', external_id: externalId })
 
-    } catch (err: any) {
+    } catch (err) {
       if (transfer) {
         await supabaseAdmin.from('hr_transfers').update({
-          status: 'failed', error_message: err.message, completed_at: new Date().toISOString(),
+          status: 'failed', error_message: sanitizeErrorMessage(err), completed_at: new Date().toISOString(),
         }).eq('id', transfer.id)
       }
-      results.push({ id: appId, status: 'failed', error: err.message })
+      results.push({ id: appId, status: 'failed', error: sanitizeErrorMessage(err) })
     }
   }
 

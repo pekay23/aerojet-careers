@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { putObject } from '@/lib/storage'
 import { getServerUser } from '@/lib/auth'
+import { sanitizeErrorMessage } from '@/lib/api-utils'
 
 /**
  * Generic authenticated upload endpoint used by the browser storage shim
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     await putObject(bucket, path, buf, file.type)
 
     return NextResponse.json({ success: true, path })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Upload failed' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: sanitizeErrorMessage(err) }, { status: 500 })
   }
 }

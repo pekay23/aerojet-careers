@@ -16,6 +16,8 @@
     <a href="../index.html">Index</a>
     <a href="../architecture/system-overview.html">Architecture</a>
     <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,7 +27,289 @@
   <h1 class="he-title">API Reference</h1>
   <p class="he-deck">All endpoints are Next.js App Router route handlers under <code>app/api/</code>. Admin routes are guarded by <code>proxy.ts</code> (session) plus in-handler <code>verifyRole([...])</code>.</p>
 </header>
-<ul>
+
+<section class="he-section" id="response-conventions">
+  <div class="he-section__num">01 · Response conventions</div>
+  <h2 class="he-section__title">Response conventions</h2><p>Admin/internal routes use the <code>ApiResponse</code> helper (<code>lib/api-utils.ts</code>):</p>
+<pre><code class="language-jsonc">// success
+{ &quot;success&quot;: true, &quot;data&quot;: &lt;payload&gt; }
+// error
+{ &quot;success&quot;: false, &quot;error&quot;: &quot;&lt;message&gt;&quot; }
+</code></pre>
+<p>Auth and some upload routes return plainer shapes (documented inline below).</p>
+
+<section class="he-section" id="auth">
+  <div class="he-section__num">02 · Auth</div>
+  <h2 class="he-section__title">Auth</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Body / query</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/auth/login</code></td>
+<td><code>{ email, password }</code></td>
+<td>Verifies bcrypt hash, sets <code>aj_session</code> cookie. Returns <code>{ user }</code> or <code>{ error }</code>.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/logout</code></td>
+<td>—</td>
+<td>Clears the session cookie.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/auth/me</code></td>
+<td>—</td>
+<td>Returns <code>{ user, admin }</code> for the current session (or nulls).</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="public">
+  <div class="he-section__num">03 · Public</div>
+  <h2 class="he-section__title">Public</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/applications</code></td>
+<td>Submit a job application (creates <code>applications</code> + child rows).</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/register</code></td>
+<td>Talent-pool / general registration.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/metadata</code></td>
+<td>Public lookup data (departments, categories) for forms.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/upload</code></td>
+<td>Upload an application document (<code>application-documents</code> bucket).</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/upload/talent</code></td>
+<td>Upload a talent-pool CV, sets <code>talent_pool.cv_path</code>.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/email/acknowledge</code></td>
+<td>Send an application acknowledgement email (Resend).</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="admin-recruitment">
+  <div class="he-section__num">04 · Admin — recruitment</div>
+  <h2 class="he-section__title">Admin — recruitment</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Roles</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET/PATCH/DELETE</td>
+<td><code>/api/admin/applications</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>List (paginated, searchable), update status, soft/hard delete.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/application/[id]</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Single application detail.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/applications/events</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Pipeline event history.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/applications/stats</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Pipeline counts.</td>
+</tr>
+<tr>
+<td>GET/POST/PATCH/DELETE</td>
+<td><code>/api/admin/jobs</code></td>
+<td>admin, hr_manager</td>
+<td>Manage job postings.</td>
+</tr>
+<tr>
+<td>GET/DELETE</td>
+<td><code>/api/admin/talent</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Talent pool list + removal.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/talent/assign</code></td>
+<td>admin, hr_manager</td>
+<td>Assign a talent-pool candidate to a job/recruiter.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/hire</code></td>
+<td>admin, hr_manager</td>
+<td>Convert a hired application into an <code>auth_user</code> + <code>admin_user</code> + <code>staff_profile</code>, email credentials.</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="admin-people-org-amp-hr">
+  <div class="he-section__num">05 · Admin — people, org &amp; HR</div>
+  <h2 class="he-section__title">Admin — people, org &amp; HR</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Roles</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET/DELETE</td>
+<td><code>/api/admin/people</code></td>
+<td>admin, hr_manager</td>
+<td>Staff directory (with <code>staff_profiles</code> embed); soft/hard delete (hard = super_admin only).</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/people/create</code></td>
+<td>admin, hr_manager</td>
+<td>Create a staff member directly.</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/api/admin/staff/profile</code></td>
+<td>any authenticated</td>
+<td>Update the current user&#39;s staff profile.</td>
+</tr>
+<tr>
+<td>GET/POST/PATCH</td>
+<td><code>/api/admin/organization</code></td>
+<td>admin, hr_manager</td>
+<td>Org chart / structure data.</td>
+</tr>
+<tr>
+<td>GET/POST/PATCH/DELETE</td>
+<td><code>/api/admin/departments</code></td>
+<td>admin, hr_manager</td>
+<td>Departments CRUD.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/departments/budget/history</code></td>
+<td>admin, hr_manager</td>
+<td>Department budget change log.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/hr/transfer</code></td>
+<td>admin, hr_manager</td>
+<td>Push a candidate to an external HR platform (<code>hr_transfers</code>).</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="admin-documents-settings-analytics">
+  <div class="he-section__num">06 · Admin — documents, settings, analytics</div>
+  <h2 class="he-section__title">Admin — documents, settings, analytics</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Roles</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET/POST/DELETE</td>
+<td><code>/api/admin/documents</code></td>
+<td>admin, hr_manager</td>
+<td>Staff document library (<code>staff-documents</code> bucket).</td>
+</tr>
+<tr>
+<td>GET/POST/DELETE</td>
+<td><code>/api/admin/folders</code></td>
+<td>admin, hr_manager</td>
+<td>Document folders.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/download</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Stream a stored file as an attachment.</td>
+</tr>
+<tr>
+<td>GET/PATCH</td>
+<td><code>/api/admin/settings</code></td>
+<td>admin</td>
+<td>System settings key-values.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/metadata</code></td>
+<td>admin+</td>
+<td>Admin lookup data (departments, types).</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/stats</code> · <code>/api/admin/analytics/snapshot</code></td>
+<td>admin+</td>
+<td>Dashboard metrics + snapshots.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/audit</code></td>
+<td>admin</td>
+<td>Audit / activity log.</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="storage-files">
+  <div class="he-section__num">07 · Storage / files</div>
+  <h2 class="he-section__title">Storage / files</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/storage/upload</code></td>
+<td>session</td>
+<td>Generic authenticated upload used by the browser storage shim. Stores bytes in <code>storage_objects</code>.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/files?bucket=&amp;path=</code></td>
+<td>session</td>
+<td>Serves a stored file (<code>Content-Disposition: inline</code>). Replaces Supabase public/signed URLs.</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="notes">
+  <div class="he-section__num">08 · Notes</div>
+  <h2 class="he-section__title">Notes</h2><ul>
 <li>Pagination on list routes uses <code>page</code> + <code>limit</code> query params (limit capped, e.g. 25–100).</li>
 <li>Search on applications/talent uses <code>search</code> and is passed through <code>sanitizeSearch()</code>.</li>
 <li>Write routes that need the created/updated row call <code>.select().single()</code> on the
@@ -41,7 +325,7 @@ query builder to get it back.</li>
     <li class="he-toc__l2"><a href="#auth">Auth</a></li>
     <li class="he-toc__l2"><a href="#public">Public</a></li>
     <li class="he-toc__l2"><a href="#admin-recruitment">Admin — recruitment</a></li>
-    <li class="he-toc__l2"><a href="#admin-people-org-hr">Admin — people, org &amp; HR</a></li>
+    <li class="he-toc__l2"><a href="#admin-people-org-hr">Admin — people, org & HR</a></li>
     <li class="he-toc__l2"><a href="#admin-documents-settings-analytics">Admin — documents, settings, analytics</a></li>
     <li class="he-toc__l2"><a href="#storage-files">Storage / files</a></li>
     <li class="he-toc__l2"><a href="#notes">Notes</a></li>

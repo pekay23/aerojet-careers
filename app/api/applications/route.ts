@@ -1,11 +1,14 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, cleanInput } from '@/lib/api-utils'
+import { ApiResponse, cleanInput, sanitizeErrorMessage, withPublicProtection } from '@/lib/api-utils'
 import { sendAcknowledgmentEmail } from '@/lib/email-service'
 import { ApplicationSchema } from '@/lib/validation/schemas'
 
 export async function POST(req: NextRequest) {
   try {
+    const guard = await withPublicProtection(req, 'application')
+    if (guard.blocked) return guard.response
+
      const body = await req.json()
      const parsed = ApplicationSchema.safeParse(body)
      if (!parsed.success) {
@@ -118,8 +121,8 @@ export async function POST(req: NextRequest) {
 
     return ApiResponse.success({ id, ref_code: app.ref_code })
 
-  } catch (err: any) {
+  } catch (err) {
     console.error('Application error:', err)
-    return ApiResponse.error(err.message || 'Internal server error', 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

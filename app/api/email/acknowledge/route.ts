@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function POST(req: NextRequest) {
   try {
@@ -95,6 +96,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: status === 'sent' })
   } catch (error) {
     console.error('Acknowledge email route error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: sanitizeErrorMessage(error) }, { status: 500 })
   }
 }

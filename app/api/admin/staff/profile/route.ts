@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { getServerUser } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
+import { sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -75,7 +76,7 @@ export async function PATCH(req: NextRequest) {
 
     if (result.error) {
       console.error('Profile DB error:', result.error)
-      return NextResponse.json({ error: result.error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
     }
 
     const data = result.data
@@ -102,8 +103,8 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, data })
 
-  } catch (err: any) {
+  } catch (err) {
     console.error('Profile update error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: sanitizeErrorMessage(err) }, { status: 500 })
   }
 }

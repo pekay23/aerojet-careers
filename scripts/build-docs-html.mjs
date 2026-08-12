@@ -4,6 +4,8 @@
  *
  * Output: `docs/html/<section>/<slug>.html` mirroring the MD source tree,
  *         plus a top-level `docs/html/index.html` linking everything.
+ *         Top-level markdown files (e.g. AUDIT_REPORT, README) are rendered
+ *         directly into `docs/html/`.
  *
  * Self-contained: the editorial design tokens + site CSS are written into
  * `docs/html/` by this script, so there are no external skill dependencies.
@@ -27,9 +29,19 @@ const SECTIONS = [
   { dir: 'guides', title: 'Guides', blurb: 'Operational how-tos — setup, deployment, migration, handover.' },
 ]
 
+// Top-level markdown files rendered directly into docs/html/
+const TOP_LEVEL = [
+  { file: 'AUDIT_DECISIONS.md', title: 'Audit Decisions', eyebrow: 'Audit' },
+  { file: 'AUDIT_REPORT_2026-08-11.md', title: 'Full Codebase Audit Report', eyebrow: 'Audit' },
+  { file: 'LLM_COUNCIL_AUDIT_REPORT.md', title: 'LLM Council Audit Report', eyebrow: 'Audit' },
+  { file: 'LLM_COUNCIL_FRAMEWORK.md', title: 'LLM Council Framework', eyebrow: 'Framework' },
+  { file: 'README.md', title: 'Documentation Index', eyebrow: 'Docs' },
+  { file: 'UNDONE_ISSUES_2026-08-11.md', title: 'Undone Issues Tracker', eyebrow: 'Tracker' },
+]
+
 // ── HTML helpers ─────────────────────────────────────────────────────────
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&', '<': '<', '>': '>', '"': '"' }[c]))
 }
 
 function slugify(text) {
@@ -73,6 +85,14 @@ function buildRenderer() {
 
   renderer.codespan = ({ text }) => `<code>${escapeHtml(text)}</code>`
 
+  renderer.blockquote = ({ tokens }) => {
+    const body = marked.Parser.parse(tokens)
+    const isPull = /^<p><strong>/.test(body.trim())
+    return isPull
+      ? `<blockquote class="he-pull">${body}</blockquote>`
+      : `<blockquote>${body}</blockquote>`
+  }
+
   return { renderer, resetCounter: () => { h2Counter = 0 } }
 }
 
@@ -113,7 +133,9 @@ function parseHeader(md, slug, section) {
 
 function stripHeader(md) {
   let out = md.replace(/^#\s+[^\n]+\n+/, '')
-  const m = out.match(/^([^\n]+(?:\n[^\n]+)*)\n\s*\n/)
+  // Non-greedy: only strip the first paragraph (up to the first blank line),
+  // not everything up to the last blank line in the file.
+  const m = out.match(/^([^\n]+(?:\n[^\n]+)*?)\n\s*\n/)
   if (m) {
     const first = m[1].trimStart()
     if (
@@ -139,6 +161,8 @@ function pageHtml({ title, eyebrow, deckHtml, body, toc, project, basePathToHtml
     <a href="${basePathToHtml}index.html">Index</a>
     <a href="${basePathToHtml}architecture/system-overview.html">Architecture</a>
     <a href="${basePathToHtml}guides/setup.html">Guides</a>
+    <a href="${basePathToHtml}AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="${basePathToHtml}UNDONE_ISSUES_2026-08-11.html">Issues</a>
   </div>
 </nav>`
 
@@ -224,7 +248,7 @@ async function buildPage({ src, outPath, section, project, basePathToHtml }) {
   }
 }
 
-async function buildIndex({ project, sectionResults }) {
+async function buildIndex({ project, sectionResults, topLevelResults }) {
   const sectionsHtml = sectionResults
     .map((s) => {
       const cards = s.files
@@ -250,12 +274,36 @@ async function buildIndex({ project, sectionResults }) {
     })
     .join('\n')
 
-  const total = sectionResults.reduce((s, sec) => s + sec.files.length, 0)
+  // Top-level reports section
+  const topLevelCards = topLevelResults
+    .map(
+      (f) => `
+    <a class="he-card" href="./${f.slug}.html">
+      <div class="he-card__eyebrow">${escapeHtml(f.eyebrow)}</div>
+      <h3>${escapeHtml(f.title)}</h3>
+      <p>${escapeHtml((f.deck || '').slice(0, 160))}</p>
+      <div class="he-card__meta"><span>${escapeHtml(f.srcRelative)}</span></div>
+    </a>`
+    )
+    .join('')
+
+  const topLevelSection = topLevelResults.length > 0 ? `
+<section class="he-index-section" id="reports">
+  <div class="he-index-section__head">
+    <h2>Reports & Trackers</h2>
+    <p class="he-index-section__blurb">Audit reports, decisions, frameworks, and issue trackers.</p>
+  </div>
+  <div class="he-grid">${topLevelCards}
+  </div>
+</section>` : ''
+
+  const total = sectionResults.reduce((s, sec) => s + sec.files.length, 0) + topLevelResults.length
   const body = `
 <div class="he-kpis">
   <div class="he-kpi"><div class="he-kpi__value">${total}</div><div class="he-kpi__label">Generated pages</div></div>
-  <div class="he-kpi"><div class="he-kpi__value">${sectionResults.length}</div><div class="he-kpi__label">Sections</div></div>
+  <div class="he-kpi"><div class="he-kpi__value">${sectionResults.length + (topLevelResults.length > 0 ? 1 : 0)}</div><div class="he-kpi__label">Sections</div></div>
 </div>
+${topLevelSection}
 ${sectionsHtml}
 `
 
@@ -263,7 +311,7 @@ ${sectionsHtml}
     title: 'Documentation',
     eyebrow: `${project} · docs`,
     deckHtml:
-      'All project documentation, organised by purpose. Markdown sources live in <code>docs/architecture</code> and <code>docs/guides</code>.',
+      'All project documentation, organised by purpose. Markdown sources live in <code>docs/architecture</code>, <code>docs/guides</code>, and at the top level of <code>docs/</code>.',
     body,
     toc: [],
     project,
@@ -307,11 +355,40 @@ async function main() {
     sectionResults.push({ ...section, files: built })
   }
 
-  await buildIndex({ project, sectionResults })
+  // Build top-level markdown files directly into docs/html/
+  const topLevelResults = []
+  for (const tl of TOP_LEVEL) {
+    const src = path.join(DOCS, tl.file)
+    const stat = await fs.stat(src).catch(() => null)
+    if (!stat) continue
+    const slug = path.basename(tl.file, '.md')
+    const outPath = path.join(OUT, `${slug}.html`)
+    const md = await fs.readFile(src, 'utf8')
+    const { title, deckMarkdown, eyebrow } = parseHeader(md, slug, { title: tl.eyebrow })
+    const toc = extractToc(md)
+    const stripped = stripHeader(md)
 
-  const total = sectionResults.reduce((s, sec) => s + sec.files.length, 0)
+    const { renderer, resetCounter } = buildRenderer()
+    resetCounter()
+    const body = marked.parse(stripped, { gfm: true, renderer })
+    const deckHtml = deckMarkdown ? marked.parseInline(deckMarkdown, { gfm: true }) : ''
+
+    const html = pageHtml({ title, eyebrow, deckHtml, body, toc, project, basePathToHtml: './', isIndex: false })
+    await fs.writeFile(outPath, html, 'utf8')
+    topLevelResults.push({
+      slug,
+      title,
+      deck: deckMarkdown,
+      eyebrow: tl.eyebrow,
+      srcRelative: path.relative(ROOT, src).replaceAll('\\', '/'),
+    })
+  }
+
+  await buildIndex({ project, sectionResults, topLevelResults })
+
+  const total = sectionResults.reduce((s, sec) => s + sec.files.length, 0) + topLevelResults.length
   console.log(
-    `[build-docs-html] generated ${total} HTML pages + index across ${SECTIONS.length} sections (design-tokens + docs.css written into docs/html/)`
+    `[build-docs-html] generated ${total} HTML pages + index across ${SECTIONS.length} sections + ${topLevelResults.length} top-level reports (design-tokens + docs.css written into docs/html/)`
   )
 }
 

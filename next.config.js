@@ -4,6 +4,7 @@ const nextConfig = {
   // No rewrites needed - /jobs, /apply/[slug], /register, etc.
   // live at their own directories in /app.
   allowedDevOrigins: ['192.168.8.202'],
+  output: 'standalone',
 
   images: {
     remotePatterns: [
@@ -26,7 +27,10 @@ const nextConfig = {
         headers: [
           { key: 'X-Frame-Options',        value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-XSS-Protection',       value: '1; mode=block' },
           { key: 'Referrer-Policy',        value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy',     value: 'geolocation=(), microphone=(), camera=()' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           {
             key: 'Content-Security-Policy',
             value: [
@@ -47,7 +51,10 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-XSS-Protection',       value: '1; mode=block' },
           { key: 'Referrer-Policy',        value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy',     value: 'geolocation=(), microphone=(), camera=()' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Frame-Options',        value: 'SAMEORIGIN' },
         ],
       },

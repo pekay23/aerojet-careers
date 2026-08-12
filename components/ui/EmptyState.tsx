@@ -8,9 +8,11 @@ import { Inbox, type LucideIcon } from 'lucide-react'
 export function EmptyState({
   icon: Icon = Inbox,
   message,
+  action,
 }: {
   icon?: LucideIcon
   message: string
+  action?: React.ReactNode
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-16 text-center space-y-4">
@@ -18,6 +20,7 @@ export function EmptyState({
       <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest max-w-xs mx-auto">
         {message}
       </p>
+      {action && <div className="mt-2">{action}</div>}
     </div>
   )
 }

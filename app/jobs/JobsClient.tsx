@@ -2,11 +2,11 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { MapPin, Clock, Users, ArrowRight } from 'lucide-react'
-import { StatusPill } from '@/components/ui'
+import { StatusPill, EmptyState, SkeletonCard } from '@/components/ui'
 
 import type { Job } from '@/types'
 
-export default function JobsClient({ initialJobs }: { initialJobs: Job[] }) {
+export default function JobsClient({ initialJobs, loading = false }: { initialJobs: Job[]; loading?: boolean }) {
   const [search, setSearch] = useState('')
   const [dept,   setDept]   = useState('')
   const [departments, setDepartments] = useState<string[]>([])
@@ -32,7 +32,7 @@ export default function JobsClient({ initialJobs }: { initialJobs: Job[] }) {
   return (
     <>
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="flex flex-wrap gap-3 items-center mb-8">
         <input
           type="search"
           name="search"
@@ -54,21 +54,29 @@ export default function JobsClient({ initialJobs }: { initialJobs: Job[] }) {
           <option value="">All Departments</option>
           {departments.map(d => <option key={d}>{d}</option>)}
         </select>
-        <span style={{ fontSize: 13, color: 'var(--muted)', marginLeft: 'auto' }}>
+        <span className="text-xs text-[var(--muted)] ml-auto">
           {filtered.length} role{filtered.length !== 1 ? 's' : ''}
         </span>
       </div>
 
-      {/* Job list */}
-      {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--muted)' }}>
-          <p style={{ fontSize: 14, marginBottom: '0.5rem' }}>No roles match your search.</p>
-          <Link href="/register" style={{ color: 'var(--blue)', fontSize: 13 }}>
-            Submit a general application →
-          </Link>
+      {/* Job list or skeleton */}
+      {loading ? (
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} lines={3} />
+          ))}
         </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          message="No roles match your search."
+          action={
+            <Link href="/register" className="text-sm text-[var(--blue)] hover:underline mt-2">
+              Submit a general application →
+            </Link>
+          }
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        <div className="flex flex-col gap-4">
           {filtered.map(job => <JobRow key={job.id} job={job} />)}
         </div>
       )}
@@ -80,48 +88,41 @@ function JobRow({ job }: { job: Job }) {
   return (
     <Link
       href={`/apply/${job.slug}`}
-      style={{ textDecoration: 'none', color: 'inherit' }}
+      className="job-row card"
     >
-      <div
-        className="card"
-        style={{
-          padding: '1.375rem 1.75rem',
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-          gap: '1.5rem', cursor: 'pointer', transition: 'box-shadow 0.15s, transform 0.15s',
-        }}
-        onMouseOver={e => { const el = e.currentTarget as HTMLElement; el.style.boxShadow = '0 4px 16px rgba(44,62,80,0.12)'; el.style.transform = 'translateY(-1px)' }}
-        onMouseOut={e => { const el = e.currentTarget as HTMLElement; el.style.boxShadow = ''; el.style.transform = '' }}
-      >
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--blue)', marginBottom: '0.35rem' }}>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div className="flex-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--blue)] mb-1">
             {job.department}
           </div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--navy)', marginBottom: '0.5rem' }}>{job.title}</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: 13, color: 'var(--muted)', marginBottom: '0.75rem' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><MapPin size={15} aria-hidden="true" /> {job.location}</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {job.employment_type.replace(/_/g, ' ')}</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {job.target_count ? `${job.target_count} ${job.target_count === 1 ? 'Vacancy' : 'Vacancies'}` : 'Open positions'}</span>
-            {job.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> Closes {new Date(job.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
-            {!job.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> No deadline</span>}
-
+          <h3 className="text-base font-bold text-[var(--navy)] mb-1">{job.title}</h3>
+          {job.salary_range_min !== null && job.salary_range_max !== null ? (
+            <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 6 }}>
+              USD {job.salary_range_min.toLocaleString()} – {job.salary_range_max.toLocaleString()} per month
+            </div>
+          ) : (
+            <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 6 }}>
+              Competitive
+            </div>
+          )}
+          <div className="flex flex-wrap gap-3 text-sm text-[var(--muted)] mb-2">
+            <span className="inline-flex items-center gap-1"><MapPin size={14} aria-hidden="true" /> {job.location}</span>
+            <span className="inline-flex items-center gap-1"><Clock size={14} aria-hidden="true" /> {job.employment_type.replace(/_/g, ' ')}</span>
+            <span className="inline-flex items-center gap-1"><Users size={14} aria-hidden="true" /> {job.target_count ? `${job.target_count} ${job.target_count === 1 ? 'Vacancy' : 'Vacancies'}` : 'Open positions'}</span>
+            {job.closes_at && <span className="inline-flex items-center gap-1"><Clock size={14} aria-hidden="true" /> Closes {new Date(job.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+            {!job.closes_at && <span className="inline-flex items-center gap-1"><Clock size={14} aria-hidden="true" /> No deadline</span>}
           </div>
           {job.tags && job.tags.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+            <div className="flex flex-wrap gap-2">
               {job.tags.slice(0, 5).map((tag: string) => (
-                <span key={tag} style={{
-                  background: '#eaf3fa', color: 'var(--navy)', border: '1px solid #c5dff0',
-                  padding: '0.2rem 0.65rem', borderRadius: 20, fontSize: 11, fontWeight: 500,
-                }}>
-                  {tag}
-                </span>
+                <span key={tag} className="tag-pill">{tag}</span>
               ))}
             </div>
           )}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', flexShrink: 0 }}>
+        <div className="flex flex-col items-end gap-2 flex-shrink-0">
           <StatusPill status="open" />
-          <ArrowRight size={20} aria-hidden="true" style={{ color: 'var(--blue)', marginTop: '0.5rem' }} />
-
+          <ArrowRight size={20} aria-hidden="true" className="text-[var(--blue)] mt-1" />
         </div>
       </div>
     </Link>

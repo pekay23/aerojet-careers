@@ -97,3 +97,47 @@ export const RegistrationSchema = z.object({
   statement: z.string().nullable().optional(),
   departments_interest: z.array(z.string()).default([]),
 })
+
+// ── Wizard step schemas (used by ApplicationForm.tsx) ───────────────────────
+// These are simplified per-step validations for the multi-step form.
+export const WizardStep1Schema = z.object({
+  first_name: z.string().min(2, 'Required'),
+  last_name: z.string().min(2, 'Required'),
+  email: z.string().email('Invalid email'),
+  phone: z.string().min(8, 'Required'),
+  nationality: z.string().min(1, 'Selection required'),
+  country_of_residence: z.string().min(1, 'Selection required'),
+  date_of_birth: z.string().min(1, 'Required').refine(isAdult, 'Must be at least 18'),
+  deployment_pref: z.enum(['fully_flexible', 'ghana_only', 'not_available']),
+})
+
+export const WizardStep2Schema = z.object({
+  licence_type: z.string().min(1, 'Selection required'),
+  type_ratings: z.array(z.string()).min(1, 'Select at least one'),
+})
+
+export const WizardStep3Schema = z
+  .object({
+    current_employer: z.string().min(2, 'Required'),
+    total_years_exp: z.string().min(1, 'Selection required'),
+    role_start_date: z.string().optional(),
+    role_end_date: z.string().optional(),
+  })
+  .refine(
+    (d) => !d.role_start_date || !d.role_end_date || d.role_end_date >= d.role_start_date,
+    { message: 'End date must be after start date', path: ['role_end_date'] }
+  )
+
+export const WizardStep4Schema = z
+  .object({
+    payment_preference: z.string().min(1, 'Selection required'),
+    expected_min_usd: z.union([z.number(), z.nan()]).optional(),
+    expected_target_usd: z.union([z.number(), z.nan()]).optional(),
+  })
+  .refine(
+    (d) =>
+      !d.expected_min_usd ||
+      !d.expected_target_usd ||
+      Number(d.expected_target_usd) >= Number(d.expected_min_usd),
+    { message: 'Target must be at least the minimum', path: ['expected_target_usd'] }
+  )

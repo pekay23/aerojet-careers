@@ -1,12 +1,11 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage, ALLOWED_UPDATE_KEYS } from '@/lib/api-utils'
+import { DepartmentSchema as SharedDepartmentSchema } from '@/lib/validation/schemas'
 
-const DepartmentSchema = z.object({
-  name: z.string().min(1, 'Department name is required'),
+const DepartmentSchema = SharedDepartmentSchema.extend({
   code: z.string().min(1, 'Department code is required').max(20).nullish(),
-  current_budget: z.number().min(0).optional(),
   manager_id: z.string().uuid().nullable().optional(),
 })
 
@@ -32,7 +31,12 @@ export async function GET(req: NextRequest) {
     const { data: depts, error } = await supabaseAdmin
       .from('departments')
       .select(`
-        *,
+        id,
+        name,
+        code,
+        manager_id,
+        current_budget,
+        updated_at,
         manager:admin_users!departments_manager_id_fkey (
           full_name,
           email
@@ -41,9 +45,9 @@ export async function GET(req: NextRequest) {
       .order('name')
 
     if (error) throw error
-    return ApiResponse.success(depts)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.success(depts, 200, { 'Cache-Control': 'private, max-age=60' })
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -143,9 +147,9 @@ export async function POST(req: NextRequest) {
          .single()
 
        if (error) throw error
-       return ApiResponse.success(data)
+        return ApiResponse.success(data)
     }
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

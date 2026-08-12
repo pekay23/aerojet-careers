@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole, sanitizeSearch } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeSearch, sanitizeApplicationUpdate, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,20 +29,21 @@ export async function GET(req: NextRequest) {
 
     const { data, error, count } = await q
     if (error) throw error
-
-    return ApiResponse.success({ data, total: count, page, limit })
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.success({ data, total: count, page, limit }, 200, { 'Cache-Control': 'private, max-age=30' })
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
 export async function PATCH(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager', 'recruiter'])
+    const auth = await verifyRole(['admin', 'hr_manager', 'recruiter'], req)
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
-    const { id, ...updates } = await req.json()
+    const { id, ...rawUpdates } = await req.json()
     if (!id) return ApiResponse.error('id required', 400)
+
+    const updates = sanitizeApplicationUpdate(rawUpdates)
 
     // Log status change if status is being updated
     const { data: current } = await supabaseAdmin.from('applications').select('status').eq('id', id).single()
@@ -73,14 +74,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     return ApiResponse.success(data)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const auth = await verifyRole(['admin', 'hr_manager', 'recruiter'])
+    const auth = await verifyRole(['admin', 'hr_manager', 'recruiter'], req)
     if (!auth) return ApiResponse.error('Unauthorized', 403)
 
     const id = new URL(req.url).searchParams.get('id')
@@ -130,8 +131,8 @@ export async function DELETE(req: NextRequest) {
 
       return ApiResponse.success({ message: 'Application permanently deleted' })
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error('Application delete error:', err)
-    return ApiResponse.error(err.message, 500)
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

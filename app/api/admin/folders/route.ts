@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     const { data: folders, error } = await supabaseAdmin
       .from('document_folders')
-      .select('*')
+      .select('id, name, description, icon, created_at')
       .order('name', { ascending: true })
 
     if (error) {
@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
     }
 
     return ApiResponse.success(folders)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }
 
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error
 
     return ApiResponse.success(folder)
-  } catch (err: any) {
-    return ApiResponse.error(err.message, 500)
+  } catch (err) {
+    return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }
 }

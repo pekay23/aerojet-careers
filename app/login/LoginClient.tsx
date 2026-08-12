@@ -5,14 +5,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-/**
- * Split-screen login, matching the aerojet-aviation portal shell:
- *   • Left navy branding panel (hidden on mobile) with logo + heading
- *   • Right light form panel with the sign-in card
- *
- * Auth logic is unchanged from before: `supabase.signInWithPassword` is the
- * Neon-backed shim that posts to /api/auth/login and sets the session cookie.
- */
 export default function LoginClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -48,8 +40,8 @@ export default function LoginClient() {
   return (
     <div className="flex min-h-screen">
       {/* Left branding panel — hidden on mobile */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-aerojet-blue p-12 lg:flex lg:w-[45%] xl:w-[40%]">
-        <div className="absolute inset-0 bg-linear-to-br from-aerojet-blue via-[#003a7c] to-[#001a3c]" />
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-[var(--navy)] p-12 lg:flex lg:w-[45%] xl:w-[40%]">
+        <div className="absolute inset-0 bg-[var(--gradient-brand)]" />
 
         <div className="relative z-10">
           <Link href="/" className="mb-20 block h-10 w-40">
@@ -62,20 +54,20 @@ export default function LoginClient() {
           <h1 className="font-display max-w-md text-4xl font-black uppercase leading-[1.05] tracking-tight text-white xl:text-5xl">
             Careers Portal
           </h1>
-          <p className="mt-6 max-w-sm font-sans leading-relaxed text-blue-100/60">
+          <p className="mt-6 max-w-sm font-sans leading-relaxed text-white/60">
             Access the staff dashboard to manage vacancies, applications, and the talent pipeline.
           </p>
         </div>
 
-        <p className="relative z-10 text-[10px] uppercase tracking-widest text-blue-100/40">
+        <p className="relative z-10 text-[10px] uppercase tracking-widest text-white/40">
           &copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.
         </p>
       </div>
 
       {/* Right form panel */}
-      <div className="relative flex min-h-screen flex-1 flex-col bg-slate-50">
+      <div className="relative flex min-h-screen flex-1 flex-col bg-[var(--background)]">
         {/* Mobile header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white p-4 lg:hidden">
+        <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--card)] p-4 lg:hidden">
           <Link href="/" className="block h-8 w-32">
             <img
               src="/logos/logo-navbar.png"
@@ -85,9 +77,9 @@ export default function LoginClient() {
           </Link>
           <Link
             href="/"
-            className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-600"
+            className="text-xs font-bold text-[var(--muted-foreground)] transition-colors hover:text-[var(--navy)]"
           >
-            ← Back to site
+            &larr; Back to site
           </Link>
         </div>
 
@@ -95,25 +87,25 @@ export default function LoginClient() {
         <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
           <div className="w-full max-w-xl">
             <div className="mb-8">
-              <h2 className="font-display text-2xl font-black uppercase tracking-tight text-aero-blue sm:text-3xl">
+              <h2 className="font-display text-2xl font-black uppercase tracking-tight text-[var(--navy)] sm:text-3xl">
                 Welcome Back
               </h2>
-              <p className="mt-2 font-sans text-base text-slate-500">
+              <p className="mt-2 font-sans text-base text-[var(--muted-foreground)]">
                 Sign in to your portal account.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="form-card">
               {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                <div className="rounded-lg border border-[var(--danger)] bg-[var(--danger-soft)] p-4 text-sm text-[var(--danger)]">
                   {error}
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div>
                   <label
-                    className="mb-2 block text-sm font-bold text-slate-700"
+                    className="mb-2 block text-sm font-bold text-[var(--foreground)]"
                     htmlFor="email"
                   >
                     Email Address
@@ -124,14 +116,14 @@ export default function LoginClient() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-all hover:border-slate-300 focus:ring-4 focus:ring-aerojet-blue/10"
+                    className="field-input"
                     placeholder="admin@aerojet-aviation.com"
                   />
                 </div>
 
                 <div>
                   <label
-                    className="mb-2 block text-sm font-bold text-slate-700"
+                    className="mb-2 block text-sm font-bold text-[var(--foreground)]"
                     htmlFor="password"
                   >
                     Password
@@ -142,8 +134,8 @@ export default function LoginClient() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-all hover:border-slate-300 focus:ring-4 focus:ring-aerojet-blue/10"
-                    placeholder="••••••••"
+                    className="field-input"
+                    placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
                   />
                 </div>
               </div>
@@ -151,7 +143,7 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-aerojet-blue px-4 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-aerojet-blue/20 transition-all hover:-translate-y-0.5 hover:bg-[#003a7c] hover:shadow-xl hover:shadow-aerojet-blue/30 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50"
+                className="btn btn-blue w-full mt-6"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
@@ -160,8 +152,8 @@ export default function LoginClient() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-100 p-6 text-center">
-          <p className="text-[10px] uppercase tracking-widest text-slate-400">
+        <div className="border-t border-[var(--border)] p-6 text-center">
+          <p className="text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
             &copy; {new Date().getFullYear()} Aerojet Aviation &middot; Staff Portal
           </p>
         </div>

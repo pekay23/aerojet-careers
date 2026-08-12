@@ -32,17 +32,10 @@ export default function GraduateProgramPage() {
         height={360}
       />
 
-      <section style={{ background: 'white', padding: '3rem 1rem' }}>
+      <section className="section-white">
         <div className="container-max mx-auto" style={{ maxWidth: 920 }}>
-          <div
-            className="card"
-            style={{
-              padding: '2rem',
-              marginBottom: '2rem',
-              background: 'var(--bg-light)',
-            }}
-          >
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Overview</h2>
+          <div className="card card-inner">
+            <h2 className="section-heading-xl" style={{ marginTop: 0 }}>Overview</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1rem' }}>
               The Aerojet Graduate Program is designed for high-potential early-career applicants
               with less than three years of work experience who are seeking a meaningful entry point
@@ -55,16 +48,9 @@ export default function GraduateProgramPage() {
             </p>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: '1.5rem',
-              marginBottom: '2rem',
-            }}
-          >
-            <div className="card" style={{ padding: '1.75rem', background: 'var(--bg-light)' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Who this is for</h3>
+          <div className="grid-auto-sm" style={{ marginBottom: '2rem' }}>
+            <div className="card card-inner">
+              <h3 className="section-heading-xl" style={{ fontSize: '1.1rem', marginTop: 0 }}>Who this is for</h3>
               <p style={{ color: 'var(--muted)', lineHeight: 1.7, margin: 0 }}>
                 Recent graduates and early-career applicants with strong academic foundations,
                 motivation to build in a fast-growing organisation, and interest in aviation,
@@ -72,8 +58,8 @@ export default function GraduateProgramPage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '1.75rem', background: 'var(--bg-light)' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Experience level</h3>
+            <div className="card card-inner">
+              <h3 className="section-heading-xl" style={{ fontSize: '1.1rem', marginTop: 0 }}>Experience level</h3>
               <p style={{ color: 'var(--muted)', lineHeight: 1.7, margin: 0 }}>
                 Intended primarily for candidates with less than 3 years of work experience.
                 Strong internships, industrial attachments, research projects, and relevant training
@@ -82,30 +68,24 @@ export default function GraduateProgramPage() {
             </div>
           </div>
 
-          <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'var(--bg-light)' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Program Areas</h2>
+          <div className="card card-inner" style={{ marginBottom: '2rem' }}>
+            <h2 className="section-heading-xl">Program Areas</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1.25rem' }}>
               As positions become available, graduate opportunities may be opened in the following
               areas:
             </p>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '0.9rem',
-              }}
-            >
+            <div className="grid-auto-sm">
               {PROGRAM_AREAS.map((area) => (
                 <div
                   key={area}
+                  className="card"
                   style={{
-                    border: '1px solid var(--border)',
-                    borderRadius: 8,
                     padding: '0.95rem 1rem',
                     background: 'var(--bg-light)',
                     fontWeight: 600,
                     color: 'var(--navy)',
+                    textAlign: 'center',
                   }}
                 >
                   {area}
@@ -114,8 +94,8 @@ export default function GraduateProgramPage() {
             </div>
           </div>
 
-          <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'var(--bg-light)' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Current Status</h2>
+          <div className="card card-inner" style={{ marginBottom: '2rem' }}>
+            <h2 className="section-heading-xl">Current Status</h2>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, marginBottom: '1rem' }}>
               This page currently serves as a placeholder for the Graduate Program intake pathway.
               Formal program openings may be published from time to time based on operational needs.
@@ -126,15 +106,7 @@ export default function GraduateProgramPage() {
             </p>
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              gap: '1rem',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              marginTop: '2rem',
-            }}
-          >
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginTop: '2rem' }}>
             <Link href="/register" className="btn btn-blue btn-lg">
               Register General Interest
             </Link>
