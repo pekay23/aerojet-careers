@@ -15,5 +15,7 @@ jobs:
         run: npm install --global vercel@latest
       - name: Remove Git Metadata
         run: rm -rf .git
+      - name: Remove Vercel Cache
+        run: rm -rf .vercel
       - name: Deploy to Vercel
         run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
