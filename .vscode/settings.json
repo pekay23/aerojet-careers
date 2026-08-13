@@ -9,7 +9,9 @@
   "git.autofetch": true,
   "terminal.integrated.commandsToSkipShell": [
     "kilo-code.new.agentManagerOpen",
-    "kilo-code.new.agentManager.showTerminal"
+    "kilo-code.new.agentManager.showTerminal",
+    "kilo-code.new.agentManager.previousTerminal",
+    "kilo-code.new.agentManager.nextTerminal"
   ],
   "kilo-code.new.autocomplete.enableAutoTrigger": true,
   "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": true,

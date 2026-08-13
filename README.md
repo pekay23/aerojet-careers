@@ -18,11 +18,11 @@ Subdomain: `careers.aerojet-aviation.com`
 
 - **Framework:** Next.js 16 (App Router) · React 19
 - **Language:** TypeScript
-- **Database:** **Neon** (PostgreSQL serverless) — shared with `aerojet-aviation`
-- **Auth:** Custom JWT session (`jose` library, bcrypt password hashing)
+- **Database:** **Neon** (PostgreSQL serverless) — primary data store
+- **Auth:** Custom JWT sessions (`jose` + bcrypt) with refresh tokens
 - **Email:** Resend
-- **Files:** Custom DB-backed storage (`storage_objects` table with BYTEA on Neon)
-- **UI:** Tailwind CSS v4 + `@aerojet/design-tokens` + `@aerojet/ui` (Radix + CVA)
+- **Files:** Custom DB-backed storage (`storage_objects` BYTEA on Neon)
+- **UI:** Tailwind CSS v4 + design tokens in `app/globals.css` + Radix primitives
 - **Package manager:** **bun**
 
 ## Getting Started
@@ -48,24 +48,29 @@ See `.env.example` for all required variables:
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | Neon PostgreSQL connection string (pooled) |
-| `DIRECT_URL` | Neon direct connection string (for migrations) |
+| `DATABASE_URL` | Neon PostgreSQL pooled connection string |
+| `DIRECT_URL` | Neon direct connection string (for migrations/schema) |
 | `AUTH_SECRET` | Secret key for signing JWT session tokens |
 | `RESEND_API_KEY` | Resend API key for transactional email |
 | `EMAIL_FROM` | From address (e.g., `careers@aerojet-aviation.com`) |
 | `NEXT_PUBLIC_APP_URL` | Production URL (`https://careers.aerojet-aviation.com`) |
+| `UPSTASH_REDIS_REST_URL` | Optional: Upstash Redis for rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Optional: Upstash Redis token |
 
 ## Project Structure
 
 ```
 app/
   (public)/              # Public marketing & application pages
-    page.tsx             # Home page
+    faq/                 # FAQ page
+    check-status/        # Application status lookup
+    our-story/           # Company timeline
     jobs/                # Job listings & detail
     apply/[slug]/        # Application forms
     graduate-program/    # Graduate program info
     skilled-training/    # Skilled training info
     register/            # Candidate registration
+    login/               # Staff portal login
   admin/                 # Admin dashboard (protected)
     dashboard/           # Overview stats
     applications/        # Pipeline management
@@ -74,29 +79,38 @@ app/
     talent/              # Talent pool
     documents/           # Document vault
     settings/            # Org settings, email templates
+    hr/                  # HR transfers
+    organization/        # Org chart + budget
+    my-info/             # Employee self-service
   api/                   # REST API endpoints
     admin/               # Admin-only endpoints
     applications/        # Public application submission
     email/               # Email acknowledgment
     upload/              # File uploads
+    auth/                # Login, logout, refresh, me
+    storage/             # Generic storage upload
 components/
-  ui/                    # Shared UI components (Button, Card, FormCard, NoticeBanner, StatusPill, ToastContainer, PageHero, EmptyState)
+  ui/                    # Shared UI components (Button, Card, FormCard, NoticeBanner, StatusPill, ToastContainer, PageHero, EmptyState, Skeleton, ConfirmDialog)
   layout/                # SiteNav, SiteFooter
   admin/                 # Admin-specific components
-  forms/                 # ApplicationForm, etc.
+  forms/                 # Reusable form components (13 components)
 lib/
-   supabase-server.ts     # Server component compat shim (wraps Neon + JWT)
-   supabase-admin.ts      # Service-role compat shim (wraps Neon + JWT)
-   email-service.ts       # Resend wrapper with backoff
-   utils.ts               # cn(), formatters
-   toast.ts               # Sonner wrapper
-   validation/            # Zod schemas
-   auth.ts                # Custom JWT auth (bcrypt + jose)
-   db.ts                  # Neon pg connection pool + PostgREST shim
-   storage.ts             # File storage (BYTEA on Neon)
-   storage-compat.ts      # Supabase Storage API compat shim
-supabase/
-  migrations/            # Numbered SQL migrations
+   auth.ts               # JWT session + bcrypt password hashing
+   auth-admin.ts         # Admin user CRUD helpers
+   sanitize.ts           # HTML sanitization (DOMPurify)
+   refresh-token.ts      # Refresh token lifecycle
+   email-service.ts      # Resend wrapper with backoff
+   rate-limit.ts         # Upstash Redis + memory rate limiting
+   logger.ts             # Structured JSON logging
+   domain-config.ts      # Domain URLs and internal link lists
+   utils.ts              # cn(), formatters
+   toast.ts              # Sonner wrapper
+   validation/           # Zod schemas
+   db.ts                 # Neon pg connection pool + query builder
+   storage.ts            # File storage (BYTEA on Neon)
+   storage-compat.ts     # Supabase Storage API compat shim
+scripts/                 # Operational scripts (DB, docs, audit)
+tests/                   # Vitest + Playwright tests
 ```
 
 ## Key Business Flows
@@ -125,16 +139,20 @@ bun run lint         # ESLint
 bun run lint:fix     # ESLint auto-fix
 bun run type-check   # TypeScript check
 bun run format       # Prettier
+bun run test         # Unit tests (Vitest)
+bun run test:e2e     # E2E tests (Playwright)
+bun run docs:html    # Generate HTML docs mirror
 ```
 
 ## Deployment
 
 - **Vercel** — Auto-deploy on push to `main`; preview on PRs
-- **Custom domain** — `careers.aerojet-aviation.com` (configure in Vercel → Domains)
+- **Region:** `lhr1` (London)
+- **Custom domain** — `careers.aerojet-aviation.com`
 - **Env vars** — Set in Vercel dashboard (Project → Settings → Environment Variables)
-- **Database** — Schema lives in `db/neon-schema.sql`; migrations in `supabase/migrations/`
+- **Database** — Schema lives in `db/neon-schema.sql`; apply with `bun scripts/apply-schema.mjs`
 - **Build command** — `bun run build`
-- **Edge runtime** — Auth middleware (`proxy.ts`) runs on Edge; session JWT verified at the edge
+- **Security headers** — HSTS, X-XSS-Protection, Permissions-Policy configured in `vercel.json` + `next.config.js`
 
 ## License
 

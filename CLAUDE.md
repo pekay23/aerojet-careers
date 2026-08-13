@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Next.js 16 App Router careers portal for Aerojet Aviation — public job listings, application management, graduate/training programs, and admin dashboard for recruitment workflows. Supabase PostgreSQL, Supabase Auth (email/password), Vercel deployment. Package manager: **bun**.
+Next.js 16 App Router careers portal for Aerojet Aviation — public job listings, application management, graduate/training programs, and admin dashboard for recruitment workflows. Neon PostgreSQL, custom JWT auth (bcrypt + jose), Vercel deployment. Package manager: **bun**.
 
 Subdomain: `careers.aerojet-aviation.com`
 
@@ -17,10 +17,11 @@ bun run lint         # ESLint
 bun run lint:fix     # ESLint auto-fix
 bun run type-check   # npx tsc --noEmit
 bun run format       # Prettier (if configured)
+bun run test         # Unit tests (Vitest)
+bun run test:e2e     # E2E tests (Playwright)
 
-# Database (Supabase)
-# No local Prisma; Supabase handles schema via migrations in supabase/migrations/
-# Run migrations via Supabase Dashboard or CLI
+# Database (Neon)
+# Schema in db/neon-schema.sql; apply with: bun scripts/apply-schema.mjs
 ```
 
 ## Architecture
@@ -36,6 +37,10 @@ app/
     graduate-program/ — Graduate program info
     skilled-training/ — Skilled training program info
     register/        — Candidate registration
+    faq/             — Frequently asked questions
+    our-story/       — Company timeline
+    check-status/    — Application status lookup
+    login/           — Staff portal login
   admin/             — Admin dashboard (protected)
     dashboard/       — Overview stats
     applications/    — Application management (list, detail, actions)
@@ -44,33 +49,39 @@ app/
     talent/          — Talent pool
     documents/       — Document vault
     settings/        — Org settings, email templates
+    hr/              — HR transfer management
+    organization/    — Org chart + budget manager
+    my-info/         — Employee self-service profile
   api/               — REST API endpoints
     admin/           — Admin-only endpoints
     applications/    — Public application submission
     email/           — Email acknowledgment
     upload/          — File uploads
+    auth/            — Login, logout, refresh, me
+    storage/         — Generic storage upload
 ```
 
-### Auth System (Supabase)
+### Auth System (JWT + bcrypt)
 
-- **Supabase Auth** — Email/password, magic links, OAuth (Google, GitHub)
-- **Session**: Server-side via `@supabase/ssr` in `lib/supabase-server.ts`
-- **Admin protection**: `app/admin/layout.tsx` checks `session.user` + `user_metadata.role === 'admin'`
-- **Middleware**: `proxy.ts` rewrites API paths; auth gate at route level
+- **Local JWT** — Email/password with bcrypt hashing, jose HS256 signing
+- **Session**: HttpOnly cookie (`aj_session`) with secure + sameSite flags
+- **Refresh tokens**: One-time-use tokens in `refresh_tokens` table, rotated on `/api/auth/refresh`
+- **Admin protection**: `proxy.ts` guards `/admin` and `/api/admin`; in-handler `verifyRole([...])`
+- **Roles**: `admin`, `hr_manager`, `recruiter`, `employee`
 
-### Database (Supabase PostgreSQL)
+### Database (Neon PostgreSQL)
 
-- **Migrations**: `supabase/migrations/` (numbered SQL files)
-- **Key tables**: `jobs`, `applications`, `candidates`, `departments`, `stages`, `documents`, `email_templates`, `audit_logs`, `staff_profiles`
-- **Row Level Security**: Policies enforce org isolation and role-based access
-- **Seed**: `seed-admin.js` creates initial admin user
+- **Schema**: `db/neon-schema.sql` (idempotent, apply with `bun scripts/apply-schema.mjs`)
+- **Key tables**: `jobs`, `applications`, `application_documents`, `candidates`, `departments`, `stages`, `documents`, `email_templates`, `audit_logs`, `staff_profiles`, `auth_users`, `admin_users`, `refresh_tokens`, `storage_objects`, `talent_pool`, `system_settings`
+- **No RLS** — Authorization is entirely application-layer
+- **Query builder**: `lib/db.ts` wraps `pg` with parameterized queries and a PostgREST-like API
 
 ### Admin Dashboard
 
-- **Layout**: `app/admin/layout.tsx` — sidebar nav, top bar, auth guard
-- **Data fetching**: Server components with `supabase-server` client
-- **Mutations**: Server Actions in `app/admin/actions.ts` + API routes
-- **Real-time**: Supabase Realtime for application status updates
+- **Layout**: `components/admin/AdminLayout.tsx` — sidebar nav, top bar, user menu (client component, not a route layout)
+- **Data fetching**: Server components with direct `pg` queries via `lib/db.ts`
+- **Mutations**: API routes in `app/api/admin/`
+- **Real-time**: Not implemented — UI polls on interval for pipeline updates
 
 ### Email (Resend)
 
@@ -78,10 +89,13 @@ app/
 - Templates in `app/admin/settings/email-templates/`
 - Acknowledgment auto-sent on application submit (`app/api/email/acknowledge/route.ts`)
 
-### File Uploads
+### File Storage (Custom)
 
-- UploadThing via `app/api/upload/route.ts` and `app/api/upload/talent/route.ts`
-- Client helpers: `UploadButton`, `UploadDropzone` (if needed)
+- `storage_objects` table with BYTEA content on Neon
+- `/api/files` — serves files by bucket + path with session auth
+- `/api/storage/upload` — generic authenticated upload
+- `/api/upload/talent` — talent CV upload (sets `talent_pool.cv_path`)
+- Client shims in `lib/storage-compat.ts` for Supabase Storage API compat
 
 ## Key Shared Utilities
 
@@ -89,12 +103,18 @@ app/
 - `lib/supabase-server.ts` — Server component Supabase client
 - `lib/supabase-admin.ts` — Service-role client for admin APIs
 - `lib/toast.ts` — Sonner toast wrapper
-- `components/ui/` — Reusable UI components (Button, Card, FormCard, NoticeBanner, StatusPill, ToastContainer, PageHero, EmptyState)
+- `lib/sanitize.ts` — HTML sanitization (DOMPurify)
+- `lib/refresh-token.ts` — Refresh token lifecycle
+- `lib/auth-admin.ts` — Admin user CRUD
+- `lib/rate-limit.ts` — Upstash Redis rate limiting
+- `lib/logger.ts` — Structured JSON logging
+- `lib/domain-config.ts` — Domain URLs and internal links
+- `components/ui/` — Reusable UI components (Button, Card, FormCard, NoticeBanner, StatusPill, ToastContainer, PageHero, EmptyState, Skeleton, ConfirmDialog)
 
 ## Design System
 
-- **Tokens**: `@aerojet/design-tokens` (CSS variables) — colors, spacing, typography, shadows
-- **Components**: `@aerojet/ui` — Button, Card, Input, Select, Textarea, Badge (Radix + CVA)
+- **Tokens**: CSS variables in `app/globals.css` — colors, spacing, typography, shadows
+- **Components**: Radix primitives + custom components in `components/ui/`
 - **Fonts**: Montserrat (display), Inter (sans), Outfit (alt) — loaded in `app/layout.tsx`
 - **CSS**: `app/globals.css` imports design tokens + Tailwind v4 `@theme` mapping
 
@@ -121,9 +141,11 @@ app/
 
 ### Forms
 
-- React Hook Form + Zod (`@hookform/resolvers/zod`)
+- Custom form components in `components/forms/` (TextInput, TextArea, Select, CheckItem, RadioItem, FileZone, BtnRow, etc.)
+- React Hook Form + Zod (`@hookform/resolvers/zod`) where applicable
 - Schemas in `lib/validation/`
 - Server-side validation in actions/API routes
+- `touched` state pattern: errors shown only after blur or submit attempt
 
 ## Performance Conventions
 
@@ -136,27 +158,31 @@ app/
 
 ## Testing
 
-- **Unit/Component**: Vitest (not yet configured — add if needed)
-- **E2E**: Playwright (not yet configured — add if needed)
+- **Unit/Component**: Vitest (configured — 49 tests in `tests/`)
+- **E2E**: Playwright (configured — 2 specs in `tests/e2e/`)
 
 ## Build & Deploy
 
 - **Output**: `output: 'standalone'` in `next.config.js` (Docker/standalone)
 - **Vercel**: Auto-deploy on push to `main`; preview on PRs
+- **Region**: `lhr1`
 - **Env vars**: Set in Vercel dashboard (not committed)
 - **Custom domain**: `careers.aerojet-aviation.com` (configure in Vercel)
+- **Security headers**: HSTS, X-XSS-Protection, Permissions-Policy in `vercel.json` + `next.config.js`
 
 ## Environment Variables
 
 Required in `.env.local` (see `.env.example`):
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+DATABASE_URL=
+DIRECT_URL=
+AUTH_SECRET=
 RESEND_API_KEY=
 EMAIL_FROM=
 NEXT_PUBLIC_APP_URL=https://careers.aerojet-aviation.com
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
 ```
 
 ## Verification

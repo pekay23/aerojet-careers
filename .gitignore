@@ -50,3 +50,5 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+.kilo/kilo.jsonc
+.vscode/settings.json
