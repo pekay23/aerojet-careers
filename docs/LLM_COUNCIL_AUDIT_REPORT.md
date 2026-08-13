@@ -15,7 +15,7 @@
 | 1 | P0 | PATCH `/api/admin/jobs` accepted arbitrary keys (no allowlist) | `ALLOWED_UPDATE_KEYS` array filters all fields in `app/api/admin/jobs/route.ts:133` |
 | 2 | P1 | No pagination on jobs admin list (loaded all rows) | Range-based pagination in GET endpoint + Prev/Next UI in `app/admin/jobs/page.tsx:230` |
 | 3 | P1 | `ref_code` accepted any string (risk of DB trigger format conflict) | Added `z.string().regex(/^[A-Z0-9-]{3,30}$/)` in `app/api/admin/jobs/route.ts:14` |
-| 4 | P2 | `published_at` never set when status changed to `'open'` | Auto-set in POST (`status='open'`) and PATCH (status transition to/from open) in `app/api/admin/jobs/route.ts:81,147` |
+| 4 | P2 | `published_at` never set when status changed to `'live'` | Auto-set in POST (`status='live'`) and PATCH (status transition to/from live) in `app/api/admin/jobs/route.ts:81,147` |
 | 5 | P2 | No audit log on job create/update/delete | `pipeline_events` inserts now fire on all three operations (`app/api/admin/jobs/route.ts:95,167,188`) |
 
 ### Data Integrity Fixes
@@ -121,7 +121,7 @@
 
 #### C5: RLS Policies
 - `app/api/admin/metadata/route.ts` GET is NOT behind auth (line 7: "Public access allowed") — correct, it's recruitment metadata.
-- The jobs table has `public_read_open_jobs` policy ✓ — only `status = 'open'` jobs are readable publicly.
+- The jobs table has `public_read_open_jobs` policy ✓ — only `status = 'live'` jobs are readable publicly.
 - The `jobs` INSERT/UPDATE/DELETE RLS requires `admin_users` existence (line 332-334) — but since the admin APIs use `supabaseAdmin` (service role), they bypass RLS ✓.
 
 ### D. DATABASE SCHEMA AUDIT (Chairman)
@@ -139,7 +139,7 @@
 | `system_settings` | ✅ | ✅ (settings API, homepage) | 4 settings seeded |
 | `branding_config` | ✅ | ✅ (email templates?) | 5 keys seeded |
 | `document_folders` | ✅ | ✅ (documents API) | 5 folders seeded |
-| `jobs` | ✅ | ✅ | Updated: 5 open, 11 draft |
+| `jobs` | ✅ | ✅ | Updated: 5 live, 12 draft |
 | `admin_users` | ❌ | ✅ | Seed via `seed-admin.js` (run manually) |
 | `staff_profiles` | ❌ | ✅ | Created on hire |
 | `applications` | ❌ | ✅ | Created via public form |
@@ -179,7 +179,7 @@
 | `closed` | No | No |
 | `filled` | No | No |
 
-**Finding:** `app/jobs/page.tsx` only fetches `status='open'` ✓. But `app/apply/[slug]/page.tsx` only fetches `status='open'` ✓ — it will 404 for any other status. This is correct behavior.
+**Finding:** `app/jobs/page.tsx` only fetches `status='live'` ✓. But `app/apply/[slug]/page.tsx` only fetches `status='live'` ✓ — it will 404 for any other status. This is correct behavior.
 
 #### E2: Application Status Lifecycle
 `new → under_review → shortlisted → interview → offer/hired | rejected | withdrawn | transferred_to_hr`

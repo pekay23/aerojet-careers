@@ -65,5 +65,5 @@ All 9 decisions have been resolved. Below is the selected option and implementat
 **Selected:** Option A (Recommended) — Use dynamic links.
 
 **Implementation:**
-- The homepage "Current Job Vacancies" link correctly points to `/jobs` (which filters for `status='open'`)
+- The homepage "Current Job Vacancies" link correctly points to `/jobs` (which filters for `status='live'`)
 - The direct job link `/apply/licensed-aircraft-engineers` is validated at the API level — if the slug doesn't match an open job, the public jobs page returns a 404 and redirects to `/jobs`
