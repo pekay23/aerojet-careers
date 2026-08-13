@@ -847,20 +847,19 @@
     font-size: 0.75rem;
     font-weight: 600;
   }
-  .pill-new          { background: var(--info-soft); color: var(--info); }
-  .pill-under-review { background: var(--warning-soft); color: var(--warning); }
-  .pill-shortlisted  { background: var(--info-soft); color: var(--info); border: 1px solid var(--info); }
-  .pill-interview    { background: var(--muted-bg); color: var(--aero-sky); }
+  .pill-new          { background: var(--info-soft); color: #004D5E; }
+  .pill-under-review { background: var(--warning-soft); color: #5c4a1f; }
+  .pill-shortlisted  { background: var(--info-soft); color: #004D5E; border: 1px solid var(--info); }
+  .pill-interview    { background: var(--muted-bg); color: #003366; }
 
-  .pill-offer        { background: var(--success-soft); color: var(--success); }
+  .pill-offer        { background: var(--success-soft); color: #1B5E20; }
   .pill-hired        { background: var(--aero-sky); color: white; }
-  .pill-rejected     { background: var(--danger-soft); color: var(--danger); }
-  .pill-transferred  { background: var(--info-soft); color: var(--info); border: 1px solid var(--info); }
-  .pill-open         { background: var(--success-soft); color: var(--success); }
-  .pill-draft        { background: var(--muted-bg); color: var(--muted-foreground); }
-
-  .pill-closed       { background: var(--danger-soft); color: var(--danger); }
-  .pill-paused       { background: var(--warning-soft); color: var(--warning); }
+  .pill-rejected     { background: var(--danger-soft); color: #991B1B; }
+  .pill-transferred  { background: var(--info-soft); color: #004D5E; border: 1px solid var(--info); }
+  .pill-open         { background: var(--success-soft); color: #1B5E20; }
+  .pill-draft        { background: var(--muted-bg); color: #334155; }
+  .pill-closed       { background: var(--danger-soft); color: #991B1B; }
+  .pill-paused       { background: var(--warning-soft); color: #E65100; }
 
   /* Section label */
   .section-label {
@@ -950,7 +949,7 @@
     width: 100%;
     padding: 0.875rem 1.25rem;
     background: #F8FAFC;             /* slate-50 */
-    border: 1px solid #F1F5F9;       /* slate-100 */
+    border: 1px solid #e2e8f0;       /* slate-200 */
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 700;
@@ -1035,6 +1034,11 @@
   .admin-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .admin-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
   .admin-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
   .container-narrow { max-width: 720px; }
   .container-default { max-width: 880px; }

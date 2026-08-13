@@ -315,7 +315,7 @@ ALTER TABLE email_logs                ENABLE ROW LEVEL SECURITY;
 ALTER TABLE branding_config           ENABLE ROW LEVEL SECURITY;
 
 -- Public can read open jobs
-CREATE POLICY "public_read_open_jobs" ON jobs FOR SELECT USING (status = 'open');
+CREATE POLICY "public_read_open_jobs" ON jobs FOR SELECT USING (status = 'live');
 
 -- Public can submit applications and register
 CREATE POLICY "public_insert_applications"  ON applications              FOR INSERT WITH CHECK (true);

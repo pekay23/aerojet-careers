@@ -100,11 +100,11 @@ export default function OrganizationPage() {
            <div className="space-y-6 relative z-10">
               <div className="flex items-center gap-3">
                  <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded-lg uppercase tracking-widest shadow-lg shadow-blue-500/30">Enterprise v2.0</span>
-                 <h2 className="text-[10px] font-bold tracking-[0.4em] text-slate-400 uppercase">Aerojet Aviation Group</h2>
+                  <h2 className="text-[10px] font-bold tracking-[0.4em] text-slate-500 uppercase">Aerojet Aviation Group</h2>
               </div>
               <div>
                  <h1 className="text-6xl font-black text-slate-900 tracking-tighter uppercase leading-[0.9]">Organizational<br/><span className="text-blue-600">Structure</span></h1>
-                 <p className="mt-6 text-sm font-bold text-slate-400 max-w-sm leading-relaxed uppercase tracking-tight">
+                  <p className="mt-6 text-sm font-bold text-slate-500 max-w-sm leading-relaxed uppercase tracking-tight">
                     Dynamic visualization of reporting hierarchies and real-time departmental resource allocation.
                  </p>
               </div>
@@ -123,7 +123,7 @@ export default function OrganizationPage() {
                       <stat.icon size={20} />
                    </div>
                    <div>
-                      <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-0.5">{stat.label}</p>
+                       <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-0.5">{stat.label}</p>
                       <p className="text-xl font-bold text-slate-900 tracking-tight">{stat.value}</p>
                    </div>
                 </div>
@@ -138,7 +138,7 @@ export default function OrganizationPage() {
                 onClick={() => setActiveView('chart')}
                 className={cn(
                   "px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3",
-                  activeView === 'chart' ? "bg-slate-900 text-white shadow-xl" : "text-slate-400 hover:text-slate-900"
+                   activeView === 'chart' ? "bg-slate-900 text-white shadow-xl" : "text-slate-500 hover:text-slate-900"
                 )}
               >
                 <Network size={16} />
@@ -148,7 +148,7 @@ export default function OrganizationPage() {
                 onClick={() => setActiveView('budget')}
                 className={cn(
                   "px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3",
-                  activeView === 'budget' ? "bg-slate-900 text-white shadow-xl" : "text-slate-400 hover:text-slate-900"
+                   activeView === 'budget' ? "bg-slate-900 text-white shadow-xl" : "text-slate-500 hover:text-slate-900"
                 )}
               >
                 <DollarSign size={16} />
@@ -161,7 +161,7 @@ export default function OrganizationPage() {
                 <button 
                   onClick={handleAutoInit}
                   disabled={initializing}
-                  className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-400 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                  className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-400 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
                   title="Populate reporting lines from existing database"
                 >
                   <RefreshCw size={14} className={initializing ? "animate-spin" : ""} />
@@ -181,7 +181,7 @@ export default function OrganizationPage() {
                   </div>
                   <div>
                      <h4 className="text-sm font-bold text-blue-900 uppercase tracking-tight">Interactive Visualizer</h4>
-                     <p className="text-xs font-bold text-blue-800/60 leading-relaxed uppercase mt-1">
+                      <p className="text-xs font-bold text-blue-800 leading-relaxed uppercase mt-1">
                         Use the handles to update reporting relationships. All changes are persisted in real-time to the Aerojet ERP dataset.
                      </p>
                   </div>

@@ -172,12 +172,12 @@ export default function TalentPoolPage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100/50">
-                    <th className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Candidate</th>
-                    <th className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Interests</th>
-                    <th className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Location</th>
-                    <th className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Experience</th>
-                    <th className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Date Registered</th>
-                    <th className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
+                     <th scope="col" className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">Candidate</th>
+                     <th scope="col" className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">Interests</th>
+                     <th scope="col" className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">Location</th>
+                     <th scope="col" className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">Experience</th>
+                     <th scope="col" className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">Date Registered</th>
+                     <th scope="col" className="px-4 lg:px-8 py-3 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">

@@ -150,7 +150,7 @@ export default function HRPage() {
                       />
                     </th>
                     {['Candidate','Role','Nationality','Start Date'].map(h => (
-                      <th key={h} className="px-4 lg:px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100">
+                      <th key={h} scope="col" className="px-4 lg:px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">
                         {h}
                       </th>
                     ))}

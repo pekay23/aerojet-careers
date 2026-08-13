@@ -51,9 +51,7 @@ function getPool(): Pool {
       max: 10,
       idleTimeoutMillis: 30_000,
     })
-    if (process.env.NODE_ENV !== 'production') {
-      globalForPool.__neonPool = poolInstance
-    }
+    globalForPool.__neonPool = poolInstance
   }
   return poolInstance
 }

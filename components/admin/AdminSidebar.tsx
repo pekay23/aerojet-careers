@@ -65,15 +65,16 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar,
       {/* Desktop sidebar — part of flex layout, not fixed overlay */}
       <aside
         className={cn(
-          'hidden h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out lg:flex',
-          sidebarOpen ? 'w-64' : 'w-20'
+          'hidden h-screen shrink-0 flex-col border-r border-slate-200 transition-all duration-300 ease-in-out lg:flex',
+          sidebarOpen ? 'w-64' : 'w-20',
+          'bg-[#0F172A]'
         )}
         aria-label="Admin navigation"
       >
         {/* Logo */}
         <div
           className={cn(
-            'flex h-16 items-center gap-3 border-b border-slate-100 px-4 transition-all duration-300',
+            'flex h-16 items-center gap-3 border-b border-slate-700 px-4 transition-all duration-300',
             sidebarOpen ? 'justify-start' : 'justify-center'
           )}
         >
@@ -82,17 +83,17 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar,
           </Link>
           {sidebarOpen && (
             <div className="overflow-hidden">
-              <p className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-aerojet-blue">Aerojet Careers</p>
-              <p className="whitespace-nowrap text-[10px] text-slate-400">Recruitment Portal</p>
+              <p className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-[#60A5FA]">Aerojet Careers</p>
+              <p className="whitespace-nowrap text-[10px] text-slate-500">Recruitment Portal</p>
             </div>
           )}
           {sidebarOpen && (
-            <button onClick={onToggleSidebar} className="ml-auto hidden rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 lg:block" aria-label="Collapse sidebar">
+            <button onClick={onToggleSidebar} className="ml-auto hidden rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 lg:block" aria-label="Collapse sidebar">
               <ChevronLeft className="h-4 w-4" />
             </button>
           )}
           {!sidebarOpen && (
-            <button onClick={onToggleSidebar} className="ml-auto hidden rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 lg:block" aria-label="Expand sidebar">
+            <button onClick={onToggleSidebar} className="ml-auto hidden rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 lg:block" aria-label="Expand sidebar">
               <ChevronRight className="h-4 w-4" />
             </button>
           )}
@@ -115,7 +116,7 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar,
                       title={!sidebarOpen ? link.label : undefined}
                       className={cn(
                         'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                        isActive ? 'bg-aerojet-blue/10 font-semibold text-aerojet-blue' : 'text-slate-700 hover:bg-slate-50 hover:text-aerojet-blue',
+                        isActive ? 'bg-aerojet-blue/10 font-semibold text-aerojet-blue' : 'text-slate-300 hover:bg-slate-800 hover:text-slate-100',
                         !sidebarOpen && 'justify-center'
                       )}
                     >
@@ -138,7 +139,7 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar,
               rel="noreferrer"
               title={!sidebarOpen ? 'View Public Site' : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-all hover:bg-slate-50 hover:text-slate-700',
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200',
                 !sidebarOpen && 'justify-center'
               )}
             >
@@ -168,12 +169,12 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar,
       )}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 ease-in-out lg:hidden',
+          'fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-700 bg-[#0F172A] transition-transform duration-300 ease-in-out lg:hidden',
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
         aria-label="Admin navigation mobile"
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-100 px-4">
+        <div className="flex h-16 items-center justify-between border-b border-slate-700 px-4">
           <Link href="/admin/dashboard" className="flex h-9 w-9 items-center justify-center rounded-lg bg-aerojet-blue">
             <img src="/images/aalogowhite-BCKBvd3h.png" alt="Aerojet" className="h-6 w-6 object-contain" />
           </Link>
@@ -191,7 +192,7 @@ export default function AdminSidebar({ sidebarOpen, mobileOpen, onToggleSidebar,
                     key={link.href}
                     href={link.href}
                     onClick={onToggleMobile}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300"
                   >
                     <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>{link.label}</span>

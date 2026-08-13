@@ -113,8 +113,6 @@ async function main() {
 
   const client = await pool.connect()
   try {
-    await cleanupJobs(client)
-
     await deduplicateFolders(client)
 
     await applySchema(client)
@@ -145,7 +143,7 @@ async function main() {
     console.log(`\nVerification: ${indexRes.rowCount} indexes confirmed in database.`)
 
     const seedRes = await client.query(
-      "SELECT slug, title, status FROM jobs WHERE status = 'open' ORDER BY created_at DESC"
+      "SELECT slug, title, status FROM jobs WHERE status = 'live' ORDER BY created_at DESC"
     )
     console.log(`\nSeed verification: ${seedRes.rowCount} open jobs:`)
     seedRes.rows.forEach((r) => console.log(`  - ${r.title} (${r.slug})`))

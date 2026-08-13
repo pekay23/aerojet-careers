@@ -205,10 +205,10 @@ export default function SettingsPage() {
                      <table className="w-full text-left border-collapse">
                         <thead>
                            <tr className="bg-white">
-                              <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50">Action Category</th>
-                              <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50">Description</th>
-                              <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50">Initiated By</th>
-                              <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50 text-right">Timestamp</th>
+                               <th scope="col" className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-50">Action Category</th>
+                               <th scope="col" className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-50">Description</th>
+                               <th scope="col" className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-50">Initiated By</th>
+                               <th scope="col" className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-50 text-right">Timestamp</th>
                            </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 bg-white">

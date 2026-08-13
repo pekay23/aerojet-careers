@@ -22,7 +22,7 @@ export default function FastTrackModal({ talent, isOpen, onClose, onSuccess }: F
   useEffect(() => {
     if (isOpen) {
       setLoading(true)
-      fetch('/api/admin/jobs?status=open')
+      fetch('/api/admin/jobs?status=live')
         .then(res => res.json())
         .then(({ data }) => {
           setJobs(data?.data || data || [])

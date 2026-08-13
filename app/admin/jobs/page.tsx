@@ -367,12 +367,13 @@ export default function JobsAdminPage() {
                      const colKey = SORTABLE_COLUMNS[h]
                      const sortable = !!colKey
                      return (
-                     <th
-                       key={h}
-                       className="px-3 py-2 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100"
-                       onClick={sortable ? () => setSort(colKey) : undefined}
-                       style={sortable ? { cursor: 'pointer', userSelect: 'none' } : undefined}
-                     >
+                      <th
+                        key={h}
+                        scope="col"
+                        className="px-3 py-2 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-500 border-b border-slate-100"
+                        onClick={sortable ? () => setSort(colKey) : undefined}
+                        style={sortable ? { cursor: 'pointer', userSelect: 'none' } : undefined}
+                      >
                        <div className="flex items-center gap-1">
                          {h}
                          {sortable && sortCol === colKey && (

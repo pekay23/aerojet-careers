@@ -52,3 +52,5 @@ next-env.d.ts
 Thumbs.db
 .kilo/kilo.jsonc
 .vscode/settings.json
+.vercel
+.env*

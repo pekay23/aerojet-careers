@@ -196,9 +196,9 @@ export default function ApplicationsPage() {
            ].map((stat, i) => (
              <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm group hover:border-blue-200 transition-all flex items-start justify-between">
                 <div className="space-y-1">
-                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
                    <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                   <p className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">{stat.desc}</p>
+                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{stat.desc}</p>
                 </div>
                 <div className={cn("p-3 rounded-xl transition-all shadow-lg shadow-black/5", 
                   stat.color === 'blue' ? "bg-blue-50 text-blue-600" :
@@ -220,13 +220,13 @@ export default function ApplicationsPage() {
             <div className="flex bg-slate-100 p-1 rounded-xl shrink-0">
                <button 
                  onClick={() => setViewMode('list')}
-                 className={cn("px-4 py-2 text-[9px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all flex items-center gap-2", viewMode === 'list' ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600")}
+                  className={cn("px-4 py-2 text-[9px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all flex items-center gap-2", viewMode === 'list' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-900")}
                >
                   <TableIcon size={14} /> List View
                </button>
                <button 
                  onClick={() => setViewMode('pipeline')}
-                 className={cn("px-4 py-2 text-[9px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all flex items-center gap-2", viewMode === 'pipeline' ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600")}
+                  className={cn("px-4 py-2 text-[9px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all flex items-center gap-2", viewMode === 'pipeline' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-900")}
                >
                   <Layers size={14} /> Selection Process
                </button>
@@ -243,7 +243,7 @@ export default function ApplicationsPage() {
             </div>
             
             <div className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl">
-               <Filter size={14} className="text-slate-400" />
+                <Filter size={14} className="text-slate-500" />
                <select 
                  value={status} 
                  onChange={e => { setStatus(e.target.value); setPage(1) }} 
@@ -286,7 +286,7 @@ export default function ApplicationsPage() {
               {loading ? (
                 <div className="py-24 flex flex-col items-center justify-center space-y-4">
                    <div className="w-8 h-8 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Updating Selection Process…</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest animate-pulse">Updating Selection Process…</p>
                 </div>
               ) : apps.length === 0 ? (
                 <div className="py-20">
@@ -305,7 +305,7 @@ export default function ApplicationsPage() {
                           />
                         </th>
                         {['Applicant','Role','Profile','Status','Submitted','Actions'].map(h => (
-                          <th key={h} className="px-4 lg:px-8 py-4 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100">
+                          <th key={h} className="px-4 lg:px-8 py-4 lg:py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 border-b border-slate-100">
                             {h}
                           </th>
                         ))}
@@ -329,36 +329,36 @@ export default function ApplicationsPage() {
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <div className="flex flex-col">
                               <span className="text-sm font-bold text-slate-900 group-hover/row:text-blue-600 transition-colors uppercase tracking-tight">{a.first_name} {a.last_name}</span>
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{a.email}</span>
+                               <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{a.email}</span>
                               <span className="text-[9px] font-bold text-blue-400 uppercase tracking-tighter mt-0.5">{a.ref_code}</span>
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6 max-w-[180px]">
                             <div className="flex flex-col">
                               <span className="text-[11px] font-bold text-slate-900 uppercase tracking-tight truncate">{a.job_title || 'General Application'}</span>
-                              <span className="text-[9px] font-bold text-slate-300 uppercase truncate">{a.qualifications?.licence_type}</span>
+                               <span className="text-[9px] font-bold text-slate-500 uppercase truncate">{a.qualifications?.licence_type}</span>
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <div className="flex flex-col">
                               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">{a.nationality}</span>
-                              <span className="text-[9px] font-bold text-slate-300 uppercase truncate">{a.experience?.total_years_exp || '0'} YRS EXP</span>
+                               <span className="text-[9px] font-bold text-slate-500 uppercase truncate">{a.experience?.total_years_exp || '0'} YRS EXP</span>
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <StatusPill status={a.status} />
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
-                             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                               <Clock size={12} className="text-slate-200" />
+                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                                <Clock size={12} className="text-slate-400" />
                                {new Date(a.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                              <div className="flex items-center gap-2">
-                                <button 
-                                  className="p-3 bg-slate-100 text-slate-400 rounded-xl group-hover/row:bg-blue-600 group-hover/row:text-white transition-all"
-                                >
+                                 <button 
+                                   className="p-3 bg-slate-100 text-slate-500 rounded-xl group-hover/row:bg-blue-600 group-hover/row:text-white transition-all"
+                                 >
                                    <ArrowRight size={16} strokeWidth={3} />
                                 </button>
                              </div>
@@ -373,14 +373,14 @@ export default function ApplicationsPage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                     Showing {((page - 1) * 25) + 1} to {Math.min(page * 25, total)} of {total} entries
                   </span>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setPage(p => Math.max(1, p - 1))} 
                       disabled={page === 1} 
-                      className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 disabled:opacity-30 hover:text-slate-900 transition-all font-sans"
+                       className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 disabled:opacity-30 hover:text-slate-900 transition-all font-sans"
                     >
                       ← Previous
                     </button>

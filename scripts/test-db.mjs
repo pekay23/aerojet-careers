@@ -33,7 +33,7 @@ try {
   console.log('admin_users count:', adminUsers.rows.length)
   adminUsers.rows.forEach(r => console.log('  ', r.email, r.role, r.is_active, 'auth_id:', r.auth_user_id))
 
-  const jobs = await client.query("SELECT id, title, slug, status FROM jobs WHERE status = 'open'")
+  const jobs = await client.query("SELECT id, title, slug, status FROM jobs WHERE status = 'live'")
   console.log('open jobs count:', jobs.rows.length)
   jobs.rows.forEach(r => console.log('  ', r.title, r.slug, r.status))
 
