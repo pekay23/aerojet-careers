@@ -17,23 +17,31 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const { data: job } = await supabaseAdmin.from('jobs').select('title,summary').eq('slug', slug).single()
+  const { data: job, error } = await supabaseAdmin.from('jobs').select('title,summary').eq('slug', slug).single()
+
+  if (error || !job) {
+    return {
+      title: 'Apply',
+      description: 'Apply for a role at Aerojet Aviation.',
+    }
+  }
+
   return {
-    title: job?.title || 'Apply',
-    description: job?.summary || 'Apply for a role at Aerojet Aviation.',
+    title: job.title || 'Apply',
+    description: job.summary || 'Apply for a role at Aerojet Aviation.',
   }
 }
 
 export default async function ApplyPage({ params }: Props) {
   const { slug } = await params
-  const { data: job } = await supabaseAdmin
+  const { data: job, error } = await supabaseAdmin
     .from('jobs')
     .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at')
     .eq('slug', slug)
     .eq('status', 'live')
     .single()
 
-  if (!job) notFound()
+  if (error || !job) notFound()
 
   const j = job as Job
 
