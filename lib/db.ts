@@ -40,21 +40,42 @@ function getConnectionString(): string {
   return cs
 }
 
-export const pool: Pool =
-  globalForPool.__neonPool ??
-  new Pool({
-    connectionString: getConnectionString(),
-    ssl: { rejectUnauthorized: false },
-    max: 10,
-    idleTimeoutMillis: 30_000,
-  })
+let poolInstance: Pool | null = null
 
-globalForPool.__neonPool = pool
+function getPool(): Pool {
+  if (!poolInstance) {
+    const cs = getConnectionString()
+    poolInstance = new Pool({
+      connectionString: cs,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30_000,
+    })
+    if (process.env.NODE_ENV !== 'production') {
+      globalForPool.__neonPool = poolInstance
+    }
+  }
+  return poolInstance
+}
 
 export async function query<T = any>(text: string, params: any[] = []) {
-  const res = await pool.query(text, params)
+  const res = await getPool().query(text, params)
   return res.rows as T[]
 }
+
+// Backwards-compatible `pool` export for modules that still do `pool.query(...)`.
+// Lazily initializes on first access so module import never throws because of
+// a missing DATABASE_URL during Next.js static generation / build.
+export const pool = new Proxy({} as Pool, {
+  get(_, prop) {
+    const p = getPool()
+    const val = (p as any)[prop]
+    if (typeof val === 'function') {
+      return (...args: any[]) => (val as any).call(p, ...args)
+    }
+    return val
+  },
+})
 
 // ── Identifier quoting ────────────────────────────────────────
 function qi(ident: string): string {
@@ -465,7 +486,7 @@ class QueryBuilder implements PromiseLike<any> {
     if (this.countMode === 'exact') {
       const countParams: any[] = []
       const countWhere = this.buildWhere(countParams, 't')
-      const cRes = await pool.query(
+      const cRes = await getPool().query(
         `SELECT COUNT(*)::int AS n FROM ${qi(this.table)} t ${countWhere}`,
         countParams
       )
@@ -479,7 +500,7 @@ class QueryBuilder implements PromiseLike<any> {
     const sql = `SELECT ${selectList} FROM ${qi(
       this.table
     )} t ${where} ${orderBy} ${limitOffset}`.trim()
-    const res = await pool.query(sql, params)
+    const res = await getPool().query(sql, params)
     let rows: any = res.rows
 
     if (this.single_ || this.maybeSingle_) {
@@ -527,7 +548,7 @@ class QueryBuilder implements PromiseLike<any> {
     const sql = `INSERT INTO ${qi(this.table)} (${cols
       .map(qi)
       .join(', ')}) VALUES ${valuesSql} ${returning}`
-    const res = await pool.query(sql, params)
+    const res = await getPool().query(sql, params)
     return this.finalizeWrite(res.rows)
   }
 
@@ -572,7 +593,7 @@ class QueryBuilder implements PromiseLike<any> {
     const sql = `INSERT INTO ${qi(this.table)} (${cols
       .map(qi)
       .join(', ')}) VALUES ${valuesSql} ${conflictClause} RETURNING *`
-    const res = await pool.query(sql, params)
+    const res = await getPool().query(sql, params)
     return this.finalizeWrite(res.rows)
   }
 
@@ -586,7 +607,7 @@ class QueryBuilder implements PromiseLike<any> {
       .join(', ')
     const where = this.buildWhere(params) // no alias for update
     const sql = `UPDATE ${qi(this.table)} SET ${setSql} ${where} RETURNING *`
-    const res = await pool.query(sql, params)
+    const res = await getPool().query(sql, params)
     return this.finalizeWrite(res.rows)
   }
 
@@ -594,7 +615,7 @@ class QueryBuilder implements PromiseLike<any> {
     const params: any[] = []
     const where = this.buildWhere(params)
     const sql = `DELETE FROM ${qi(this.table)} ${where} RETURNING *`
-    const res = await pool.query(sql, params)
+    const res = await getPool().query(sql, params)
     return this.finalizeWrite(res.rows)
   }
 
