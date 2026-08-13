@@ -45,14 +45,6 @@ let poolInstance: Pool | null = null
 function getPool(): Pool {
   if (!poolInstance) {
     const cs = getConnectionString()
-    let hostForLog = 'unknown'
-    try {
-      const u = new URL(cs)
-      hostForLog = u.host
-    } catch {
-      hostForLog = 'invalid-url'
-    }
-    console.log('[db][diag] DATABASE_URL host=', hostForLog, 'NODE_ENV=', process.env.NODE_ENV)
     poolInstance = new Pool({
       connectionString: cs,
       ssl: { rejectUnauthorized: false },

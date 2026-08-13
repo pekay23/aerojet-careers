@@ -26,13 +26,11 @@ export default async function JobsPage() {
       .order('created_at', { ascending: false })
 
     if (result.error) {
-      console.error('[jobs-page][db-error]', result.error)
       loadError = result.error.message || 'Failed to load job listings'
     } else {
       jobs = result.data || []
     }
   } catch (err: any) {
-    console.error('[jobs-page][db-exception]', err)
     loadError = err.message || 'Unexpected error loading jobs'
   }
 
