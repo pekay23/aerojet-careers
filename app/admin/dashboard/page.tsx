@@ -44,7 +44,7 @@ export default async function AdminDashboardPage() {
     hiredCount,
     settingsRes
   ] = await Promise.all([
-    fetchCount('jobs', { col: 'status', val: 'open' }),
+    fetchCount('jobs', { col: 'status', val: 'live' }),
     fetchCount('jobs'),
     fetchCount('applications'),
     fetchCount('talent_pool'),

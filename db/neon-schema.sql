@@ -35,7 +35,7 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE job_status AS ENUM ('draft','open','paused','closed','filled');
+  CREATE TYPE job_status AS ENUM ('draft','live');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
@@ -546,17 +546,17 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 -- ── Seed: upsert job postings (update existing, insert new) ──────────
 -- Uses temp table + UPDATE/INSERT to avoid requiring ON CONFLICT
 -- (which needs a unique constraint that may not exist on legacy data).
--- 5 core positions seeded as 'open' (publicly visible).
+-- 5 core positions seeded as 'live' (publicly visible).
 -- All others are 'draft' (hidden from candidates).
 -- Existing jobs are updated by slug (preserving their IDs and ref_codes).
 
 CREATE TEMP TABLE seed_jobs AS
 SELECT * FROM (VALUES
-  ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional', 'full_time', 'open',  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2025-12-31'::date),
-  ('Aircraft Mechanics (AME)',            'aircraft-mechanics',              'Engineering', 'experienced_professional', 'full_time', 'open',  15, 'Experienced aircraft maintenance engineers for line and base maintenance operations.',            ARRAY['Line Maintenance','A-Checks','Defect Rectification'],                           '2025-12-31'),
-  ('Avionics Technicians',                'avionics-technicians',            'Engineering', 'experienced_professional', 'full_time', 'open',   6, 'EASA B2 licensed avionics and electrical systems engineers.',                                     ARRAY['EASA B2','Avionics','IFE','Navigation Systems'],                                '2025-12-31'),
-  ('Quality Compliance Officer/Supervisor','quality-compliance-supervisor',  'Quality',     'experienced_professional', 'full_time', 'open',   3, 'QA engineers to develop and maintain our EASA Part-145 quality management system.',              ARRAY['EASA Part-145','QA','Compliance','Auditing'],                                   '2025-12-31'),
-  ('Quality Manager',                     'quality-manager',                 'Quality',     'experienced_professional', 'full_time', 'open',   1, 'Head of Quality to lead EASA Part-145 compliance, audits, and the QMS team.',                    ARRAY['EASA Part-145','Quality Management','Auditing','Compliance'],                    '2025-12-31'),
+  ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional', 'full_time', 'live',  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2025-12-31'::date),
+  ('Aircraft Mechanics (AME)',            'aircraft-mechanics',              'Engineering', 'experienced_professional', 'full_time', 'live',  15, 'Experienced aircraft maintenance engineers for line and base maintenance operations.',            ARRAY['Line Maintenance','A-Checks','Defect Rectification'],                           '2025-12-31'),
+  ('Avionics Technicians',                'avionics-technicians',            'Engineering', 'experienced_professional', 'full_time', 'live',   6, 'EASA B2 licensed avionics and electrical systems engineers.',                                     ARRAY['EASA B2','Avionics','IFE','Navigation Systems'],                                '2025-12-31'),
+  ('Quality Compliance Officer/Supervisor','quality-compliance-supervisor',  'Quality',     'experienced_professional', 'full_time', 'live',   3, 'QA engineers to develop and maintain our EASA Part-145 quality management system.',              ARRAY['EASA Part-145','QA','Compliance','Auditing'],                                   '2025-12-31'),
+  ('Quality Manager',                     'quality-manager',                 'Quality',     'experienced_professional', 'full_time', 'live',   1, 'Head of Quality to lead EASA Part-145 compliance, audits, and the QMS team.',                    ARRAY['EASA Part-145','Quality Management','Auditing','Compliance'],                    '2025-12-31'),
   ('Engine Technicians',                  'engine-technicians',              'Engineering', 'experienced_professional', 'full_time', 'draft',  8, 'Powerplant technicians with CFM56, CFM LEAP or GE90 experience.',                                ARRAY['CFM56','CFM LEAP','GE90','Powerplant'],                                         NULL),
   ('Structures, Skins & Composites',      'composites-technicians',          'Engineering', 'experienced_professional', 'full_time', 'draft',  4, 'Structural repair and composites technicians with NDT experience.',                               ARRAY['NDT','Composite Repair','Structural Repair'],                                   NULL),
   ('Ground Handling & Marshalling',       'ground-handling-operatives',      'Operations',  'experienced_professional', 'full_time', 'draft', 10, 'Ramp operatives for aircraft ground handling, marshalling and airside operations.',              ARRAY['Ramp Operations','Aircraft Marshalling','Ground Safety','IATA DG'],             NULL),

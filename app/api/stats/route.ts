@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
       supabaseAdmin
         .from('jobs')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'open'),
+        .eq('status', 'live'),
 
       supabaseAdmin
         .from('departments')

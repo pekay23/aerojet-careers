@@ -46,10 +46,10 @@ describe('verifyRole', () => {
 
 describe('sanitizeJobUpdate', () => {
   it('strips disallowed keys from a job update payload', () => {
-    const raw = { title: 'Updated', status: 'open', created_by: 'evil', ref_code: 'HACK' }
+    const raw = { title: 'Updated', status: 'live', created_by: 'evil', ref_code: 'HACK' }
     const safe = sanitizeJobUpdate(raw)
     expect(safe).toHaveProperty('title', 'Updated')
-    expect(safe).toHaveProperty('status', 'open')
+    expect(safe).toHaveProperty('status', 'live')
     expect(safe).not.toHaveProperty('created_by')
     expect(safe).not.toHaveProperty('ref_code')
   })

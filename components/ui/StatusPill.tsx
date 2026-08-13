@@ -15,11 +15,8 @@ const STATUS_CLASS: Record<string, string> = {
   rejected: 'pill pill-rejected',
   transferred_to_hr: 'pill pill-transferred',
   withdrawn: 'pill pill-draft',
-  open: 'pill pill-open',
+  live: 'pill pill-open',
   draft: 'pill pill-draft',
-  closed: 'pill pill-closed',
-  paused: 'pill pill-paused',
-  filled: 'pill pill-hired',
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -32,11 +29,8 @@ const STATUS_LABEL: Record<string, string> = {
   rejected: 'Rejected',
   transferred_to_hr: 'Transferred to HR',
   withdrawn: 'Withdrawn',
-  open: 'Open',
+  live: 'Live',
   draft: 'Draft',
-  closed: 'Closed',
-  paused: 'Paused',
-  filled: 'Filled',
 }
 
 export function StatusPill({ status }: { status: string }) {

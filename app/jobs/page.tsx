@@ -17,7 +17,7 @@ export default async function JobsPage() {
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
     .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at')
-    .eq('status', 'open')
+    .eq('status', 'live')
     .order('created_at', { ascending: false })
 
   return (

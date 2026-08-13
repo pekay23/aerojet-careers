@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, ALLOWED_UPDATE_KEYS, sanitizeErrorMessage } from '@/lib/api-utils'
 
-const JobStatusSchema = z.enum(['draft', 'open', 'paused', 'closed', 'filled'])
+const JobStatusSchema = z.enum(['draft', 'live'])
 const JobCategorySchema = z.enum(['experienced_professional', 'graduate_program', 'skilled_training', 'general_application'])
 const EmploymentTypeSchema = z.enum(['full_time', 'part_time', 'contract', 'trainee', 'internship'])
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       return ApiResponse.error(`Department "${v.department}" does not exist. Create it first.`, 400)
     }
     const slug = v.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-    const isPublishing = v.status === 'open'
+    const isPublishing = v.status === 'live'
 
     const { data, error } = await supabaseAdmin
       .from('jobs')
@@ -169,10 +169,10 @@ export async function PATCH(req: NextRequest) {
     const prevStatus = prev.data?.status
     const prevPublished = prev.data?.published_at
 
-    if (updates.status === 'open' && !updates.published_at) {
+    if (updates.status === 'live' && !updates.published_at) {
       if (!prevPublished) updates.published_at = new Date().toISOString()
     }
-    if (updates.status && updates.status !== 'open' && !('published_at' in updates)) {
+    if (updates.status && updates.status !== 'live' && !('published_at' in updates)) {
       if (prevPublished) updates.published_at = null
     }
 

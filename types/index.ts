@@ -2,7 +2,7 @@ export type ApplicationStatus =
   | 'new' | 'under_review' | 'shortlisted' | 'interview'
   | 'offer' | 'hired' | 'rejected' | 'transferred_to_hr' | 'withdrawn'
 
-export type JobStatus   = 'draft' | 'open' | 'paused' | 'closed' | 'filled'
+export type JobStatus   = 'draft' | 'live'
 export type JobCategory = 'experienced_professional' | 'graduate_program' | 'skilled_training' | 'general_application'
 export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'trainee' | 'internship'
 export type AdminRole = 'super_admin' | 'admin' | 'hr_manager' | 'recruiter' | 'employee' | 'read_only'

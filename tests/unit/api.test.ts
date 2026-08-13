@@ -9,7 +9,7 @@ describe('Jobs API pagination', () => {
       limit: '50',
       sort: 'created_at',
       dir: 'desc',
-      status: 'open',
+      status: 'live',
     }
 
     const p = new URLSearchParams(validParams)

@@ -188,7 +188,7 @@ export default function JobsAdminPage() {
       category: form.category,
       employment_type: form.employment_type,
       location: form.location || 'Accra, Ghana (AIA)',
-      status: publishNow ? 'open' : form.status || 'draft',
+       status: publishNow ? 'live' : form.status || 'draft',
       target_count: form.open_positions ? null : (form.target_count ? Number(form.target_count) : null),
       closes_at: form.indefinite_deadline ? null : (form.closes_at || null),
       summary: form.summary || null,
@@ -252,12 +252,12 @@ export default function JobsAdminPage() {
   }
 
   const toggleVisibility = async (j: Job) => {
-    const newStatus = j.status === 'open' ? 'draft' : 'open'
-    const action = newStatus === 'open' ? 'publish' : 'unpublish'
+    const newStatus = j.status === 'live' ? 'draft' : 'live'
+    const action = newStatus === 'live' ? 'publish' : 'unpublish'
     openConfirm({
       title: `${action === 'publish' ? 'Publish' : 'Unpublish'} job posting?`,
-      description: `"${j.title}" will be ${newStatus === 'open' ? 'visible on the careers page' : 'hidden from the careers page'}.`,
-      confirmLabel: newStatus === 'open' ? 'Publish' : 'Hide',
+      description: `"${j.title}" will be ${newStatus === 'live' ? 'visible on the careers page' : 'hidden from the careers page'}.`,
+      confirmLabel: newStatus === 'live' ? 'Publish' : 'Hide',
       onConfirm: async () => {
         try {
           const res = await fetch('/api/admin/jobs', {
@@ -269,36 +269,7 @@ export default function JobsAdminPage() {
             const d = await res.json()
             toast.error(d.error || 'Failed to update visibility')
           } else {
-            toast.success(`Job ${newStatus === 'open' ? 'published' : 'moved to draft'}`)
-            setRefreshKey(k => k + 1)
-          }
-        } catch (err: any) {
-          toast.error(err.message || 'Network error')
-        }
-      },
-    })
-  }
-
-  const toggleStatus = async (j: Job) => {
-    const statuses = ['draft', 'open', 'paused', 'closed', 'filled']
-    const idx = statuses.indexOf(j.status)
-    const newStatus = statuses[(idx + 1) % statuses.length]
-      openConfirm({
-      title: `Change status to ${newStatus}?`,
-      description: `"${j.title}" will move from "${j.status}" to "${newStatus}".`,
-      confirmLabel: 'Update',
-      onConfirm: async () => {
-        try {
-          const res = await fetch('/api/admin/jobs', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: j.id, status: newStatus }),
-          })
-          if (!res.ok) {
-            const d = await res.json()
-            toast.error(d.error || 'Failed to update status')
-          } else {
-            toast.success(`Status changed to ${newStatus}`)
+            toast.success(`Job ${newStatus === 'live' ? 'published' : 'moved to draft'}`)
             setRefreshKey(k => k + 1)
           }
         } catch (err: any) {
@@ -337,10 +308,10 @@ export default function JobsAdminPage() {
         {/* Toolbar */}
         <div className="px-4 lg:px-8 py-4 lg:py-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center">
           <div className="flex items-center gap-3">
-            <select value={statusF} onChange={e => setStatusF(e.target.value)} className="admin-input text-xs uppercase tracking-widest cursor-pointer appearance-none min-w-40">
-              <option value="">All statuses</option>
-              {['open','draft','closed','paused','filled'].map(s => <option key={s}>{s}</option>)}
-            </select>
+          <select value={statusF} onChange={e => setStatusF(e.target.value)} className="admin-input text-xs uppercase tracking-widest cursor-pointer appearance-none min-w-40">
+            <option value="">All statuses</option>
+            {['live','draft'].map(s => <option key={s}>{s}</option>)}
+          </select>
           </div>
           
           <div className="md:ml-auto flex items-center gap-6">
@@ -388,19 +359,8 @@ export default function JobsAdminPage() {
 
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
-              <colgroup>
-                <col style={{ width: '22%' }} />
-                <col style={{ width: '12%' }} />
-                <col style={{ width: '11%' }} />
-                <col style={{ width: '8%' }} />
-                <col style={{ width: '12%' }} />
-                <col style={{ width: '8%' }} />
-                <col style={{ width: '9%' }} />
-                <col style={{ width: '9%' }} />
-                <col style={{ width: '19%' }} />
-              </colgroup>
+          <div className="w-full">
+            <table className="w-full text-left border-collapse">
               <thead>
                  <tr className="bg-slate-50/50">
                    {['Job Title','Department','Category','Vacancies','Closes','Status','Created','Updated','Actions'].map(h => {
@@ -426,7 +386,7 @@ export default function JobsAdminPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {jobs.map(j => (
-                   <tr key={j.id} className="hover:bg-slate-50/50 transition-colors group/row">
+                   <tr key={j.id} onClick={() => openEdit(j)} className="hover:bg-slate-50/50 transition-colors group/row cursor-pointer">
                     <td className="px-3 py-2.5">
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs font-bold text-slate-900 uppercase tracking-tight truncate group-hover/row:text-blue-600 transition-colors">{j.title}</span>
@@ -453,7 +413,7 @@ export default function JobsAdminPage() {
                         {new Date(j.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </td>
-                     <td className="px-3 py-2.5">
+                     <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <div className="flex gap-1.5 flex-wrap">
                           <button
                             onClick={() => openEdit(j)}
@@ -465,16 +425,10 @@ export default function JobsAdminPage() {
                             <>
                           <button
                             onClick={() => toggleVisibility(j)}
-                            className={`px-2.5 py-1 border rounded text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'open' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white'}`}
-                            title={j.status === 'open' ? 'Hide from careers page' : 'Publish to careers page'}
+                            className={`px-2.5 py-1 border rounded text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'live' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white'}`}
+                            title={j.status === 'live' ? 'Hide from careers page' : 'Publish to careers page'}
                           >
-                            {j.status === 'open' ? 'Published' : 'Draft'}
-                          </button>
-                          <button
-                            onClick={() => toggleStatus(j)}
-                            className="px-2.5 py-1 bg-slate-50 border border-slate-100 text-[9px] font-bold uppercase tracking-widest text-slate-400 rounded hover:bg-slate-900 hover:text-white transition-all shadow-sm"
-                          >
-                            {j.status === 'open' ? 'Close' : j.status === 'closed' ? 'Reopen' : 'Cycle'}
+                            {j.status === 'live' ? 'Published' : 'Draft'}
                           </button>
                           <button
                             onClick={() => handleDelete(j)}
