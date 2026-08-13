@@ -49,9 +49,7 @@ export const pool: Pool =
     idleTimeoutMillis: 30_000,
   })
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPool.__neonPool = pool
-}
+globalForPool.__neonPool = pool
 
 export async function query<T = any>(text: string, params: any[] = []) {
   const res = await pool.query(text, params)
