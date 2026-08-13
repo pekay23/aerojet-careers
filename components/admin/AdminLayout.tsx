@@ -1,11 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import AdminTopbar from '@/components/admin/AdminTopbar'
-import AdminUserMenu from '@/components/admin/AdminUserMenu'
 import ToastContainer from '@/components/ui/ToastContainer'
 
 interface AdminLayoutProps {
@@ -73,20 +71,12 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
   const toggleSidebar = () => setSidebarOpen((p) => !p)
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans">
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
+    <div className="flex h-screen overflow-hidden bg-slate-50 font-sans">
       <AdminSidebar
         sidebarOpen={sidebarOpen}
         mobileOpen={mobileOpen}
         onToggleSidebar={toggleSidebar}
+        onToggleMobile={() => setMobileOpen((p) => !p)}
         userName={userName}
         userRole={userRole}
         userMenuOpen={userMenuOpen}
@@ -96,14 +86,10 @@ export default function AdminLayout({ children, title, breadcrumb }: AdminLayout
       />
 
       {/* Main content */}
-      <div className={cn('flex flex-1 flex-col transition-all duration-300 ease-in-out', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}>
+      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pt-16 lg:pt-0">
         <AdminTopbar title={title} breadcrumb={breadcrumb} mobileOpen={mobileOpen} onToggleMobile={() => setMobileOpen((p) => !p)} />
-
-        {/* Page content */}
-        <main className="min-h-[calc(100vh-4rem)] flex-1 overflow-y-auto bg-slate-50 p-4 admin-scrollbar lg:p-8">
-          <div className="mx-auto w-full pb-20">{children}</div>
-        </main>
-      </div>
+        <div className="p-4 lg:p-8 pb-20">{children}</div>
+      </main>
 
       <ToastContainer />
     </div>
