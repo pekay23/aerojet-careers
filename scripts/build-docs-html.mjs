@@ -438,8 +438,10 @@ th { font-weight: 500; color: var(--fg-muted); font-size: var(--t-caption-size);
 ul, ol { padding-left: var(--sp-5); margin: var(--sp-3) 0; }
 li { margin: var(--sp-2) 0; }
 ::selection { background: var(--clay); color: var(--ivory); }
-.he-shell { max-width: var(--col-default); margin: 0 auto; padding: var(--sp-6) var(--sp-5) var(--sp-8); }
-.he-shell--wide { max-width: var(--col-wide); }
+/* Full-width docs shell: no --col-default/--col-wide cap. Horizontal padding is
+   kept so text never sits flush against the viewport edge. */
+.he-shell { max-width: none; margin: 0 auto; padding: var(--sp-6) var(--sp-6) var(--sp-8); }
+.he-shell--narrow, .he-shell--wide { max-width: none; }
 .he-nav { display: flex; align-items: baseline; gap: var(--sp-4); padding-bottom: var(--sp-4); margin-bottom: var(--sp-6); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .he-nav__brand { font-weight: 500; letter-spacing: -0.02em; color: var(--fg-strong); border-bottom: 0; }
 .he-nav__brand small { color: var(--clay); margin-left: var(--sp-2); }

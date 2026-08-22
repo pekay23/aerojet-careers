@@ -32,13 +32,15 @@
   <div class="he-section__num">01 · Technical stack</div>
   <h2 class="he-section__title">Technical stack</h2><ul>
 <li><strong>Framework:</strong> Next.js 16 (App Router), React 19, TypeScript</li>
-<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong> primary, <strong>Supabase</strong> retained as backup)</li>
+<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong> primary)</li>
 <li><strong>Data access:</strong> custom Supabase-compatible query builder (<code>lib/db.ts</code>) — no ORM</li>
-<li><strong>Auth:</strong> local bcrypt + JWT session cookie (<code>lib/auth.ts</code>), no external auth provider</li>
+<li><strong>Auth:</strong> local bcrypt + JWT session cookie (<code>lib/auth.ts</code>), refresh tokens (<code>lib/refresh-token.ts</code>), no external auth provider</li>
 <li><strong>Storage:</strong> files in a <code>storage_objects</code> table, served via <code>/api/files</code></li>
-<li><strong>Styling:</strong> Tailwind CSS 4 + shadcn/ui + Radix, Framer Motion</li>
+<li><strong>Styling:</strong> Tailwind CSS 4 + design tokens in <code>app/globals.css</code> + Radix primitives</li>
 <li><strong>Email:</strong> Resend (<code>lib/email-service.ts</code>)</li>
-<li><strong>Hosting:</strong> Vercel</li>
+<li><strong>Hosting:</strong> Vercel (region <code>lhr1</code>)</li>
+<li><strong>Logging:</strong> Structured JSON logging (<code>lib/logger.ts</code>)</li>
+<li><strong>Rate limiting:</strong> Upstash Redis + memory fallback (<code>lib/rate-limit.ts</code>)</li>
 </ul>
 
 <section class="he-section" id="the-most-important-thing-to-understand">
@@ -80,26 +82,31 @@ to Supabase — it runs SQL against Neon through the query builder. Full details
   db.ts              Neon pool + Supabase-style query builder (the core)
   auth.ts            bcrypt hashing, JWT sign/verify, getServerUser()
   auth-admin.ts      create/update/delete auth_users
+  refresh-token.ts   one-time-use refresh token lifecycle
   storage.ts         low-level storage_objects read/write
   storage-compat.ts  supabase.storage-shaped wrapper over storage.ts
-  supabase*.ts        the three compat shims
+  supabase*.ts       the three compat shims
   api-utils.ts       ApiResponse + verifyRole (authorization)
   email-service.ts   Resend templates (welcome, acknowledgement)
+  sanitize.ts        DOMPurify HTML sanitization + escapeHtml
+  rate-limit.ts      Upstash Redis rate limiting
+  logger.ts          Structured JSON logging with redaction
+  domain-config.ts   Domain URLs + internal link lists
 
 proxy.ts             edge route guard (JWT cookie check)
 db/neon-schema.sql   full schema
-seed-admin.js        seeds the first admin into Neon
+scripts/seed-admin.mjs  seeds the first admin into Neon
 
 app/
-  (public)/          legal pages
-  (root routes)      public careers site (jobs, apply, register, programs)
+  (public)/          legal pages, faq, our-story, check-status
+  (root routes)      public careers site (jobs, apply, register, programs, login)
   admin/             authenticated HR/admin portal
   api/               REST API
 
 components/
   admin/             portal UI (PeopleDirectory, PipelineView, OrgChart, …)
-  forms/             ApplicationForm
-  layout/ ui/        site chrome + shared primitives
+  forms/             13 reusable form components (TextInput, Select, CheckItem, …)
+  layout/ ui/        site chrome + shared primitives (Skeleton, ConfirmDialog, …)
 </code></pre>
 
 <section class="he-section" id="common-tasks">

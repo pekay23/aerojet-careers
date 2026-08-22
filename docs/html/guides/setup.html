@@ -31,9 +31,9 @@
 <section class="he-section" id="prerequisites">
   <div class="he-section__num">01 · Prerequisites</div>
   <h2 class="he-section__title">Prerequisites</h2><ul>
-<li>Node.js &gt;= 20</li>
+<li>Node.js &gt;= 24</li>
 <li>A PostgreSQL database (Neon recommended)</li>
-<li>Package manager: <code>bun</code> (preferred) or <code>npm</code> — both lockfiles exist</li>
+<li>Package manager: <code>bun</code> (preferred) or <code>npm</code></li>
 </ul>
 
 <section class="he-section" id="installation">
@@ -48,9 +48,14 @@ bun install     # or: npm install
   <h2 class="he-section__title">Environment configuration</h2><p>Create <code>.env.local</code>:</p>
 <pre><code># Neon (primary database)
 DATABASE_URL=&quot;postgresql://&lt;user&gt;:&lt;pass&gt;@&lt;neon-host&gt;/&lt;db&gt;?sslmode=require&quot;
+DIRECT_URL=&quot;postgresql://&lt;user&gt;:&lt;pass&gt;@&lt;neon-host&gt;/&lt;db&gt;?sslmode=require&quot;
 
 # Local auth — signs the JWT session cookie. Keep secret.
 AUTH_SECRET=&quot;&lt;random 48+ byte string&gt;&quot;
+
+# Optional: rate limiting
+UPSTASH_REDIS_REST_URL=&quot;&lt;url&gt;&quot;
+UPSTASH_REDIS_REST_TOKEN=&quot;&lt;token&gt;&quot;
 
 # App
 EMAIL_FROM=&quot;careers@aerojet-aviation.com&quot;
@@ -60,18 +65,16 @@ RESEND_API_KEY=&quot;&lt;resend key&gt;&quot;
 <p>Generate a secret:</p>
 <pre><code class="language-bash">node -e &quot;console.log(require(&#39;crypto&#39;).randomBytes(48).toString(&#39;base64url&#39;))&quot;
 </code></pre>
-<p>The legacy <code>NEXT_PUBLIC_SUPABASE_*</code> / <code>SUPABASE_SERVICE_ROLE_KEY</code> values are not used
-at runtime; keep them only if you still need to export data from the paused Supabase
-project (see the <a href="./neon-migration.html">Neon migration guide</a>).</p>
 
 <section class="he-section" id="database-setup">
   <div class="he-section__num">04 · Database setup</div>
   <h2 class="he-section__title">Database setup</h2><p>Apply the schema (idempotent — safe to re-run):</p>
-<pre><code class="language-bash">psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
+<pre><code class="language-bash">bun scripts/apply-schema.mjs
+# or: psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
 # or paste db/neon-schema.sql into the Neon SQL editor
 </code></pre>
 <p>Seed the initial admin:</p>
-<pre><code class="language-bash">node seed-admin.js
+<pre><code class="language-bash">node scripts/seed-admin.mjs
 </code></pre>
 <p>Defaults: <code>admin@aerojet-aviation.com</code> / <code>Admin@2026</code>
 (override with <code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code>).</p>
@@ -83,6 +86,8 @@ bun run lint         # ESLint
 bun run type-check   # tsc --noEmit
 bun run build        # production build (next build)
 bun start            # run the production build
+bun run test         # unit tests (Vitest)
+bun run test:e2e     # e2e tests (Playwright)
 </code></pre>
 
 <section class="he-section" id="verifying-the-db-connection">

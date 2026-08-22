@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Testing · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Guides</p>
+  <h1 class="he-title">Testing</h1>
+  <p class="he-deck">The portal uses <strong>Vitest</strong> for unit/component tests and <strong>Playwright</strong> for E2E tests.</p>
+</header>
+
+<section class="he-section" id="running-tests">
+  <div class="he-section__num">01 · Running tests</div>
+  <h2 class="he-section__title">Running tests</h2><pre><code class="language-bash">bun run test         # Unit tests (Vitest)
+bun run test:e2e     # E2E tests (Playwright)
+</code></pre>
+
+<section class="he-section" id="test-structure">
+  <div class="he-section__num">02 · Test structure</div>
+  <h2 class="he-section__title">Test structure</h2><pre><code>tests/
+  unit/
+    auth.test.ts             # Session + JWT validation
+    api-utils.test.ts        # ApiResponse, sanitizeErrorMessage, validateOrigin
+    validation.test.ts       # Zod schema validation
+    security.test.ts         # Input sanitization, SQL injection checks
+    refresh-token.test.ts    # Refresh token lifecycle
+    rate-limit.test.ts       # Rate limiting logic
+    setup.ts                 # Test setup (env, mocks)
+  e2e/
+    public-flows.spec.ts     # Public site flows (jobs, apply, register)
+    admin-flows.spec.ts      # Admin dashboard flows
+  auth-routes.test.ts        # Auth route integration tests
+</code></pre>
+
+<section class="he-section" id="configuration">
+  <div class="he-section__num">03 · Configuration</div>
+  <h2 class="he-section__title">Configuration</h2><ul>
+<li><strong>Vitest:</strong> <code>vitest.config.ts</code> — V8 coverage, jsdom environment</li>
+<li><strong>Playwright:</strong> <code>playwright.config.ts</code> — Chromium only, baseURL <code>http://localhost:3000</code></li>
+</ul>
+
+<section class="he-section" id="writing-tests">
+  <div class="he-section__num">04 · Writing tests</div>
+  <h2 class="he-section__title">Writing tests</h2><h3 id="unit-tests">Unit tests</h3><pre><code class="language-ts">import { describe, it, expect } from &#39;vitest&#39;
+import { RegistrationSchema } from &#39;@/lib/validation/schemas&#39;
+
+describe(&#39;RegistrationSchema&#39;, () =&gt; {
+  it(&#39;accepts valid data&#39;, () =&gt; {
+    const result = RegistrationSchema.safeParse({ first_name: &#39;John&#39;, ... })
+    expect(result.success).toBe(true)
+  })
+})
+</code></pre>
+<h3 id="e2e-tests">E2E tests</h3><pre><code class="language-ts">import { test, expect } from &#39;@playwright/test&#39;
+
+test(&#39;public flow — apply to job&#39;, async ({ page }) =&gt; {
+  await page.goto(&#39;/jobs&#39;)
+  await page.click(&#39;[data-testid=&quot;job-card&quot;]:first-child&#39;)
+  await page.click(&#39;text=Apply Now&#39;)
+  await page.fill(&#39;[name=&quot;first_name&quot;]&#39;, &#39;Test&#39;)
+  // ...
+})
+</code></pre>
+
+<section class="he-section" id="coverage">
+  <div class="he-section__num">05 · Coverage</div>
+  <h2 class="he-section__title">Coverage</h2><p>Current test suite: <strong>49 unit tests</strong> + <strong>2 E2E specs</strong>.</p>
+
+<section class="he-section" id="ci">
+  <div class="he-section__num">06 · CI</div>
+  <h2 class="he-section__title">CI</h2><p>Tests run in CI via <code>bun run test</code> and <code>bun run test:e2e</code>. Both must pass
+before merge.</p>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#running-tests">Running tests</a></li>
+    <li class="he-toc__l2"><a href="#test-structure">Test structure</a></li>
+    <li class="he-toc__l2"><a href="#configuration">Configuration</a></li>
+    <li class="he-toc__l2"><a href="#writing-tests">Writing tests</a></li>
+    <li class="he-toc__l3"><a href="#unit-tests">Unit tests</a></li>
+    <li class="he-toc__l3"><a href="#e2e-tests">E2E tests</a></li>
+    <li class="he-toc__l2"><a href="#coverage">Coverage</a></li>
+    <li class="he-toc__l2"><a href="#ci">CI</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

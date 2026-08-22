@@ -40,7 +40,11 @@
 </thead>
 <tbody><tr>
 <td><code>DATABASE_URL</code></td>
-<td>Neon pooled connection string (<code>?sslmode=require</code>). Server-only.</td>
+<td>Neon pooled connection string. Server-only.</td>
+</tr>
+<tr>
+<td><code>DIRECT_URL</code></td>
+<td>Neon direct connection (for migrations). Server-only.</td>
 </tr>
 <tr>
 <td><code>AUTH_SECRET</code></td>
@@ -58,18 +62,26 @@
 <td><code>RESEND_API_KEY</code></td>
 <td>Resend API key. Server-only.</td>
 </tr>
+<tr>
+<td><code>UPSTASH_REDIS_REST_URL</code></td>
+<td>Optional: Upstash Redis for rate limiting. Server-only.</td>
+</tr>
+<tr>
+<td><code>UPSTASH_REDIS_REST_TOKEN</code></td>
+<td>Optional: Upstash Redis token. Server-only.</td>
+</tr>
 </tbody></table>
-<p>Do <strong>not</strong> expose <code>DATABASE_URL</code> or <code>AUTH_SECRET</code> to the browser — there is no RLS
-fallback. Only <code>NEXT_PUBLIC_*</code> values are safe client-side.</p>
+<p>Do <strong>not</strong> expose <code>DATABASE_URL</code>, <code>DIRECT_URL</code>, or <code>AUTH_SECRET</code> to the browser. Only <code>NEXT_PUBLIC_*</code> values are safe client-side.</p>
 
 <section class="he-section" id="first-deploy-against-a-fresh-neon-database">
   <div class="he-section__num">02 · First deploy against a fresh Neon database</div>
   <h2 class="he-section__title">First deploy against a fresh Neon database</h2><ol>
 <li>Set the env vars above in Vercel.</li>
-<li>Apply the schema once (from your machine or the Neon SQL editor):<pre><code class="language-bash">psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
+<li>Apply the schema once (from your machine or the Neon SQL editor):<pre><code class="language-bash">bun scripts/apply-schema.mjs
+# or: psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
 </code></pre>
 </li>
-<li>Seed the admin:<pre><code class="language-bash">node seed-admin.js
+<li>Seed the admin:<pre><code class="language-bash">node scripts/seed-admin.mjs
 </code></pre>
 </li>
 <li>Push to the deploy branch — Vercel runs <code>next build</code> automatically.</li>
@@ -78,11 +90,10 @@ fallback. Only <code>NEXT_PUBLIC_*</code> values are safe client-side.</p>
 <section class="he-section" id="build">
   <div class="he-section__num">03 · Build</div>
   <h2 class="he-section__title">Build</h2><ul>
-<li>Build command: <code>next build</code> (<code>bun run build</code>).</li>
+<li>Build command: <code>bun run build</code>.</li>
 <li>The build connects to Neon during static generation of a few pages (e.g. <code>/jobs</code>),
 so <code>DATABASE_URL</code> must be present at build time.</li>
-<li><code>next.config.js</code> sends the <code>/admin/*</code> security headers and allows Supabase image
-hosts (leftover; harmless).</li>
+<li><code>next.config.js</code> sends the <code>/admin/*</code> security headers.</li>
 </ul>
 
 <section class="he-section" id="domains-amp-headers">

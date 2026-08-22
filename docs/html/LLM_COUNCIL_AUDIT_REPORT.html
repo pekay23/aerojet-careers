@@ -61,8 +61,8 @@
 <tr>
 <td>4</td>
 <td>P2</td>
-<td><code>published_at</code> never set when status changed to <code>&#39;open&#39;</code></td>
-<td>Auto-set in POST (<code>status=&#39;open&#39;</code>) and PATCH (status transition to/from open) in <code>app/api/admin/jobs/route.ts:81,147</code></td>
+<td><code>published_at</code> never set when status changed to <code>&#39;live&#39;</code></td>
+<td>Auto-set in POST (<code>status=&#39;live&#39;</code>) and PATCH (status transition to/from live) in <code>app/api/admin/jobs/route.ts:81,147</code></td>
 </tr>
 <tr>
 <td>5</td>
@@ -222,7 +222,7 @@
 </ul>
 <h4 id="c5-rls-policies">C5: RLS Policies</h4><ul>
 <li><code>app/api/admin/metadata/route.ts</code> GET is NOT behind auth (line 7: &quot;Public access allowed&quot;) — correct, it&#39;s recruitment metadata.</li>
-<li>The jobs table has <code>public_read_open_jobs</code> policy ✓ — only <code>status = &#39;open&#39;</code> jobs are readable publicly.</li>
+<li>The jobs table has <code>public_read_open_jobs</code> policy ✓ — only <code>status = &#39;live&#39;</code> jobs are readable publicly.</li>
 <li>The <code>jobs</code> INSERT/UPDATE/DELETE RLS requires <code>admin_users</code> existence (line 332-334) — but since the admin APIs use <code>supabaseAdmin</code> (service role), they bypass RLS ✓.</li>
 </ul>
 <h3 id="d-database-schema-audit-chairman">D. DATABASE SCHEMA AUDIT (Chairman)</h3><h4 id="d1-schema-vs-types-mismatch">D1: Schema vs Types Mismatch</h4><ul>
@@ -278,7 +278,7 @@
 <td><code>jobs</code></td>
 <td>✅</td>
 <td>✅</td>
-<td>Updated: 5 open, 11 draft</td>
+<td>Updated: 5 live, 12 draft</td>
 </tr>
 <tr>
 <td><code>admin_users</code></td>
@@ -397,7 +397,7 @@
 <td>No</td>
 </tr>
 </tbody></table>
-<p><strong>Finding:</strong> <code>app/jobs/page.tsx</code> only fetches <code>status=&#39;open&#39;</code> ✓. But <code>app/apply/[slug]/page.tsx</code> only fetches <code>status=&#39;open&#39;</code> ✓ — it will 404 for any other status. This is correct behavior.</p>
+<p><strong>Finding:</strong> <code>app/jobs/page.tsx</code> only fetches <code>status=&#39;live&#39;</code> ✓. But <code>app/apply/[slug]/page.tsx</code> only fetches <code>status=&#39;live&#39;</code> ✓ — it will 404 for any other status. This is correct behavior.</p>
 <h4 id="e2-application-status-lifecycle">E2: Application Status Lifecycle</h4><p><code>new → under_review → shortlisted → interview → offer/hired | rejected | withdrawn | transferred_to_hr</code></p>
 <p><strong>Finding:</strong> The <code>hr_transfers</code> table and <code>hr_transferred</code> field exist but there&#39;s no UI to manage HR transfers. The <code>app/api/hr/transfer/route.ts</code> exists but needs review.</p>
 <h4 id="e3-rbac-matrix">E3: RBAC Matrix</h4><table>

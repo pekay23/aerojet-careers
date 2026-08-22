@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HTML Sanitization · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">HTML Sanitization</h1>
+  <p class="he-deck"><code>lib/sanitize.ts</code> provides XSS prevention utilities for the portal.</p>
+</header>
+
+<section class="he-section" id="functions">
+  <div class="he-section__num">01 · Functions</div>
+  <h2 class="he-section__title">Functions</h2><h3 id="sanitizehtmlhtml-string-string"><code>sanitizeHtml(html: string): string</code></h3><p>Cleans HTML using DOMPurify. Allowed tags and attributes are configured for
+safe rich-text rendering:</p>
+<ul>
+<li><strong>Allowed tags:</strong> <code>p</code>, <code>br</code>, <code>strong</code>, <code>em</code>, <code>u</code>, <code>ul</code>, <code>ol</code>, <code>li</code>, <code>a</code>,
+<code>h1</code>–<code>h6</code>, <code>blockquote</code>, <code>code</code>, <code>pre</code></li>
+<li><strong>Allowed attributes:</strong> <code>href</code> (with protocol whitelist), <code>title</code>, <code>class</code></li>
+<li><strong>Removed:</strong> all <code>on*</code> event handlers, <code>javascript:</code> URLs, <code>data:</code> URLs in
+<code>href</code>/<code>src</code></li>
+</ul>
+<pre><code class="language-ts">import { sanitizeHtml } from &#39;@/lib/sanitize&#39;
+const clean = sanitizeHtml(userInput)
+</code></pre>
+<h3 id="escapehtmltext-string-string"><code>escapeHtml(text: string): string</code></h3><p>Escapes a plain-text string for safe insertion into HTML:</p>
+<pre><code class="language-ts">import { escapeHtml } from &#39;@/lib/sanitize&#39;
+const safe = escapeHtml(userInput) // &amp; → &amp;amp;, &lt; → &amp;lt;, etc.
+</code></pre>
+
+<section class="he-section" id="when-to-use">
+  <div class="he-section__num">02 · When to use</div>
+  <h2 class="he-section__title">When to use</h2><ul>
+<li><strong><code>sanitizeHtml()</code></strong> — when rendering user-generated rich text (future feature)</li>
+<li><strong><code>escapeHtml()</code></strong> — when inserting plain user input into HTML contexts</li>
+<li><strong>React JSX</strong> — React automatically escapes <code>{value}</code> insertions, so explicit
+escaping is only needed for <code>dangerouslySetInnerHTML</code> (currently unused)</li>
+</ul>
+
+<section class="he-section" id="current-usage">
+  <div class="he-section__num">03 · Current usage</div>
+  <h2 class="he-section__title">Current usage</h2><ul>
+<li><code>lib/api-utils.ts</code> — <code>sanitizeSearch()</code> strips PostgREST/ILIKE special
+characters before building <code>or()</code> filters</li>
+<li><code>components/ui/</code> — no current <code>dangerouslySetInnerHTML</code> usage</li>
+</ul>
+
+<section class="he-section" id="future">
+  <div class="he-section__num">04 · Future</div>
+  <h2 class="he-section__title">Future</h2><p>If rich-text features are added (email templates, job descriptions with markup),
+use <code>sanitizeHtml()</code> on all server-side input before storage.</p>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#functions">Functions</a></li>
+    <li class="he-toc__l3"><a href="#sanitizehtmlhtml-string-string">sanitizeHtml(html: string): string</a></li>
+    <li class="he-toc__l3"><a href="#escapehtmltext-string-string">escapeHtml(text: string): string</a></li>
+    <li class="he-toc__l2"><a href="#when-to-use">When to use</a></li>
+    <li class="he-toc__l2"><a href="#current-usage">Current usage</a></li>
+    <li class="he-toc__l2"><a href="#future">Future</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

@@ -115,11 +115,33 @@ scans, passports).</p>
 <li><strong>Input sanitisation</strong> — <code>sanitizeSearch()</code> strips PostgREST/ILIKE special
 characters before building <code>or()</code> filters; the query builder always uses
 parameterised queries (<code>$1, $2, …</code>), never string interpolation of values.</li>
+<li><strong>HTML sanitization</strong> — <code>lib/sanitize.ts</code> provides <code>sanitizeHtml()</code> (DOMPurify)
+and <code>escapeHtml()</code> for XSS prevention in any future rich-text features.</li>
 <li><strong>Security headers</strong> — <code>/admin/*</code> sends <code>X-Frame-Options: DENY</code>,
 <code>X-Content-Type-Options: nosniff</code>, <code>Referrer-Policy: strict-origin-when-cross-origin</code>
 (set in both <code>next.config.js</code> and <code>vercel.json</code>).</li>
+<li><strong>Rate limiting</strong> — <code>/api/auth/login</code> is rate-limited via Upstash Redis
+(<code>lib/rate-limit.ts</code>); other public write endpoints should be added.</li>
+<li><strong>Structured logging</strong> — <code>lib/logger.ts</code> provides JSON line logging with
+sensitive-key redaction (password, token, secret, etc.).</li>
 <li><strong>Secrets</strong> — <code>DATABASE_URL</code> and <code>AUTH_SECRET</code> are server-only and must never be
 exposed to the browser; there is no RLS fallback if the connection string leaks.</li>
+</ul>
+
+<section class="he-section" id="refresh-tokens">
+  <div class="he-section__num">06 · Refresh tokens</div>
+  <h2 class="he-section__title">Refresh tokens</h2><p>The session layer includes one-time-use refresh tokens stored in the
+<code>refresh_tokens</code> table:</p>
+<pre><code>POST /api/auth/refresh
+  → consumeRefreshToken(token)    DELETE from refresh_tokens, return user
+  → signSession(user)             issue new JWT
+  → issueRefreshToken(user.id)    INSERT new refresh token (30-day TTL)
+</code></pre>
+<ul>
+<li>Tokens are single-use: consuming them deletes the row immediately.</li>
+<li>TTL is <code>SESSION_MAX_AGE * 30 / 7</code> days (configurable in <code>lib/refresh-token.ts</code>).</li>
+<li>Implemented in <code>lib/refresh-token.ts</code>; rotation happens automatically on
+<code>/api/auth/refresh</code>.</li>
 </ul>
 
 </main>
@@ -133,6 +155,7 @@ exposed to the browser; there is no RLS fallback if the connection string leaks.
     <li class="he-toc__l3"><a href="#role-capability">Role → capability</a></li>
     <li class="he-toc__l2"><a href="#layer-3-file-access">Layer 3 — file access</a></li>
     <li class="he-toc__l2"><a href="#other-measures">Other measures</a></li>
+    <li class="he-toc__l2"><a href="#refresh-tokens">Refresh tokens</a></li>
   </ul>
 </aside>
 </div>

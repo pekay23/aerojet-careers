@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Validation · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">Validation</h1>
+  <p class="he-deck">The portal uses <strong>Zod</strong> for schema validation across client forms and server API routes.</p>
+</header>
+
+<section class="he-section" id="schema-locations">
+  <div class="he-section__num">01 · Schema locations</div>
+  <h2 class="he-section__title">Schema locations</h2><table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>Used by</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RegistrationSchema</code></td>
+<td><code>app/register/page.tsx</code></td>
+<td>General candidate registration</td>
+</tr>
+<tr>
+<td><code>WizardStep1Schema</code></td>
+<td><code>components/forms/ApplicationForm.tsx</code></td>
+<td>Personal details step</td>
+</tr>
+<tr>
+<td><code>WizardStep2Schema</code></td>
+<td><code>components/forms/ApplicationForm.tsx</code></td>
+<td>Licences &amp; qualifications step</td>
+</tr>
+<tr>
+<td><code>WizardStep3Schema</code></td>
+<td><code>components/forms/ApplicationForm.tsx</code></td>
+<td>Work experience step</td>
+</tr>
+<tr>
+<td><code>WizardStep4Schema</code></td>
+<td><code>components/forms/ApplicationForm.tsx</code></td>
+<td>Compensation &amp; availability step</td>
+</tr>
+<tr>
+<td><code>ApplicationSchema</code></td>
+<td><code>app/api/applications/route.ts</code></td>
+<td>Full application submission</td>
+</tr>
+<tr>
+<td>Various admin schemas</td>
+<td><code>app/api/admin/*/route.ts</code></td>
+<td>Admin mutations</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="client-side-vs-server-side">
+  <div class="he-section__num">02 · Client-side vs server-side</div>
+  <h2 class="he-section__title">Client-side vs server-side</h2><ul>
+<li><strong>Client-side:</strong> React <code>useEffect</code> re-validates on every field change using
+<code>safeParse()</code>. Errors are stored in <code>fieldErrors</code> state and only shown after a
+field is <code>touched</code> (blur or submit attempt).</li>
+<li><strong>Server-side:</strong> API routes re-validate with the same Zod schemas before
+writing to the database. Server errors return <code>400</code> with a generic message.</li>
+</ul>
+
+<section class="he-section" id="touched-state-pattern">
+  <div class="he-section__num">03 · Touched-state pattern</div>
+  <h2 class="he-section__title">Touched-state pattern</h2><p>Form components (<code>TextInput</code>, <code>Select</code>, <code>TextArea</code>, <code>FormField</code>) accept an
+optional <code>touched?: boolean</code> prop. Validation feedback (red borders, error text)
+only renders when <code>touched &amp;&amp; error</code> is true.</p>
+<pre><code class="language-tsx">&lt;FormField label=&quot;Email&quot; error={errors.email} touched={!!touchedFields.email}&gt;
+  &lt;TextInput error={errors.email} touched={!!touchedFields.email} onBlur={() =&gt; touch(&#39;email&#39;)} /&gt;
+&lt;/FormField&gt;
+</code></pre>
+<p>This prevents showing errors before the user has interacted with a field.</p>
+
+<section class="he-section" id="error-message-conventions">
+  <div class="he-section__num">04 · Error message conventions</div>
+  <h2 class="he-section__title">Error message conventions</h2><p>Validation messages are friendly and actionable:</p>
+<ul>
+<li>Text fields: &quot;Input your first name&quot;, &quot;Enter your last name&quot;</li>
+<li>Email: &quot;Enter a valid email&quot;</li>
+<li>Selects: &quot;Select your nationality&quot;</li>
+<li>Arrays: &quot;Select at least one type rating&quot;</li>
+</ul>
+<p>Avoid generic messages like &quot;Required&quot; or &quot;Invalid input&quot;.</p>
+
+<section class="he-section" id="refinements">
+  <div class="he-section__num">05 · Refinements</div>
+  <h2 class="he-section__title">Refinements</h2><p>Custom refinements handle cross-field validation:</p>
+<pre><code class="language-ts">.superRefine((data, ctx) =&gt; {
+  if (data.role_start_date &amp;&amp; data.role_end_date &amp;&amp; data.role_end_date &lt; data.role_start_date) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: &#39;End date must be after start date&#39;, path: [&#39;role_end_date&#39;] })
+  }
+})
+</code></pre>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#schema-locations">Schema locations</a></li>
+    <li class="he-toc__l2"><a href="#client-side-vs-server-side">Client-side vs server-side</a></li>
+    <li class="he-toc__l2"><a href="#touched-state-pattern">Touched-state pattern</a></li>
+    <li class="he-toc__l2"><a href="#error-message-conventions">Error message conventions</a></li>
+    <li class="he-toc__l2"><a href="#refinements">Refinements</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

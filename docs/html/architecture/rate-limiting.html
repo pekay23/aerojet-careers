@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rate Limiting · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">Rate Limiting</h1>
+  <p class="he-deck">The portal uses <strong>Upstash Redis</strong> for rate limiting with an in-memory fallback.</p>
+</header>
+
+<section class="he-section" id="implementation">
+  <div class="he-section__num">01 · Implementation</div>
+  <h2 class="he-section__title">Implementation</h2><p><code>lib/rate-limit.ts</code> exposes a <code>rateLimit(key, limit, window)</code> function:</p>
+<pre><code class="language-ts">const result = await rateLimit(`login:${email}`, 5, 15 * 60_000)
+if (!result.ok) return ApiResponse.error(&#39;Too many attempts&#39;, 429)
+</code></pre>
+<ul>
+<li><strong>Key:</strong> typically <code>login:&lt;email&gt;</code> or <code>ip:&lt;address&gt;</code></li>
+<li><strong>Limit:</strong> max attempts</li>
+<li><strong>Window:</strong> milliseconds (e.g. <code>15 * 60_000</code> = 15 minutes)</li>
+</ul>
+
+<section class="he-section" id="upstash-redis">
+  <div class="he-section__num">02 · Upstash Redis</div>
+  <h2 class="he-section__title">Upstash Redis</h2><p>Configured via environment variables:</p>
+<ul>
+<li><code>UPSTASH_REDIS_REST_URL</code></li>
+<li><code>UPSTASH_REDIS_REST_TOKEN</code></li>
+</ul>
+<p>Uses the Upstash REST API (<code>@upstash/ratelimit</code> + <code>@upstash/redis</code>).</p>
+
+<section class="he-section" id="memory-fallback">
+  <div class="he-section__num">03 · Memory fallback</div>
+  <h2 class="he-section__title">Memory fallback</h2><p>When Upstash is unavailable, the module falls back to an in-memory <code>Map</code> with
+TTL-based expiry. <strong>This fallback is ineffective in production</strong> (Vercel
+serverless) because each function instance has isolated memory.</p>
+<p><strong>Known gap:</strong> rate limiting is missing on other public write endpoints:</p>
+<ul>
+<li><code>/api/register</code></li>
+<li><code>/api/applications</code></li>
+<li><code>/api/upload/talent</code></li>
+</ul>
+<p>These should be rate-limited to prevent abuse.</p>
+
+<section class="he-section" id="current-usage">
+  <div class="he-section__num">04 · Current usage</div>
+  <h2 class="he-section__title">Current usage</h2><ul>
+<li><code>lib/api-utils.ts</code> — <code>withPublicProtection()</code> applies login rate limiting</li>
+</ul>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#implementation">Implementation</a></li>
+    <li class="he-toc__l2"><a href="#upstash-redis">Upstash Redis</a></li>
+    <li class="he-toc__l2"><a href="#memory-fallback">Memory fallback</a></li>
+    <li class="he-toc__l2"><a href="#current-usage">Current usage</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

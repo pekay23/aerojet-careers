@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>File Storage · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">File Storage</h1>
+  <p class="he-deck">The portal uses a custom file storage system backed by the <code>storage_objects</code> table in Neon (BYTEA columns).</p>
+</header>
+
+<section class="he-section" id="table-schema">
+  <div class="he-section__num">01 · Table schema</div>
+  <h2 class="he-section__title">Table schema</h2><pre><code class="language-sql">storage_objects
+  bucket      text        -- logical bucket (e.g. &#39;application-documents&#39;)
+  path        text        -- unique path within bucket
+  content     bytea       -- file bytes
+  content_type text       -- MIME type
+  size        bigint      -- bytes
+  created_at  timestamptz
+</code></pre>
+<p>Primary key: <code>(bucket, path)</code></p>
+
+<section class="he-section" id="api-endpoints">
+  <div class="he-section__num">02 · API endpoints</div>
+  <h2 class="he-section__title">API endpoints</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/storage/upload</code></td>
+<td>session</td>
+<td>Generic authenticated upload. Stores bytes in <code>storage_objects</code>.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/files?bucket=&amp;path=</code></td>
+<td>session</td>
+<td>Serves a stored file with <code>Content-Disposition: inline</code>.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/upload</code></td>
+<td>session</td>
+<td>Application document upload (legacy wrapper).</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/upload/talent</code></td>
+<td>session</td>
+<td>Talent CV upload; sets <code>talent_pool.cv_path</code>.</td>
+</tr>
+</tbody></table>
+
+<section class="he-section" id="serving-files">
+  <div class="he-section__num">03 · Serving files</div>
+  <h2 class="he-section__title">Serving files</h2><p><code>/api/files</code> checks the session before serving any file. Files are never exposed
+via public URLs. The response includes:</p>
+<ul>
+<li><code>Content-Type</code> from <code>content_type</code></li>
+<li><code>Content-Disposition: inline</code> (browser displays inline when possible)</li>
+<li><code>Content-Length</code> from <code>size</code></li>
+</ul>
+
+<section class="he-section" id="upload-flow">
+  <div class="he-section__num">04 · Upload flow</div>
+  <h2 class="he-section__title">Upload flow</h2><ol>
+<li>Client sends <code>FormData</code> with <code>file</code> + metadata</li>
+<li>Route validates size (max 5 MB) and MIME type</li>
+<li>Bytes are stored in <code>storage_objects</code></li>
+<li>Metadata row is created in <code>application_documents</code> or <code>talent_pool</code></li>
+</ol>
+
+<section class="he-section" id="client-shims">
+  <div class="he-section__num">05 · Client shims</div>
+  <h2 class="he-section__title">Client shims</h2><p><code>lib/storage-compat.ts</code> provides Supabase Storage API compatibility so existing
+client code (<code>supabase.storage.from(...)</code>) continues to work:</p>
+<ul>
+<li><code>getPublicUrl(bucket, path)</code> — returns internal <code>/api/files?...</code> URL</li>
+<li><code>upload(bucket, path, bytes, contentType)</code> — delegates to <code>/api/storage/upload</code></li>
+</ul>
+
+<section class="he-section" id="buckets">
+  <div class="he-section__num">06 · Buckets</div>
+  <h2 class="he-section__title">Buckets</h2><table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>application-documents</code></td>
+<td>CVs, licence scans, passport scans</td>
+</tr>
+<tr>
+<td><code>staff-documents</code></td>
+<td>HR documents</td>
+</tr>
+</tbody></table>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#table-schema">Table schema</a></li>
+    <li class="he-toc__l2"><a href="#api-endpoints">API endpoints</a></li>
+    <li class="he-toc__l2"><a href="#serving-files">Serving files</a></li>
+    <li class="he-toc__l2"><a href="#upload-flow">Upload flow</a></li>
+    <li class="he-toc__l2"><a href="#client-shims">Client shims</a></li>
+    <li class="he-toc__l2"><a href="#buckets">Buckets</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

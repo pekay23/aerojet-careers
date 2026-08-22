@@ -33,7 +33,7 @@
   <h2 class="he-section__title">Stack</h2><ul>
 <li><strong>Frontend:</strong> Next.js 16 App Router (React Server Components), React 19, Tailwind CSS v4, shadcn/ui + Radix, Framer Motion</li>
 <li><strong>Backend:</strong> Next.js API routes (serverless)</li>
-<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong>, primary) via <code>pg</code> Pool; <strong>Supabase</strong> retained as a secondary/backup source for a one-time data migration</li>
+<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong>, primary) via <code>pg</code> Pool; Supabase project is paused/backup only</li>
 <li><strong>Query layer:</strong> a Supabase-compatible query builder (<code>lib/db.ts</code>) so existing <code>.from().select()...</code> call-sites work unchanged against plain Postgres</li>
 <li><strong>Auth:</strong> local bcrypt password hashing + JWT session in an httpOnly cookie (<code>lib/auth.ts</code>) — replaced Supabase Auth</li>
 <li><strong>Files:</strong> <code>storage_objects</code> table (BYTEA), served through <code>/api/files</code> — replaced Supabase Storage</li>
@@ -45,12 +45,12 @@
   <div class="he-section__num">02 · Route layout</div>
   <h2 class="he-section__title">Route layout</h2><p>The public marketing/careers site and the authenticated admin portal live under
 the same App Router tree.</p>
-<pre><code>app/(public)/     → Legal pages (privacy, terms, cookies)
-app/              → Public careers site (home, jobs, apply/[slug], register,
-                    graduate-program, skilled-training)
-app/admin/        → Authenticated HR/admin portal (dashboard, applications, jobs,
-                    talent, people, organization, documents, settings, my-info)
-app/api/          → REST API (auth, admin/*, public applications, uploads, files)
+<pre><code>app/                   → Public careers site (home, jobs, apply/[slug], register,
+                          graduate-program, skilled-training, faq, our-story,
+                          check-status, login)
+app/admin/             → Authenticated HR/admin portal (dashboard, applications, jobs,
+                          talent, people, organization, documents, settings, my-info, hr)
+app/api/               → REST API (auth, admin/*, public applications, uploads, files)
 </code></pre>
 
 <section class="he-section" id="auth-enforcement-three-layers">

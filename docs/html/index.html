@@ -29,7 +29,7 @@
 </header>
 
 <div class="he-kpis">
-  <div class="he-kpi"><div class="he-kpi__value">15</div><div class="he-kpi__label">Generated pages</div></div>
+  <div class="he-kpi"><div class="he-kpi__value">25</div><div class="he-kpi__label">Generated pages</div></div>
   <div class="he-kpi"><div class="he-kpi__value">3</div><div class="he-kpi__label">Sections</div></div>
 </div>
 
@@ -48,7 +48,7 @@
     <a class="he-card" href="./AUDIT_REPORT_2026-08-11.html">
       <div class="he-card__eyebrow">Audit</div>
       <h3>Aerojet Aviation Careers Portal — Full Codebase Audit Report</h3>
-      <p>**Date:** 2026-08-11 **Project:** aerojet-careers (`C:\Projects\aerojet-careers`) **Auditors:** LLM Council — 2 Senior Dev Engineers, 1 UI/UX Specialist, 1 Non-</p>
+      <p>**Date:** 2026-08-11 **Updated:** 2026-08-12 **Project:** aerojet-careers (`C:\Projects\aerojet-careers`) **Auditors:** LLM Council — 2 Senior Dev Engineers, 1 </p>
       <div class="he-card__meta"><span>docs/AUDIT_REPORT_2026-08-11.md</span></div>
     </a>
     <a class="he-card" href="./LLM_COUNCIL_AUDIT_REPORT.html">
@@ -72,12 +72,12 @@
     <a class="he-card" href="./UNDONE_ISSUES_2026-08-11.html">
       <div class="he-card__eyebrow">Tracker</div>
       <h3>Aerojet Aviation Careers Portal — Undone Issues Tracker</h3>
-      <p>**Date:** 2026-08-11 **Purpose:** Track P0, P1, and P2 issues that were identified but not yet completed.</p>
+      <p>**Date:** 2026-08-11 **Updated:** 2026-08-12 **Purpose:** Track P0, P1, and P2 issues that were identified but not yet completed.</p>
       <div class="he-card__meta"><span>docs/UNDONE_ISSUES_2026-08-11.md</span></div>
     </a>
     <a class="he-card" href="./VERIFICATION_REPORT_2026-08-12.html">
       <div class="he-card__eyebrow">Verification</div>
-      <h3>Undone Issues — Verification Report</h3>
+      <h3>VERIFICATION_REPORT_2026-08-12</h3>
       <p>**Date:** 12 August 2026 **Scope:** All items in `docs/UNDONE_ISSUES_2026-08-11.md` **Method:** LLM Council framework — Senior Backend/Architecture Engineer, Se</p>
       <div class="he-card__meta"><span>docs/VERIFICATION_REPORT_2026-08-12.md</span></div>
     </a>
@@ -102,6 +102,36 @@
       <p>PostgreSQL on **Neon**.</p>
       <div class="he-card__meta"><span>docs/architecture/database.md</span></div>
     </a>
+    <a class="he-card" href="./architecture/file-storage.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>File Storage</h3>
+      <p>The portal uses a custom file storage system backed by the `storage_objects` table in Neon (BYTEA columns).</p>
+      <div class="he-card__meta"><span>docs/architecture/file-storage.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/logging.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>Structured Logging</h3>
+      <p>`lib/logger.ts` provides JSON-line structured logging with sensitive-key redaction. All server-side logs should use this instead of `console.*`.</p>
+      <div class="he-card__meta"><span>docs/architecture/logging.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/rate-limiting.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>Rate Limiting</h3>
+      <p>The portal uses **Upstash Redis** for rate limiting with an in-memory fallback.</p>
+      <div class="he-card__meta"><span>docs/architecture/rate-limiting.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/refresh-tokens.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>Refresh Tokens</h3>
+      <p>The portal uses one-time-use refresh tokens to rotate JWT sessions without forcing the user to re-authenticate.</p>
+      <div class="he-card__meta"><span>docs/architecture/refresh-tokens.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/sanitization.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>HTML Sanitization</h3>
+      <p>`lib/sanitize.ts` provides XSS prevention utilities for the portal.</p>
+      <div class="he-card__meta"><span>docs/architecture/sanitization.md</span></div>
+    </a>
     <a class="he-card" href="./architecture/security-model.html">
       <div class="he-card__eyebrow">Architecture</div>
       <h3>Security Model</h3>
@@ -113,6 +143,12 @@
       <h3>System Architecture Overview</h3>
       <p>The public marketing/careers site and the authenticated admin portal live under the same App Router tree.</p>
       <div class="he-card__meta"><span>docs/architecture/system-overview.md</span></div>
+    </a>
+    <a class="he-card" href="./architecture/validation.html">
+      <div class="he-card__eyebrow">Architecture</div>
+      <h3>Validation</h3>
+      <p>The portal uses **Zod** for schema validation across client forms and server API routes.</p>
+      <div class="he-card__meta"><span>docs/architecture/validation.md</span></div>
     </a>
   </div>
 </section>
@@ -128,6 +164,18 @@
       <h3>Deployment Guide</h3>
       <p>The portal deploys to **Vercel** (framework auto-detected as Next.js, region `lhr1` per `vercel.json`).</p>
       <div class="he-card__meta"><span>docs/guides/deployment.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/email.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Email</h3>
+      <p>The portal uses **Resend** for transactional email.</p>
+      <div class="he-card__meta"><span>docs/guides/email.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/forms.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Forms</h3>
+      <p>The portal's form system was refactored from a monolithic `ApplicationForm.tsx` into 13 reusable, typed components in `components/forms/`.</p>
+      <div class="he-card__meta"><span>docs/guides/forms.md</span></div>
     </a>
     <a class="he-card" href="./guides/handover.html">
       <div class="he-card__eyebrow">Guides</div>
@@ -146,6 +194,18 @@
       <h3>Setup Guide</h3>
       <p>Create `.env.local`:</p>
       <div class="he-card__meta"><span>docs/guides/setup.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/testing.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Testing</h3>
+      <p>The portal uses **Vitest** for unit/component tests and **Playwright** for E2E tests.</p>
+      <div class="he-card__meta"><span>docs/guides/testing.md</span></div>
+    </a>
+    <a class="he-card" href="./guides/troubleshooting.html">
+      <div class="he-card__eyebrow">Guides</div>
+      <h3>Troubleshooting</h3>
+      <p>Common issues and how to resolve them.</p>
+      <div class="he-card__meta"><span>docs/guides/troubleshooting.md</span></div>
     </a>
   </div>
 </section>

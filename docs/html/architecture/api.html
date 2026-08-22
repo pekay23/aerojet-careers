@@ -67,6 +67,12 @@
 <td>—</td>
 <td>Returns <code>{ user, admin }</code> for the current session (or nulls).</td>
 </tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/refresh</code></td>
+<td>—</td>
+<td>Rotates refresh token, issues new JWT session.</td>
+</tr>
 </tbody></table>
 
 <section class="he-section" id="public">
@@ -93,6 +99,16 @@
 <td>GET</td>
 <td><code>/api/metadata</code></td>
 <td>Public lookup data (departments, categories) for forms.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/stats</code></td>
+<td>Public stats (<code>{ activeJobs, departments }</code>).</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/check-status</code></td>
+<td>Look up application status by reference code.</td>
 </tr>
 <tr>
 <td>POST</td>
@@ -193,7 +209,7 @@
 <td>POST</td>
 <td><code>/api/admin/people/create</code></td>
 <td>admin, hr_manager</td>
-<td>Create a staff member directly.</td>
+<td>Create a staff member directly with temp password.</td>
 </tr>
 <tr>
 <td>PATCH</td>
@@ -273,6 +289,30 @@
 <td><code>/api/admin/stats</code> · <code>/api/admin/analytics/snapshot</code></td>
 <td>admin+</td>
 <td>Dashboard metrics + snapshots.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/analytics/snapshot</code></td>
+<td>admin+</td>
+<td>Create a dashboard snapshot.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/application/[id]</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Single application detail.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/applications/stats</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Pipeline counts.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/applications/events</code></td>
+<td>admin, hr_manager, recruiter</td>
+<td>Pipeline event history.</td>
 </tr>
 <tr>
 <td>GET</td>

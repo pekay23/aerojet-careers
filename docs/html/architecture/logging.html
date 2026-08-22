@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Structured Logging · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Architecture</p>
+  <h1 class="he-title">Structured Logging</h1>
+  <p class="he-deck"><code>lib/logger.ts</code> provides JSON-line structured logging with sensitive-key redaction. All server-side logs should use this instead of <code>console.*</code>.</p>
+</header>
+
+<section class="he-section" id="format">
+  <div class="he-section__num">01 · Format</div>
+  <h2 class="he-section__title">Format</h2><p>Each log line is a JSON object:</p>
+<pre><code class="language-json">{
+  &quot;ts&quot;: &quot;2026-08-12T22:00:00.000Z&quot;,
+  &quot;level&quot;: &quot;info&quot;,
+  &quot;msg&quot;: &quot;Application submitted&quot;,
+  &quot;prefix&quot;: &quot;applications&quot;,
+  &quot;correlationId&quot;: &quot;abc-123&quot;,
+  &quot;meta&quot;: { &quot;applicationId&quot;: &quot;uuid&quot; }
+}
+</code></pre>
+
+<section class="he-section" id="levels">
+  <div class="he-section__num">02 · Levels</div>
+  <h2 class="he-section__title">Levels</h2><ul>
+<li><code>debug</code> — verbose development info (not emitted in production)</li>
+<li><code>info</code> — general informational messages</li>
+<li><code>warn</code> — recoverable issues</li>
+<li><code>error</code> — errors with stack traces</li>
+</ul>
+
+<section class="he-section" id="redaction">
+  <div class="he-section__num">03 · Redaction</div>
+  <h2 class="he-section__title">Redaction</h2><p>Keys matching <code>password</code>, <code>token</code>, <code>secret</code>, <code>api_key</code>, <code>authorization</code>,
+<code>cookie</code>, <code>set_cookie</code>, <code>x-api-key</code> are automatically redacted to <code>***</code> in
+<code>meta</code> objects.</p>
+
+<section class="he-section" id="usage">
+  <div class="he-section__num">04 · Usage</div>
+  <h2 class="he-section__title">Usage</h2><pre><code class="language-ts">import { createLogger, withCorrelationId } from &#39;@/lib/logger&#39;
+
+const log = createLogger(&#39;my-feature&#39;)
+
+log.info(&#39;operation started&#39;, { userId: &#39;123&#39; })
+log.error(&#39;operation failed&#39;, { error: err.message })
+</code></pre>
+
+<section class="he-section" id="correlation-ids">
+  <div class="he-section__num">05 · Correlation IDs</div>
+  <h2 class="he-section__title">Correlation IDs</h2><p>Wrap async operations with <code>withCorrelationId()</code> to attach a request-scoped
+ID to all log lines:</p>
+<pre><code class="language-ts">await withCorrelationId(&#39;req-123&#39;, async () =&gt; {
+  // all logs inside here include correlationId: &#39;req-123&#39;
+})
+</code></pre>
+
+<section class="he-section" id="current-usage">
+  <div class="he-section__num">06 · Current usage</div>
+  <h2 class="he-section__title">Current usage</h2><ul>
+<li><code>lib/api-utils.ts</code> — logs auth failures and rate limit blocks</li>
+<li><code>app/api/admin/documents/route.ts</code> — logs document operations</li>
+<li>API route error handlers — logs unhandled exceptions</li>
+</ul>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#format">Format</a></li>
+    <li class="he-toc__l2"><a href="#levels">Levels</a></li>
+    <li class="he-toc__l2"><a href="#redaction">Redaction</a></li>
+    <li class="he-toc__l2"><a href="#usage">Usage</a></li>
+    <li class="he-toc__l2"><a href="#correlation-ids">Correlation IDs</a></li>
+    <li class="he-toc__l2"><a href="#current-usage">Current usage</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

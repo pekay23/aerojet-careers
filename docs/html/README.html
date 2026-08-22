@@ -32,8 +32,22 @@
   <div class="he-section__num">01 · Folder layout</div>
   <h2 class="he-section__title">Folder layout</h2><pre><code>docs/
 ├── README.md                   This index
+├── CHANGELOG_2026-08-12.md     Recent UI/UX, validation, and lint fixes
+├── AUDIT_REPORT_2026-08-11.md  Full codebase audit report (with 2026-08-12 addendum)
+├── AUDIT_DECISIONS.md          Decisions from the audit council
+├── UNDONE_ISSUES_2026-08-11.md Tracked issues awaiting future sprints (updated 2026-08-12)
 ├── architecture/               System reference — overview, database, security, API
+│   ├── refresh-tokens.md       Refresh token lifecycle and rotation
+│   ├── validation.md           Zod validation patterns and conventions
+│   ├── logging.md              Structured JSON logging with redaction
+│   ├── rate-limiting.md        Upstash Redis + memory rate limiting
+│   ├── sanitization.md         HTML sanitization (DOMPurify) and escapeHtml
+│   └── file-storage.md         Custom BYTEA-backed file storage
 ├── guides/                     Operational how-tos — setup, deployment, migration, handover
+│   ├── forms.md                Form component catalog and touched-state pattern
+│   ├── testing.md              Vitest + Playwright test guide
+│   ├── email.md                Resend email service and templates
+│   └── troubleshooting.md      Common issues and debug commands
 └── html/                       Generated HTML mirror (build with `bun run docs:html`)
 </code></pre>
 

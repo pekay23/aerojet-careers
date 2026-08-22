@@ -71,6 +71,7 @@ lifecycle timestamps).</li>
 <li><strong>document_folders</strong> / <strong>staff_documents</strong> — internal HR document library.</li>
 <li><strong>email_logs</strong> — every transactional email send (status, provider id, errors).</li>
 <li><strong>dashboard_snapshots</strong> — cached analytics snapshots.</li>
+<li><strong>refresh_tokens</strong> — one-time-use refresh tokens with TTL for JWT session rotation.</li>
 <li><strong>storage_objects</strong> — file bytes (BYTEA) keyed by <code>(bucket, path)</code> with <code>content_type</code>
 and <code>size</code>. Replaces Supabase Storage buckets; served through <code>/api/files</code>.</li>
 </ul>

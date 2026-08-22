@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Email · Aerojet Careers</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="../index.html">Index</a>
+    <a href="../architecture/system-overview.html">Architecture</a>
+    <a href="../guides/setup.html">Guides</a>
+    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
+    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Guides</p>
+  <h1 class="he-title">Email</h1>
+  <p class="he-deck">The portal uses <strong>Resend</strong> for transactional email.</p>
+</header>
+
+<section class="he-section" id="core-functions">
+  <div class="he-section__num">01 · Core functions</div>
+  <h2 class="he-section__title">Core functions</h2><h3 id="sendemailto-subject-html-from"><code>sendEmail(to, subject, html, from?)</code></h3><p>Sends a single email via Resend. Falls back to <code>EMAIL_FROM</code> if no sender is
+specified.</p>
+<h3 id="sendbulkemailsrecipients-subject-html-from"><code>sendBulkEmails(recipients, subject, html, from?)</code></h3><p>Sends the same email to multiple recipients. Processes in batches to avoid
+rate limits.</p>
+
+<section class="he-section" id="retry-strategy">
+  <div class="he-section__num">02 · Retry strategy</div>
+  <h2 class="he-section__title">Retry strategy</h2><p>Both functions implement a 3-attempt backoff:</p>
+<ol>
+<li>First attempt: immediate</li>
+<li>Second attempt: 1 second delay</li>
+<li>Third attempt: 2 seconds delay</li>
+</ol>
+<p>Failures after 3 attempts are returned to the caller.</p>
+
+<section class="he-section" id="templates">
+  <div class="he-section__num">03 · Templates</div>
+  <h2 class="he-section__title">Templates</h2><p>Email templates are stored as React components in
+<code>app/admin/settings/email-templates/</code> and rendered server-side before sending.</p>
+<p>Current templates:</p>
+<ul>
+<li><strong>Application acknowledgment</strong> — sent automatically on application submit</li>
+<li><strong>Status change notification</strong> — sent when admin updates application stage</li>
+<li><strong>Credentials</strong> — sent when admin creates a new staff member</li>
+</ul>
+
+<section class="he-section" id="logging">
+  <div class="he-section__num">04 · Logging</div>
+  <h2 class="he-section__title">Logging</h2><p>Every send is logged to the <code>email_logs</code> table:</p>
+<pre><code class="language-sql">email_logs
+  id          uuid
+  recipient   text
+  subject     text
+  provider_id text       -- Resend message ID
+  status      text       -- sent, delivered, bounced, failed
+  error       text       -- provider error message
+  sent_at     timestamptz
+</code></pre>
+
+<section class="he-section" id="acknowledgment-flow">
+  <div class="he-section__num">05 · Acknowledgment flow</div>
+  <h2 class="he-section__title">Acknowledgment flow</h2><pre><code>POST /api/applications
+  → validate + insert application
+  → POST /api/email/acknowledge
+    → render acknowledgment template
+    → sendEmail(applicant.email, subject, html)
+    → insert email_log
+</code></pre>
+<p>Email failures are non-blocking — the application is still created even if the
+acknowledgment fails.</p>
+
+<section class="he-section" id="configuration">
+  <div class="he-section__num">06 · Configuration</div>
+  <h2 class="he-section__title">Configuration</h2><table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RESEND_API_KEY</code></td>
+<td>Resend API key</td>
+</tr>
+<tr>
+<td><code>EMAIL_FROM</code></td>
+<td>Default sender address</td>
+</tr>
+</tbody></table>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#core-functions">Core functions</a></li>
+    <li class="he-toc__l3"><a href="#sendemailto-subject-html-from">sendEmail(to, subject, html, from?)</a></li>
+    <li class="he-toc__l3"><a href="#sendbulkemailsrecipients-subject-html-from">sendBulkEmails(recipients, subject, html, from?)</a></li>
+    <li class="he-toc__l2"><a href="#retry-strategy">Retry strategy</a></li>
+    <li class="he-toc__l2"><a href="#templates">Templates</a></li>
+    <li class="he-toc__l2"><a href="#logging">Logging</a></li>
+    <li class="he-toc__l2"><a href="#acknowledgment-flow">Acknowledgment flow</a></li>
+    <li class="he-toc__l2"><a href="#configuration">Configuration</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>
