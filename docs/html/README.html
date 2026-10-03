@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Aerojet Careers — Documentation · Aerojet Careers</title>
-<link rel="stylesheet" href="./design-tokens.css">
-<link rel="stylesheet" href="./docs.css">
+<link rel="stylesheet" href="design-tokens.css">
+<link rel="stylesheet" href="docs.css">
 </head>
 <body>
 <div class="he-shell he-shell--wide">
@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="./index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="./index.html">Index</a>
-    <a href="./architecture/system-overview.html">Architecture</a>
-    <a href="./guides/setup.html">Guides</a>
-    <a href="./AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="./UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="./architecture/index.html">Architecture</a>
+    <a href="./guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -27,80 +25,6 @@
   <h1 class="he-title">Aerojet Careers — Documentation</h1>
   <p class="he-deck">All project documentation lives here, organised by purpose.</p>
 </header>
-
-<section class="he-section" id="folder-layout">
-  <div class="he-section__num">01 · Folder layout</div>
-  <h2 class="he-section__title">Folder layout</h2><pre><code>docs/
-├── README.md                   This index
-├── CHANGELOG_2026-08-12.md     Recent UI/UX, validation, and lint fixes
-├── AUDIT_REPORT_2026-08-11.md  Full codebase audit report (with 2026-08-12 addendum)
-├── AUDIT_DECISIONS.md          Decisions from the audit council
-├── UNDONE_ISSUES_2026-08-11.md Tracked issues awaiting future sprints (updated 2026-08-12)
-├── architecture/               System reference — overview, database, security, API
-│   ├── refresh-tokens.md       Refresh token lifecycle and rotation
-│   ├── validation.md           Zod validation patterns and conventions
-│   ├── logging.md              Structured JSON logging with redaction
-│   ├── rate-limiting.md        Upstash Redis + memory rate limiting
-│   ├── sanitization.md         HTML sanitization (DOMPurify) and escapeHtml
-│   └── file-storage.md         Custom BYTEA-backed file storage
-├── guides/                     Operational how-tos — setup, deployment, migration, handover
-│   ├── forms.md                Form component catalog and touched-state pattern
-│   ├── testing.md              Vitest + Playwright test guide
-│   ├── email.md                Resend email service and templates
-│   └── troubleshooting.md      Common issues and debug commands
-└── html/                       Generated HTML mirror (build with `bun run docs:html`)
-</code></pre>
-
-<section class="he-section" id="naming-conventions">
-  <div class="he-section__num">02 · Naming conventions</div>
-  <h2 class="he-section__title">Naming conventions</h2><ul>
-<li>Filenames are lowercase <code>kebab-case</code> (<code>system-overview.md</code>, not <code>SYSTEM_OVERVIEW.md</code>).</li>
-<li>Architecture docs describe <em>how the system is built</em>; guides describe <em>how to do something</em>.</li>
-</ul>
-
-<section class="he-section" id="architecture">
-  <div class="he-section__num">03 · Architecture</div>
-  <h2 class="he-section__title">Architecture</h2><p>System reference — read these to understand how the portal is built.</p>
-<ul>
-<li><a href="./architecture/system-overview.html">System overview</a> — stack, route layout, auth layers</li>
-<li><a href="./architecture/database.html">Database schema</a> — tables, relationships, enums</li>
-<li><a href="./architecture/security-model.html">Security model</a> — auth flow, roles, route guard</li>
-<li><a href="./architecture/api.html">API reference</a> — endpoints + response conventions</li>
-</ul>
-
-<section class="he-section" id="guides">
-  <div class="he-section__num">04 · Guides</div>
-  <h2 class="he-section__title">Guides</h2><p>Operational how-tos — read these to <em>do</em> something.</p>
-<ul>
-<li><a href="./guides/setup.html">Setup</a> — install, env, schema, seed, run</li>
-<li><a href="./guides/deployment.html">Deployment</a> — Vercel deploy + env config</li>
-<li><a href="./guides/neon-migration.html">Neon migration</a> — Supabase → Neon runbook + data backup/restore</li>
-<li><a href="./guides/handover.html">Handover</a> — onboarding for a new developer</li>
-</ul>
-
-<section class="he-section" id="stack-at-a-glance">
-  <div class="he-section__num">05 · Stack at a glance</div>
-  <h2 class="he-section__title">Stack at a glance</h2><ul>
-<li><strong>Frontend:</strong> Next.js 16 (App Router), React 19, Tailwind CSS 4, shadcn/ui + Radix, Framer Motion</li>
-<li><strong>Backend:</strong> Next.js API routes (serverless)</li>
-<li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong>, primary) via <code>pg</code> + a Supabase-compatible query builder; <strong>Supabase</strong> retained as secondary/backup</li>
-<li><strong>Auth:</strong> Local bcrypt + JWT session cookie (replaced Supabase Auth)</li>
-<li><strong>Storage:</strong> <code>storage_objects</code> table served through <code>/api/files</code> (replaced Supabase Storage)</li>
-<li><strong>Email:</strong> Resend</li>
-<li><strong>Hosting:</strong> Vercel (region <code>lhr1</code>), edge route guard in <code>proxy.ts</code></li>
-</ul>
-
-<section class="he-section" id="rebuilding-the-html-mirror">
-  <div class="he-section__num">06 · Rebuilding the HTML mirror</div>
-  <h2 class="he-section__title">Rebuilding the HTML mirror</h2><pre><code class="language-bash">bun run docs:html      # or: node scripts/build-docs-html.mjs
-</code></pre>
-<p>This regenerates every <code>.md</code> under <code>architecture/</code> and <code>guides/</code> into a styled HTML
-page at <code>docs/html/&lt;section&gt;/&lt;slug&gt;.html</code>, plus a <code>docs/html/index.html</code> linking them
-all. Internal <code>.md</code> links are rewritten to <code>.html</code> automatically. The generator lives
-at <a href="../scripts/build-docs-html.mjs"><code>scripts/build-docs-html.mjs</code></a> and uses
-<a href="https://marked.js.org/">marked</a>; it writes its own <code>design-tokens.css</code> + <code>docs.css</code>
-into <code>docs/html/</code>, so there are no external dependencies. Open
-<a href="./html/index.html"><code>docs/html/index.html</code></a> to browse.</p>
 
 </main>
 
@@ -117,7 +41,7 @@ into <code>docs/html/</code>, so there are no external dependencies. Open
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

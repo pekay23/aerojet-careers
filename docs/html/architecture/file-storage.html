@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -27,11 +25,9 @@
   <h1 class="he-title">File Storage</h1>
   <p class="he-deck">The portal uses a custom file storage system backed by the <code>storage_objects</code> table in Neon (BYTEA columns).</p>
 </header>
-
-<section class="he-section" id="table-schema">
-  <div class="he-section__num">01 · Table schema</div>
-  <h2 class="he-section__title">Table schema</h2><pre><code class="language-sql">storage_objects
-  bucket      text        -- logical bucket (e.g. &#39;application-documents&#39;)
+<section class="he-section" id="table-schema"><div class="he-section__num">01 · Table schema</div><h2 class="he-section__title">Table schema</h2></section>
+<pre><code class="language-sql">storage_objects
+  bucket      text        -- logical bucket (e.g. 'application-documents')
   path        text        -- unique path within bucket
   content     bytea       -- file bytes
   content_type text       -- MIME type
@@ -39,90 +35,50 @@
   created_at  timestamptz
 </code></pre>
 <p>Primary key: <code>(bucket, path)</code></p>
-
-<section class="he-section" id="api-endpoints">
-  <div class="he-section__num">02 · API endpoints</div>
-  <h2 class="he-section__title">API endpoints</h2><table>
+<section class="he-section" id="api-endpoints"><div class="he-section__num">02 · API endpoints</div><h2 class="he-section__title">API endpoints</h2></section>
+<table>
 <thead>
-<tr>
-<th>Method</th>
-<th>Path</th>
-<th>Auth</th>
-<th>Purpose</th>
-</tr>
+<tr><th>Method</th><th>Path</th><th>Auth</th><th>Purpose</th></tr>
 </thead>
-<tbody><tr>
-<td>POST</td>
-<td><code>/api/storage/upload</code></td>
-<td>session</td>
-<td>Generic authenticated upload. Stores bytes in <code>storage_objects</code>.</td>
-</tr>
-<tr>
-<td>GET</td>
-<td><code>/api/files?bucket=&amp;path=</code></td>
-<td>session</td>
-<td>Serves a stored file with <code>Content-Disposition: inline</code>.</td>
-</tr>
-<tr>
-<td>POST</td>
-<td><code>/api/upload</code></td>
-<td>session</td>
-<td>Application document upload (legacy wrapper).</td>
-</tr>
-<tr>
-<td>POST</td>
-<td><code>/api/upload/talent</code></td>
-<td>session</td>
-<td>Talent CV upload; sets <code>talent_pool.cv_path</code>.</td>
-</tr>
-</tbody></table>
-
-<section class="he-section" id="serving-files">
-  <div class="he-section__num">03 · Serving files</div>
-  <h2 class="he-section__title">Serving files</h2><p><code>/api/files</code> checks the session before serving any file. Files are never exposed
+<tbody>
+<tr><td>POST</td><td><code>/api/storage/upload</code></td><td>session</td><td>Generic authenticated upload. Stores bytes in <code>storage_objects</code>.</td></tr>
+<tr><td>GET</td><td><code>/api/files?bucket=&amp;path=</code></td><td>session</td><td>Serves a stored file with <code>Content-Disposition: inline</code>.</td></tr>
+<tr><td>POST</td><td><code>/api/upload</code></td><td>session</td><td>Application document upload (legacy wrapper).</td></tr>
+<tr><td>POST</td><td><code>/api/upload/talent</code></td><td>session</td><td>Talent CV upload; sets <code>talent_pool.cv_path</code>.</td></tr>
+</tbody>
+</table>
+<section class="he-section" id="serving-files"><div class="he-section__num">03 · Serving files</div><h2 class="he-section__title">Serving files</h2></section>
+<p><code>/api/files</code> checks the session before serving any file. Files are never exposed
 via public URLs. The response includes:</p>
 <ul>
 <li><code>Content-Type</code> from <code>content_type</code></li>
 <li><code>Content-Disposition: inline</code> (browser displays inline when possible)</li>
 <li><code>Content-Length</code> from <code>size</code></li>
 </ul>
-
-<section class="he-section" id="upload-flow">
-  <div class="he-section__num">04 · Upload flow</div>
-  <h2 class="he-section__title">Upload flow</h2><ol>
+<section class="he-section" id="upload-flow"><div class="he-section__num">04 · Upload flow</div><h2 class="he-section__title">Upload flow</h2></section>
+<ol>
 <li>Client sends <code>FormData</code> with <code>file</code> + metadata</li>
 <li>Route validates size (max 5 MB) and MIME type</li>
 <li>Bytes are stored in <code>storage_objects</code></li>
 <li>Metadata row is created in <code>application_documents</code> or <code>talent_pool</code></li>
 </ol>
-
-<section class="he-section" id="client-shims">
-  <div class="he-section__num">05 · Client shims</div>
-  <h2 class="he-section__title">Client shims</h2><p><code>lib/storage-compat.ts</code> provides Supabase Storage API compatibility so existing
+<section class="he-section" id="client-shims"><div class="he-section__num">05 · Client shims</div><h2 class="he-section__title">Client shims</h2></section>
+<p><code>lib/storage-compat.ts</code> provides Supabase Storage API compatibility so existing
 client code (<code>supabase.storage.from(...)</code>) continues to work:</p>
 <ul>
 <li><code>getPublicUrl(bucket, path)</code> — returns internal <code>/api/files?...</code> URL</li>
 <li><code>upload(bucket, path, bytes, contentType)</code> — delegates to <code>/api/storage/upload</code></li>
 </ul>
-
-<section class="he-section" id="buckets">
-  <div class="he-section__num">06 · Buckets</div>
-  <h2 class="he-section__title">Buckets</h2><table>
+<section class="he-section" id="buckets"><div class="he-section__num">06 · Buckets</div><h2 class="he-section__title">Buckets</h2></section>
+<table>
 <thead>
-<tr>
-<th>Bucket</th>
-<th>Purpose</th>
-</tr>
+<tr><th>Bucket</th><th>Purpose</th></tr>
 </thead>
-<tbody><tr>
-<td><code>application-documents</code></td>
-<td>CVs, licence scans, passport scans</td>
-</tr>
-<tr>
-<td><code>staff-documents</code></td>
-<td>HR documents</td>
-</tr>
-</tbody></table>
+<tbody>
+<tr><td><code>application-documents</code></td><td>CVs, licence scans, passport scans</td></tr>
+<tr><td><code>staff-documents</code></td><td>HR documents</td></tr>
+</tbody>
+</table>
 
 </main>
 
@@ -139,7 +95,7 @@ client code (<code>supabase.storage.from(...)</code>) continues to work:</p>
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

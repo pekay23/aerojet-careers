@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Email System Audit Report · Aerojet Careers</title>
+<link rel="stylesheet" href="design-tokens.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+<div class="he-shell he-shell--wide">
+
+<nav class="he-nav">
+  <a class="he-nav__brand" href="./index.html">Aerojet Careers <small>docs</small></a>
+  <div class="he-nav__links">
+    <a href="./index.html">Index</a>
+    <a href="./architecture/index.html">Architecture</a>
+    <a href="./guides/index.html">Guides</a>
+  </div>
+</nav>
+<div class="he-layout">
+<main class="he-main">
+<header>
+  <p class="he-eyebrow">Docs</p>
+  <h1 class="he-title">Email System Audit Report</h1>
+  <p class="he-deck"><strong>Date:</strong> 2026-08-13 <strong>Project:</strong> aerojet-careers <strong>Auditor:</strong> Kilo (CLI) <strong>Scope:</strong> Email templates, email service implementation, API routes, logging, configuration, and delivery reliability…</p>
+</header>
+<hr />
+<section class="he-section" id="executive-summary"><div class="he-section__num">01 · Executive Summary</div><h2 class="he-section__title">Executive Summary</h2></section>
+<p>The email system is <strong>functional but minimal</strong>. It uses Resend as the sole transactional email provider with a single hardcoded HTML template for application acknowledgments and one hardcoded template for staff welcome emails. There is no template management UI, no fallback provider, no unsubscribe handling, and limited error observability beyond console logging.</p>
+<p><strong>Overall Grade: C+ (Functional, but needs hardening for production scale)</strong></p>
+<table>
+<thead>
+<tr><th>Domain</th><th>Grade</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>Delivery</td><td>B-</td><td>Resend is reliable; no fallback provider</td></tr>
+<tr><td>Templates</td><td>C</td><td>Only 2 templates, both hardcoded in TS files</td></tr>
+<tr><td>Observability</td><td>C+</td><td>Email logs table exists but is basic</td></tr>
+<tr><td>Error handling</td><td>C</td><td>Failures are logged but not retried automatically</td></tr>
+<tr><td>Compliance</td><td>C</td><td>No unsubscribe mechanism, no explicit From name consistency</td></tr>
+<tr><td>Security</td><td>B-</td><td>No sensitive data in templates; secrets server-only</td></tr>
+</tbody>
+</table>
+<hr />
+<section class="he-section" id="1-email-service-implementation"><div class="he-section__num">02 · 1. Email Service Implementation</div><h2 class="he-section__title">1. Email Service Implementation</h2></section>
+<p><strong>File:</strong> <code>lib/email-service.ts</code></p>
+<h3 id="functions">Functions</h3>
+<h4 id="sendwelcomeemailemail-fullname-temppassword"><code>sendWelcomeEmail(email, fullName, tempPassword)</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Sends credentials to newly hired staff</li>
+<li><strong>Template:</strong> Hardcoded HTML inline string</li>
+<li><strong>From:</strong> <code>EMAIL_FROM</code> env var (fallback: <code>onboarding@aerojet-aviation.com</code>)</li>
+<li><strong>Subject:</strong> &quot;Welcome to Aerojet Aviation - Your Staff Account is Ready&quot;</li>
+<li><strong>Retry:</strong> None — single attempt</li>
+<li><strong>Logging:</strong> Console.error only (<code>console.error('Resend error:', error)</code>)</li>
+<li><strong>Return:</strong> <code>{ success: boolean, error?: string }</code></li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ul>
+<li>No retry/backoff on failure (unlike the documented 3-attempt backoff in CLAUDE.md)</li>
+<li>Password sent in plaintext email — acceptable for onboarding but should be flagged as a security consideration</li>
+<li>No template versioning or editing capability</li>
+</ul>
+<h4 id="sendacknowledgmentemailto-firstname-lastname-refcode-jobtitle"><code>sendAcknowledgmentEmail(to, firstName, lastName, refCode, jobTitle)</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Sent automatically when a candidate submits an application</li>
+<li><strong>Template:</strong> Hardcoded HTML inline string</li>
+<li><strong>From:</strong> <code>EMAIL_FROM</code> env var (fallback: <code>recruitment@aerojet-aviation.com</code>)</li>
+<li><strong>Subject:</strong> <code>Application received – ${jobTitle} [${refCode}]</code></li>
+<li><strong>Retry:</strong> None — single attempt</li>
+<li><strong>Logging:</strong> Inserts into <code>email_logs</code> table</li>
+<li><strong>Return:</strong> <code>{ success: boolean, error?: string }</code></li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ul>
+<li>No retry/backoff</li>
+<li>Template is minimal — no branding, no company logo, no footer with contact details</li>
+<li>No tracking/opens/clicks (not critical for recruitment)</li>
+</ul>
+<hr />
+<section class="he-section" id="2-email-templates"><div class="he-section__num">03 · 2. Email Templates</div><h2 class="he-section__title">2. Email Templates</h2></section>
+<h3 id="current-templates">Current Templates</h3>
+<table>
+<thead>
+<tr><th>Template</th><th>Location</th><th>Type</th><th>Editable?</th></tr>
+</thead>
+<tbody>
+<tr><td>Staff Welcome</td><td><code>lib/email-service.ts:6-52</code></td><td>Hardcoded HTML</td><td>No</td></tr>
+<tr><td>Application Acknowledgment</td><td><code>lib/email-service.ts:54-121</code></td><td>Hardcoded HTML</td><td>No</td></tr>
+</tbody>
+</table>
+<h3 id="template-gaps">Template Gaps</h3>
+<ol>
+<li><strong>No status change notification template</strong> — When an admin updates an application status (e.g., shortlisted → interview), the candidate should receive a notification email. No template exists for this.</li>
+<li><strong>No rejection email template</strong> — Candidates never receive a rejection notification.</li>
+<li><strong>No offer letter template</strong> — No template for sending job offers.</li>
+<li><strong>No bulk email template</strong> — <code>sendBulkEmails()</code> is documented but not implemented.</li>
+<li><strong>No email preview in admin UI</strong> — There is an <code>app/admin/settings/email-templates/</code> directory referenced in docs but it appears to be empty or non-functional.</li>
+</ol>
+<h3 id="template-quality">Template Quality</h3>
+<p><strong>Staff Welcome Email:</strong></p>
+<ul>
+<li>✅ Includes temporary password in a styled box</li>
+<li>✅ Has login CTA button</li>
+<li>✅ Has security warning about password sharing</li>
+<li>❌ No company logo/header image</li>
+<li>❌ No contact/support information</li>
+<li>❌ No plain-text alternative (resend SDK may handle this)</li>
+</ul>
+<p><strong>Application Acknowledgment:</strong></p>
+<ul>
+<li>✅ Includes reference code and job title</li>
+<li>✅ Has check-status CTA</li>
+<li>❌ No branding/logo</li>
+<li>❌ No footer with company details</li>
+<li>❌ Minimal styling — looks like a plain email</li>
+<li>❌ No mention of next steps or timeline</li>
+</ul>
+<hr />
+<section class="he-section" id="3-email-api-routes"><div class="he-section__num">04 · 3. Email API Routes</div><h2 class="he-section__title">3. Email API Routes</h2></section>
+<h3 id="apiemailacknowledge"><code>/api/email/acknowledge</code></h3>
+<ul>
+<li><strong>File:</strong> <code>app/api/email/acknowledge/route.ts</code></li>
+<li><strong>Purpose:</strong> Trigger application acknowledgment email after submit</li>
+<li><strong>Auth:</strong> Not explicitly protected — should verify the application exists and the caller is authorized</li>
+<li><strong>Implementation:</strong> Calls <code>sendAcknowledgmentEmail()</code> directly</li>
+</ul>
+<h3 id="apiadminpeoplecreate"><code>/api/admin/people/create</code></h3>
+<ul>
+<li><strong>File:</strong> <code>app/api/admin/people/create/route.ts</code></li>
+<li><strong>Purpose:</strong> Creates staff and sends welcome email</li>
+<li><strong>Auth:</strong> Protected by <code>verifyRole(['admin', 'hr_manager'])</code></li>
+<li><strong>Implementation:</strong> Calls <code>sendWelcomeEmail()</code> after creating the user</li>
+</ul>
+<h3 id="other-email-related-routes">Other email-related routes</h3>
+<ul>
+<li>No dedicated route for status change notifications</li>
+<li>No route for bulk emails</li>
+<li>No route for template management</li>
+</ul>
+<hr />
+<section class="he-section" id="4-email-logging"><div class="he-section__num">05 · 4. Email Logging</div><h2 class="he-section__title">4. Email Logging</h2></section>
+<p><strong>Table:</strong> <code>email_logs</code></p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li><code>id</code> (uuid)</li>
+<li><code>recipient</code> (text)</li>
+<li><code>subject</code> (text)</li>
+<li><code>template</code> (text) — only used for acknowledgments (<code>application_acknowledgement</code>)</li>
+<li><code>status</code> (text) — <code>sent</code> or <code>failed</code></li>
+<li><code>provider_id</code> (text) — Resend message ID</li>
+<li><code>error</code> (text) — error message if failed</li>
+<li><code>sent_at</code> (timestamptz)</li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ul>
+<li><code>template</code> field is not populated for welcome emails</li>
+<li>No <code>admin_user_id</code> to track who triggered the email</li>
+<li>No <code>application_id</code> to link emails to applications</li>
+<li>No query/index on <code>sent_at</code> for time-range lookups</li>
+<li>No admin UI to view/manage email logs</li>
+</ul>
+<hr />
+<section class="he-section" id="5-configuration"><div class="he-section__num">06 · 5. Configuration</div><h2 class="he-section__title">5. Configuration</h2></section>
+<h3 id="environment-variables">Environment Variables</h3>
+<table>
+<thead>
+<tr><th>Variable</th><th>Required</th><th>Used In</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>RESEND_API_KEY</code></td><td>Yes</td><td><code>lib/email-service.ts</code></td><td>Server-only</td></tr>
+<tr><td><code>EMAIL_FROM</code></td><td>Yes</td><td><code>lib/email-service.ts</code></td><td>Fallbacks differ between functions</td></tr>
+<tr><td><code>NEXT_PUBLIC_APP_URL</code></td><td>Yes</td><td><code>lib/email-service.ts</code></td><td>Used for links in emails</td></tr>
+</tbody>
+</table>
+<p><strong>Issues:</strong></p>
+<ul>
+<li><code>EMAIL_FROM</code> fallback is inconsistent:
+<ul>
+<li><code>sendWelcomeEmail</code>: <code>onboarding@aerojet-aviation.com</code></li>
+<li><code>sendAcknowledgmentEmail</code>: <code>recruitment@aerojet-aviation.com</code></li>
+</ul>
+</li>
+<li>No <code>EMAIL_REPLY_TO</code> configuration</li>
+<li>No <code>RESEND_WEBHOOK_SECRET</code> for delivery webhooks</li>
+</ul>
+<hr />
+<section class="he-section" id="6-security-amp-compliance"><div class="he-section__num">07 · 6. Security &amp;amp; Compliance</div><h2 class="he-section__title">6. Security &amp; Compliance</h2></section>
+<h3 id="positive-findings">Positive Findings</h3>
+<ul>
+<li>✅ API keys are server-only (not exposed to browser)</li>
+<li>✅ No sensitive data logged to console in production paths</li>
+<li>✅ Resend SDK handles DKIM/DMARC automatically</li>
+<li>✅ No user passwords or tokens in email templates</li>
+</ul>
+<h3 id="concerns">Concerns</h3>
+<ul>
+<li>⚠️ Temporary passwords sent via email — acceptable for onboarding but should force reset on first login</li>
+<li>⚠️ No unsubscribe mechanism — required for marketing emails, less critical for transactional</li>
+<li>⚠️ No rate limiting on email sending — a bug could trigger mass emails</li>
+<li>⚠️ No bounce/complaint handling — Resend can send webhooks for these</li>
+</ul>
+<hr />
+<section class="he-section" id="7-recommendations"><div class="he-section__num">08 · 7. Recommendations</div><h2 class="he-section__title">7. Recommendations</h2></section>
+<h3 id="high-priority">High Priority</h3>
+<ol>
+<li><strong>Implement retry/backoff</strong> — Add 3-attempt retry to <code>sendWelcomeEmail</code> to match the documented behavior</li>
+<li><strong>Add status change email template</strong> — Notify candidates when their application status changes</li>
+<li><strong>Add rejection email template</strong> — Professional rejection notification</li>
+<li><strong>Populate <code>template</code> field in welcome email logs</strong> — For consistency with acknowledgment logs</li>
+</ol>
+<h3 id="medium-priority">Medium Priority</h3>
+<ol start="5">
+<li><strong>Add email template management UI</strong> — Allow admins to edit templates without code changes</li>
+<li><strong>Add reply-to header</strong> — Set <code>reply_to</code> to <code>careers@aerojet-aviation.com</code></li>
+<li><strong>Add Resend webhook handler</strong> — Track bounces, deliveries, and complaints</li>
+<li><strong>Add rate limiting</strong> — Prevent mass email abuse</li>
+</ol>
+<h3 id="low-priority">Low Priority</h3>
+<ol start="9">
+<li><strong>Improve email branding</strong> — Add company logo and better styling</li>
+<li><strong>Add plain-text alternatives</strong> — For accessibility and email clients that block HTML</li>
+<li><strong>Consolidate <code>EMAIL_FROM</code> fallback</strong> — Use a single default across all functions</li>
+</ol>
+<hr />
+<section class="he-section" id="8-email-logs-schema"><div class="he-section__num">09 · 8. Email Logs Schema</div><h2 class="he-section__title">8. Email Logs Schema</h2></section>
+<pre><code class="language-sql">-- Current schema (from neon-schema.sql)
+CREATE TABLE IF NOT EXISTS email_logs (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  recipient   TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  template    TEXT,
+  status      TEXT NOT NULL DEFAULT 'pending',
+  provider_id TEXT,
+  error       TEXT,
+  sent_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+</code></pre>
+<p><strong>Recommended additions:</strong></p>
+<pre><code class="language-sql">  admin_user_id UUID REFERENCES admin_users(id),  -- who triggered it
+  application_id UUID REFERENCES applications(id), -- linked application
+  category TEXT DEFAULT 'transactional',  -- transactional vs notification vs system
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+</code></pre>
+<hr />
+<section class="he-section" id="9-testing-status"><div class="he-section__num">10 · 9. Testing Status</div><h2 class="he-section__title">9. Testing Status</h2></section>
+<ul>
+<li>No unit tests for <code>lib/email-service.ts</code></li>
+<li>No E2E tests for email delivery</li>
+<li>No mock Resend client in tests</li>
+</ul>
+<p><strong>Recommended tests:</strong></p>
+<ul>
+<li>Unit test: <code>sendAcknowledgmentEmail</code> with mock Resend client</li>
+<li>Unit test: <code>sendWelcomeEmail</code> with mock Resend client</li>
+<li>Integration test: Verify <code>email_logs</code> insertion after send</li>
+</ul>
+<hr />
+<section class="he-section" id="appendix-current-email-flow"><div class="he-section__num">11 · Appendix: Current Email Flow</div><h2 class="he-section__title">Appendix: Current Email Flow</h2></section>
+<pre><code>Application Submit
+  → POST /api/applications
+  → POST /api/email/acknowledge
+  → sendAcknowledgmentEmail()
+  → Resend API
+  → email_logs insert
+
+Staff Hire
+  → POST /api/admin/hire
+  → sendWelcomeEmail()
+  → Resend API
+  → (no email_logs insert)
+</code></pre>
+
+</main>
+
+<aside class="he-toc" aria-label="On this page">
+  <p class="he-toc__label">On this page</p>
+  <ul>
+    <li class="he-toc__l2"><a href="#executive-summary">Executive Summary</a></li>
+    <li class="he-toc__l2"><a href="#1-email-service-implementation">1. Email Service Implementation</a></li>
+    <li class="he-toc__l3"><a href="#functions">Functions</a></li>
+    <li class="he-toc__l2"><a href="#2-email-templates">2. Email Templates</a></li>
+    <li class="he-toc__l3"><a href="#current-templates">Current Templates</a></li>
+    <li class="he-toc__l3"><a href="#template-gaps">Template Gaps</a></li>
+    <li class="he-toc__l3"><a href="#template-quality">Template Quality</a></li>
+    <li class="he-toc__l2"><a href="#3-email-api-routes">3. Email API Routes</a></li>
+    <li class="he-toc__l3"><a href="#apiemailacknowledge">/api/email/acknowledge</a></li>
+    <li class="he-toc__l3"><a href="#apiadminpeoplecreate">/api/admin/people/create</a></li>
+    <li class="he-toc__l3"><a href="#other-email-related-routes">Other email-related routes</a></li>
+    <li class="he-toc__l2"><a href="#4-email-logging">4. Email Logging</a></li>
+    <li class="he-toc__l2"><a href="#5-configuration">5. Configuration</a></li>
+    <li class="he-toc__l3"><a href="#environment-variables">Environment Variables</a></li>
+    <li class="he-toc__l2"><a href="#6-security-compliance">6. Security &amp; Compliance</a></li>
+    <li class="he-toc__l3"><a href="#positive-findings">Positive Findings</a></li>
+    <li class="he-toc__l3"><a href="#concerns">Concerns</a></li>
+    <li class="he-toc__l2"><a href="#7-recommendations">7. Recommendations</a></li>
+    <li class="he-toc__l3"><a href="#high-priority">High Priority</a></li>
+    <li class="he-toc__l3"><a href="#medium-priority">Medium Priority</a></li>
+    <li class="he-toc__l3"><a href="#low-priority">Low Priority</a></li>
+    <li class="he-toc__l2"><a href="#8-email-logs-schema">8. Email Logs Schema</a></li>
+    <li class="he-toc__l2"><a href="#9-testing-status">9. Testing Status</a></li>
+    <li class="he-toc__l2"><a href="#appendix-current-email-flow">Appendix: Current Email Flow</a></li>
+  </ul>
+</aside>
+</div>
+<footer class="he-foot">
+  Source · <a href="..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
+</footer>
+</div>
+</body>
+</html>

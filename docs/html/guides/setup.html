@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,27 +23,21 @@
 <header>
   <p class="he-eyebrow">Guides</p>
   <h1 class="he-title">Setup Guide</h1>
-  <p class="he-deck">Create <code>.env.local</code>:</p>
+  <p class="he-deck">Create <code>.env.local</code>…</p>
 </header>
-
-<section class="he-section" id="prerequisites">
-  <div class="he-section__num">01 · Prerequisites</div>
-  <h2 class="he-section__title">Prerequisites</h2><ul>
+<section class="he-section" id="prerequisites"><div class="he-section__num">01 · Prerequisites</div><h2 class="he-section__title">Prerequisites</h2></section>
+<ul>
 <li>Node.js &gt;= 24</li>
 <li>A PostgreSQL database (Neon recommended)</li>
 <li>Package manager: <code>bun</code> (preferred) or <code>npm</code></li>
 </ul>
-
-<section class="he-section" id="installation">
-  <div class="he-section__num">02 · Installation</div>
-  <h2 class="he-section__title">Installation</h2><pre><code class="language-bash">git clone https://github.com/pekay23/aerojet-careers.git
+<section class="he-section" id="installation"><div class="he-section__num">02 · Installation</div><h2 class="he-section__title">Installation</h2></section>
+<pre><code class="language-bash">git clone https://github.com/pekay23/aerojet-careers.git
 cd aerojet-careers
 bun install     # or: npm install
 </code></pre>
-
-<section class="he-section" id="environment-configuration">
-  <div class="he-section__num">03 · Environment configuration</div>
-  <h2 class="he-section__title">Environment configuration</h2><p>Create <code>.env.local</code>:</p>
+<section class="he-section" id="environment-configuration"><div class="he-section__num">03 · Environment configuration</div><h2 class="he-section__title">Environment configuration</h2></section>
+<p>Create <code>.env.local</code>:</p>
 <pre><code># Neon (primary database)
 DATABASE_URL=&quot;postgresql://&lt;user&gt;:&lt;pass&gt;@&lt;neon-host&gt;/&lt;db&gt;?sslmode=require&quot;
 DIRECT_URL=&quot;postgresql://&lt;user&gt;:&lt;pass&gt;@&lt;neon-host&gt;/&lt;db&gt;?sslmode=require&quot;
@@ -63,12 +55,10 @@ NEXT_PUBLIC_APP_URL=&quot;https://careers.aerojet-aviation.com&quot;
 RESEND_API_KEY=&quot;&lt;resend key&gt;&quot;
 </code></pre>
 <p>Generate a secret:</p>
-<pre><code class="language-bash">node -e &quot;console.log(require(&#39;crypto&#39;).randomBytes(48).toString(&#39;base64url&#39;))&quot;
+<pre><code class="language-bash">node -e &quot;console.log(require('crypto').randomBytes(48).toString('base64url'))&quot;
 </code></pre>
-
-<section class="he-section" id="database-setup">
-  <div class="he-section__num">04 · Database setup</div>
-  <h2 class="he-section__title">Database setup</h2><p>Apply the schema (idempotent — safe to re-run):</p>
+<section class="he-section" id="database-setup"><div class="he-section__num">04 · Database setup</div><h2 class="he-section__title">Database setup</h2></section>
+<p>Apply the schema (idempotent — safe to re-run):</p>
 <pre><code class="language-bash">bun scripts/apply-schema.mjs
 # or: psql &quot;$DATABASE_URL&quot; -f db/neon-schema.sql
 # or paste db/neon-schema.sql into the Neon SQL editor
@@ -78,10 +68,8 @@ RESEND_API_KEY=&quot;&lt;resend key&gt;&quot;
 </code></pre>
 <p>Defaults: <code>admin@aerojet-aviation.com</code> / <code>Admin@2026</code>
 (override with <code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code>).</p>
-
-<section class="he-section" id="development">
-  <div class="he-section__num">05 · Development</div>
-  <h2 class="he-section__title">Development</h2><pre><code class="language-bash">bun run dev          # dev server → http://localhost:3000
+<section class="he-section" id="development"><div class="he-section__num">05 · Development</div><h2 class="he-section__title">Development</h2></section>
+<pre><code class="language-bash">bun run dev          # dev server → http://localhost:3000
 bun run lint         # ESLint
 bun run type-check   # tsc --noEmit
 bun run build        # production build (next build)
@@ -89,29 +77,19 @@ bun start            # run the production build
 bun run test         # unit tests (Vitest)
 bun run test:e2e     # e2e tests (Playwright)
 </code></pre>
-
-<section class="he-section" id="verifying-the-db-connection">
-  <div class="he-section__num">06 · Verifying the DB connection</div>
-  <h2 class="he-section__title">Verifying the DB connection</h2><p>A quick sanity check that the schema and admin exist:</p>
-<pre><code class="language-bash">node -e &quot;const{Pool}=require(&#39;pg&#39;);const p=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});p.query(&#39;select count(*) from admin_users&#39;).then(r=&gt;{console.log(r.rows);return p.end()})&quot;
+<section class="he-section" id="verifying-the-db-connection"><div class="he-section__num">06 · Verifying the DB connection</div><h2 class="he-section__title">Verifying the DB connection</h2></section>
+<p>A quick sanity check that the schema and admin exist:</p>
+<pre><code class="language-bash">node -e &quot;const{Pool}=require('pg');const p=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});p.query('select count(*) from admin_users').then(r=&gt;{console.log(r.rows);return p.end()})&quot;
 </code></pre>
-
-<section class="he-section" id="demo-credentials-after-seeding">
-  <div class="he-section__num">07 · Demo credentials (after seeding)</div>
-  <h2 class="he-section__title">Demo credentials (after seeding)</h2><table>
+<section class="he-section" id="demo-credentials-after-seeding"><div class="he-section__num">07 · Demo credentials (after seeding)</div><h2 class="he-section__title">Demo credentials (after seeding)</h2></section>
+<table>
 <thead>
-<tr>
-<th>Role</th>
-<th>Email</th>
-<th>Password</th>
-</tr>
+<tr><th>Role</th><th>Email</th><th>Password</th></tr>
 </thead>
-<tbody><tr>
-<td>Admin</td>
-<td><a href="mailto:admin@aerojet-aviation.com">admin@aerojet-aviation.com</a></td>
-<td>Admin@2026</td>
-</tr>
-</tbody></table>
+<tbody>
+<tr><td>Admin</td><td>admin@aerojet-aviation.com</td><td>Admin@2026</td></tr>
+</tbody>
+</table>
 <p>Change this password after first login.</p>
 
 </main>
@@ -130,7 +108,7 @@ bun run test:e2e     # e2e tests (Playwright)
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

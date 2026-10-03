@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -25,90 +23,32 @@
 <header>
   <p class="he-eyebrow">Guides</p>
   <h1 class="he-title">Forms</h1>
-  <p class="he-deck">The portal&#39;s form system was refactored from a monolithic <code>ApplicationForm.tsx</code> into 13 reusable, typed components in <code>components/forms/</code>.</p>
+  <p class="he-deck">The portal's form system was refactored from a monolithic <code>ApplicationForm.tsx</code> into 13 reusable, typed components in <code>components/forms/</code>.</p>
 </header>
-
-<section class="he-section" id="component-catalog">
-  <div class="he-section__num">01 · Component catalog</div>
-  <h2 class="he-section__title">Component catalog</h2><table>
+<section class="he-section" id="component-catalog"><div class="he-section__num">01 · Component catalog</div><h2 class="he-section__title">Component catalog</h2></section>
+<table>
 <thead>
-<tr>
-<th>Component</th>
-<th>Path</th>
-<th>Purpose</th>
-</tr>
+<tr><th>Component</th><th>Path</th><th>Purpose</th></tr>
 </thead>
-<tbody><tr>
-<td><code>FormField</code></td>
-<td><code>FormField.tsx</code></td>
-<td>Wrapper with label, hint, error, touched state</td>
-</tr>
-<tr>
-<td><code>FormLabel</code></td>
-<td><code>FormLabel.tsx</code></td>
-<td>Consistent label with required asterisk</td>
-</tr>
-<tr>
-<td><code>FormGrid</code></td>
-<td><code>FormGrid.tsx</code></td>
-<td>Responsive 2-column grid for form fields</td>
-</tr>
-<tr>
-<td><code>TextInput</code></td>
-<td><code>TextInput.tsx</code></td>
-<td>Text input with touched-state <code>aria-invalid</code></td>
-</tr>
-<tr>
-<td><code>TextArea</code></td>
-<td><code>TextArea.tsx</code></td>
-<td>Textarea with touched-state <code>aria-invalid</code></td>
-</tr>
-<tr>
-<td><code>Select</code></td>
-<td><code>Select.tsx</code></td>
-<td>Select dropdown with touched-state <code>aria-invalid</code></td>
-</tr>
-<tr>
-<td><code>CheckItem</code></td>
-<td><code>CheckItem.tsx</code></td>
-<td>Checkbox item</td>
-</tr>
-<tr>
-<td><code>RadioItem</code></td>
-<td><code>RadioItem.tsx</code></td>
-<td>Radio button item</td>
-</tr>
-<tr>
-<td><code>Combo</code></td>
-<td><code>Combo.tsx</code></td>
-<td>Combined input component</td>
-</tr>
-<tr>
-<td><code>DeployCard</code></td>
-<td><code>DeployCard.tsx</code></td>
-<td>Deployment preference card</td>
-</tr>
-<tr>
-<td><code>FileZone</code></td>
-<td><code>FileZone.tsx</code></td>
-<td>File upload zone with drag-and-drop</td>
-</tr>
-<tr>
-<td><code>BtnRow</code></td>
-<td><code>BtnRow.tsx</code></td>
-<td>Button row (Back / Save Draft / Continue)</td>
-</tr>
-<tr>
-<td><code>Divider</code></td>
-<td><code>Divider.tsx</code></td>
-<td>Visual section divider</td>
-</tr>
-</tbody></table>
+<tbody>
+<tr><td><code>FormField</code></td><td><code>FormField.tsx</code></td><td>Wrapper with label, hint, error, touched state</td></tr>
+<tr><td><code>FormLabel</code></td><td><code>FormLabel.tsx</code></td><td>Consistent label with required asterisk</td></tr>
+<tr><td><code>FormGrid</code></td><td><code>FormGrid.tsx</code></td><td>Responsive 2-column grid for form fields</td></tr>
+<tr><td><code>TextInput</code></td><td><code>TextInput.tsx</code></td><td>Text input with touched-state <code>aria-invalid</code></td></tr>
+<tr><td><code>TextArea</code></td><td><code>TextArea.tsx</code></td><td>Textarea with touched-state <code>aria-invalid</code></td></tr>
+<tr><td><code>Select</code></td><td><code>Select.tsx</code></td><td>Select dropdown with touched-state <code>aria-invalid</code></td></tr>
+<tr><td><code>CheckItem</code></td><td><code>CheckItem.tsx</code></td><td>Checkbox item</td></tr>
+<tr><td><code>RadioItem</code></td><td><code>RadioItem.tsx</code></td><td>Radio button item</td></tr>
+<tr><td><code>Combo</code></td><td><code>Combo.tsx</code></td><td>Combined input component</td></tr>
+<tr><td><code>DeployCard</code></td><td><code>DeployCard.tsx</code></td><td>Deployment preference card</td></tr>
+<tr><td><code>FileZone</code></td><td><code>FileZone.tsx</code></td><td>File upload zone with drag-and-drop</td></tr>
+<tr><td><code>BtnRow</code></td><td><code>BtnRow.tsx</code></td><td>Button row (Back / Save Draft / Continue)</td></tr>
+<tr><td><code>Divider</code></td><td><code>Divider.tsx</code></td><td>Visual section divider</td></tr>
+</tbody>
+</table>
 <p>All components are exported from <code>components/forms/index.ts</code>.</p>
-
-<section class="he-section" id="touched-state-validation">
-  <div class="he-section__num">02 · Touched-state validation</div>
-  <h2 class="he-section__title">Touched-state validation</h2><p>Validation feedback only appears after user interaction:</p>
+<section class="he-section" id="touched-state-validation"><div class="he-section__num">02 · Touched-state validation</div><h2 class="he-section__title">Touched-state validation</h2></section>
+<p>Validation feedback only appears after user interaction:</p>
 <ol>
 <li>User focuses a field → <code>onBlur</code> marks it <code>touched</code></li>
 <li>On submit attempt, all visible fields are marked <code>touched</code></li>
@@ -120,13 +60,11 @@ const touch = (k: string) =&gt; setTouchedFields(p =&gt; ({ ...p, [k]: true }))
 &lt;TextInput
   error={validationErrors.email}
   touched={!!touchedFields.email}
-  onBlur={() =&gt; touch(&#39;email&#39;)}
+  onBlur={() =&gt; touch('email')}
 /&gt;
 </code></pre>
-
-<section class="he-section" id="multi-step-wizard">
-  <div class="he-section__num">03 · Multi-step wizard</div>
-  <h2 class="he-section__title">Multi-step wizard</h2><p><code>ApplicationForm.tsx</code> implements a 5-step wizard:</p>
+<section class="he-section" id="multi-step-wizard"><div class="he-section__num">03 · Multi-step wizard</div><h2 class="he-section__title">Multi-step wizard</h2></section>
+<p><code>ApplicationForm.tsx</code> implements a 5-step wizard:</p>
 <ol>
 <li>Personal details</li>
 <li>Licences &amp; qualifications</li>
@@ -136,16 +74,12 @@ const touch = (k: string) =&gt; setTouchedFields(p =&gt; ({ ...p, [k]: true }))
 </ol>
 <p>Each step has its own Zod schema (<code>WizardStep1Schema</code> … <code>WizardStep4Schema</code>)
 validated on change. Navigation is gated by <code>isStepValid</code>.</p>
-
-<section class="he-section" id="draft-saving">
-  <div class="he-section__num">04 · Draft saving</div>
-  <h2 class="he-section__title">Draft saving</h2><p>Form state is persisted to <code>localStorage</code> with the key
+<section class="he-section" id="draft-saving"><div class="he-section__num">04 · Draft saving</div><h2 class="he-section__title">Draft saving</h2></section>
+<p>Form state is persisted to <code>localStorage</code> with the key
 <code>aerojet-draft-${jobId}</code>. Auto-save triggers on step change and field updates.
 A &quot;Resume draft?&quot; banner appears if a draft exists on load.</p>
-
-<section class="he-section" id="validation-messages">
-  <div class="he-section__num">05 · Validation messages</div>
-  <h2 class="he-section__title">Validation messages</h2><p>Error messages are friendly and field-specific:</p>
+<section class="he-section" id="validation-messages"><div class="he-section__num">05 · Validation messages</div><h2 class="he-section__title">Validation messages</h2></section>
+<p>Error messages are friendly and field-specific:</p>
 <ul>
 <li>Text inputs: &quot;Input your first name&quot;, &quot;Enter your email&quot;</li>
 <li>Selects: &quot;Select your nationality&quot;</li>
@@ -171,7 +105,7 @@ A &quot;Resume draft?&quot; banner appears if a draft exists on load.</p>
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

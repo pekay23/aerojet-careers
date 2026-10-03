@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -27,101 +25,103 @@
   <h1 class="he-title">Troubleshooting</h1>
   <p class="he-deck">Common issues and how to resolve them.</p>
 </header>
-
-<section class="he-section" id="build-failures">
-  <div class="he-section__num">01 · Build failures</div>
-  <h2 class="he-section__title">Build failures</h2><h3 id="typescript-errors">TypeScript errors</h3><pre><code class="language-bash">bun run type-check
+<section class="he-section" id="build-failures"><div class="he-section__num">01 · Build failures</div><h2 class="he-section__title">Build failures</h2></section>
+<h3 id="typescript-errors">TypeScript errors</h3>
+<pre><code class="language-bash">bun run type-check
 </code></pre>
 <p>Common causes:</p>
 <ul>
 <li>Missing env vars at build time (e.g. <code>DATABASE_URL</code> for static generation)</li>
 <li>Stale <code>.next/</code> cache — delete and rebuild</li>
 </ul>
-<h3 id="eslint-errors">ESLint errors</h3><pre><code class="language-bash">bun run lint
+<h3 id="eslint-errors">ESLint errors</h3>
+<pre><code class="language-bash">bun run lint
 </code></pre>
 <p>Pre-existing warnings are expected in admin components. New errors must be
 fixed before commit.</p>
-<h3 id="production-build-fails-on-static-generation">Production build fails on static generation</h3><p>Some pages (<code>/jobs</code>, <code>/register</code>) fetch data at build time. Ensure <code>DATABASE_URL</code>
+<h3 id="production-build-fails-on-static-generation">Production build fails on static generation</h3>
+<p>Some pages (<code>/jobs</code>, <code>/register</code>) fetch data at build time. Ensure <code>DATABASE_URL</code>
 is set in your local <code>.env.local</code> and in Vercel production/preview environments.</p>
-
-<section class="he-section" id="database-issues">
-  <div class="he-section__num">02 · Database issues</div>
-  <h2 class="he-section__title">Database issues</h2><h3 id="connection-refused-ssl-error">Connection refused / SSL error</h3><ul>
+<section class="he-section" id="database-issues"><div class="he-section__num">02 · Database issues</div><h2 class="he-section__title">Database issues</h2></section>
+<h3 id="connection-refused-ssl-error">Connection refused / SSL error</h3>
+<ul>
 <li>Verify <code>DATABASE_URL</code> and <code>DIRECT_URL</code> are correct</li>
 <li>Neon requires <code>sslmode=require</code> (already in connection strings)</li>
 <li>Check Neon console for connection limits</li>
 </ul>
-<h3 id="schema-not-applied">Schema not applied</h3><pre><code class="language-bash">bun scripts/apply-schema.mjs
+<h3 id="schema-not-applied">Schema not applied</h3>
+<pre><code class="language-bash">bun scripts/apply-schema.mjs
 </code></pre>
 <p>The schema is idempotent — safe to re-run.</p>
-<h3 id="missing-admin-user">Missing admin user</h3><pre><code class="language-bash">node scripts/seed-admin.mjs
+<h3 id="missing-admin-user">Missing admin user</h3>
+<pre><code class="language-bash">node scripts/seed-admin.mjs
 </code></pre>
 <p>Defaults: <code>admin@aerojet-aviation.com</code> / <code>Admin@2026</code></p>
-
-<section class="he-section" id="auth-issues">
-  <div class="he-section__num">03 · Auth issues</div>
-  <h2 class="he-section__title">Auth issues</h2><h3 id="session-not-persisting">Session not persisting</h3><ul>
+<section class="he-section" id="auth-issues"><div class="he-section__num">03 · Auth issues</div><h2 class="he-section__title">Auth issues</h2></section>
+<h3 id="session-not-persisting">Session not persisting</h3>
+<ul>
 <li>Check <code>AUTH_SECRET</code> is set and consistent across deployments</li>
 <li>Verify cookie settings: <code>httpOnly</code>, <code>SameSite=Lax</code>, <code>Secure</code> in production</li>
 <li>Rotating <code>AUTH_SECRET</code> invalidates all sessions</li>
 </ul>
-<h3 id="refresh-token-401">Refresh token 401</h3><ul>
+<h3 id="refresh-token-401">Refresh token 401</h3>
+<ul>
 <li>Refresh tokens are single-use; if consumed twice, the user must re-login</li>
 <li>Check <code>refresh_tokens</code> table for expiry</li>
 </ul>
-<h3 id="login-rate-limited">Login rate limited</h3><ul>
+<h3 id="login-rate-limited">Login rate limited</h3>
+<ul>
 <li>Default: 5 attempts per 15 minutes per email</li>
 <li>If using shared dev IP, memory fallback may block all users — restart dev server</li>
 </ul>
-
-<section class="he-section" id="file-upload-issues">
-  <div class="he-section__num">04 · File upload issues</div>
-  <h2 class="he-section__title">File upload issues</h2><h3 id="upload-returns-413">Upload returns 413</h3><ul>
+<section class="he-section" id="file-upload-issues"><div class="he-section__num">04 · File upload issues</div><h2 class="he-section__title">File upload issues</h2></section>
+<h3 id="upload-returns-413">Upload returns 413</h3>
+<ul>
 <li>Max file size is 5 MB</li>
 <li>Check <code>storage_objects.size</code> for existing files</li>
 </ul>
-<h3 id="file-not-found-after-upload">File not found after upload</h3><ul>
+<h3 id="file-not-found-after-upload">File not found after upload</h3>
+<ul>
 <li>Verify <code>storage_objects</code> has the row (<code>SELECT * FROM storage_objects WHERE bucket = ? AND path = ?</code>)</li>
 <li>Check <code>/api/files</code> auth — user must have a valid session</li>
 </ul>
-
-<section class="he-section" id="email-issues">
-  <div class="he-section__num">05 · Email issues</div>
-  <h2 class="he-section__title">Email issues</h2><h3 id="emails-not-sending">Emails not sending</h3><ul>
+<section class="he-section" id="email-issues"><div class="he-section__num">05 · Email issues</div><h2 class="he-section__title">Email issues</h2></section>
+<h3 id="emails-not-sending">Emails not sending</h3>
+<ul>
 <li>Verify <code>RESEND_API_KEY</code> is set in Vercel (not just <code>.env.local</code>)</li>
 <li>Check Resend dashboard for delivery status</li>
 <li>Email failures are logged to <code>email_logs</code></li>
 </ul>
-<h3 id="acknowledgment-not-sent">Acknowledgment not sent</h3><ul>
+<h3 id="acknowledgment-not-sent">Acknowledgment not sent</h3>
+<ul>
 <li>Check <code>/api/email/acknowledge</code> logs</li>
 <li>Application is still created even if email fails (non-blocking)</li>
 </ul>
-
-<section class="he-section" id="vercel-deployment">
-  <div class="he-section__num">06 · Vercel deployment</div>
-  <h2 class="he-section__title">Vercel deployment</h2><h3 id="build-succeeds-but-site-shows-500">Build succeeds but site shows 500</h3><ul>
+<section class="he-section" id="vercel-deployment"><div class="he-section__num">06 · Vercel deployment</div><h2 class="he-section__title">Vercel deployment</h2></section>
+<h3 id="build-succeeds-but-site-shows-500">Build succeeds but site shows 500</h3>
+<ul>
 <li>Check Vercel function logs for runtime errors</li>
 <li>Most common cause: missing env vars in Vercel dashboard</li>
 </ul>
-<h3 id="region-mismatch">Region mismatch</h3><ul>
+<h3 id="region-mismatch">Region mismatch</h3>
+<ul>
 <li>Portal is configured for <code>lhr1</code> (London)</li>
 <li>Set in <code>vercel.json</code> → regions</li>
 </ul>
-<h3 id="security-headers-missing">Security headers missing</h3><ul>
+<h3 id="security-headers-missing">Security headers missing</h3>
+<ul>
 <li>Headers are set in both <code>next.config.js</code> and <code>vercel.json</code></li>
 <li><code>/admin/*</code> routes should have <code>X-Frame-Options: DENY</code></li>
 </ul>
-
-<section class="he-section" id="logs">
-  <div class="he-section__num">07 · Logs</div>
-  <h2 class="he-section__title">Logs</h2><h3 id="structured-logs">Structured logs</h3><p>JSON logs are emitted via <code>lib/logger.ts</code>. In Vercel, view logs in the
+<section class="he-section" id="logs"><div class="he-section__num">07 · Logs</div><h2 class="he-section__title">Logs</h2></section>
+<h3 id="structured-logs">Structured logs</h3>
+<p>JSON logs are emitted via <code>lib/logger.ts</code>. In Vercel, view logs in the
 dashboard or with <code>vercel logs &lt;deployment&gt;</code>.</p>
-<h3 id="sensitive-data">Sensitive data</h3><p>The logger automatically redacts keys named <code>password</code>, <code>token</code>, <code>secret</code>,
+<h3 id="sensitive-data">Sensitive data</h3>
+<p>The logger automatically redacts keys named <code>password</code>, <code>token</code>, <code>secret</code>,
 <code>api_key</code>, <code>authorization</code>, <code>cookie</code>.</p>
-
-<section class="he-section" id="debug-commands">
-  <div class="he-section__num">08 · Debug commands</div>
-  <h2 class="he-section__title">Debug commands</h2><pre><code class="language-bash"># Check DB connection
+<section class="he-section" id="debug-commands"><div class="he-section__num">08 · Debug commands</div><h2 class="he-section__title">Debug commands</h2></section>
+<pre><code class="language-bash"># Check DB connection
 node scripts/check-db.mjs
 
 # Audit document storage
@@ -169,7 +169,7 @@ bun run docs:html
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

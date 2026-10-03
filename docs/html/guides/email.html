@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -27,27 +25,23 @@
   <h1 class="he-title">Email</h1>
   <p class="he-deck">The portal uses <strong>Resend</strong> for transactional email.</p>
 </header>
-
-<section class="he-section" id="core-functions">
-  <div class="he-section__num">01 · Core functions</div>
-  <h2 class="he-section__title">Core functions</h2><h3 id="sendemailto-subject-html-from"><code>sendEmail(to, subject, html, from?)</code></h3><p>Sends a single email via Resend. Falls back to <code>EMAIL_FROM</code> if no sender is
+<section class="he-section" id="core-functions"><div class="he-section__num">01 · Core functions</div><h2 class="he-section__title">Core functions</h2></section>
+<h3 id="sendemailto-subject-html-from"><code>sendEmail(to, subject, html, from?)</code></h3>
+<p>Sends a single email via Resend. Falls back to <code>EMAIL_FROM</code> if no sender is
 specified.</p>
-<h3 id="sendbulkemailsrecipients-subject-html-from"><code>sendBulkEmails(recipients, subject, html, from?)</code></h3><p>Sends the same email to multiple recipients. Processes in batches to avoid
+<h3 id="sendbulkemailsrecipients-subject-html-from"><code>sendBulkEmails(recipients, subject, html, from?)</code></h3>
+<p>Sends the same email to multiple recipients. Processes in batches to avoid
 rate limits.</p>
-
-<section class="he-section" id="retry-strategy">
-  <div class="he-section__num">02 · Retry strategy</div>
-  <h2 class="he-section__title">Retry strategy</h2><p>Both functions implement a 3-attempt backoff:</p>
+<section class="he-section" id="retry-strategy"><div class="he-section__num">02 · Retry strategy</div><h2 class="he-section__title">Retry strategy</h2></section>
+<p>Both functions implement a 3-attempt backoff:</p>
 <ol>
 <li>First attempt: immediate</li>
 <li>Second attempt: 1 second delay</li>
 <li>Third attempt: 2 seconds delay</li>
 </ol>
 <p>Failures after 3 attempts are returned to the caller.</p>
-
-<section class="he-section" id="templates">
-  <div class="he-section__num">03 · Templates</div>
-  <h2 class="he-section__title">Templates</h2><p>Email templates are stored as React components in
+<section class="he-section" id="templates"><div class="he-section__num">03 · Templates</div><h2 class="he-section__title">Templates</h2></section>
+<p>Email templates are stored as React components in
 <code>app/admin/settings/email-templates/</code> and rendered server-side before sending.</p>
 <p>Current templates:</p>
 <ul>
@@ -55,10 +49,8 @@ rate limits.</p>
 <li><strong>Status change notification</strong> — sent when admin updates application stage</li>
 <li><strong>Credentials</strong> — sent when admin creates a new staff member</li>
 </ul>
-
-<section class="he-section" id="logging">
-  <div class="he-section__num">04 · Logging</div>
-  <h2 class="he-section__title">Logging</h2><p>Every send is logged to the <code>email_logs</code> table:</p>
+<section class="he-section" id="logging"><div class="he-section__num">04 · Logging</div><h2 class="he-section__title">Logging</h2></section>
+<p>Every send is logged to the <code>email_logs</code> table:</p>
 <pre><code class="language-sql">email_logs
   id          uuid
   recipient   text
@@ -68,10 +60,8 @@ rate limits.</p>
   error       text       -- provider error message
   sent_at     timestamptz
 </code></pre>
-
-<section class="he-section" id="acknowledgment-flow">
-  <div class="he-section__num">05 · Acknowledgment flow</div>
-  <h2 class="he-section__title">Acknowledgment flow</h2><pre><code>POST /api/applications
+<section class="he-section" id="acknowledgment-flow"><div class="he-section__num">05 · Acknowledgment flow</div><h2 class="he-section__title">Acknowledgment flow</h2></section>
+<pre><code>POST /api/applications
   → validate + insert application
   → POST /api/email/acknowledge
     → render acknowledgment template
@@ -80,25 +70,16 @@ rate limits.</p>
 </code></pre>
 <p>Email failures are non-blocking — the application is still created even if the
 acknowledgment fails.</p>
-
-<section class="he-section" id="configuration">
-  <div class="he-section__num">06 · Configuration</div>
-  <h2 class="he-section__title">Configuration</h2><table>
+<section class="he-section" id="configuration"><div class="he-section__num">06 · Configuration</div><h2 class="he-section__title">Configuration</h2></section>
+<table>
 <thead>
-<tr>
-<th>Env var</th>
-<th>Purpose</th>
-</tr>
+<tr><th>Env var</th><th>Purpose</th></tr>
 </thead>
-<tbody><tr>
-<td><code>RESEND_API_KEY</code></td>
-<td>Resend API key</td>
-</tr>
-<tr>
-<td><code>EMAIL_FROM</code></td>
-<td>Default sender address</td>
-</tr>
-</tbody></table>
+<tbody>
+<tr><td><code>RESEND_API_KEY</code></td><td>Resend API key</td></tr>
+<tr><td><code>EMAIL_FROM</code></td><td>Default sender address</td></tr>
+</tbody>
+</table>
 
 </main>
 
@@ -117,7 +98,7 @@ acknowledgment fails.</p>
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

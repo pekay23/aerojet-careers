@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -27,10 +25,8 @@
   <h1 class="he-title">System Architecture Overview</h1>
   <p class="he-deck">The public marketing/careers site and the authenticated admin portal live under the same App Router tree.</p>
 </header>
-
-<section class="he-section" id="stack">
-  <div class="he-section__num">01 · Stack</div>
-  <h2 class="he-section__title">Stack</h2><ul>
+<section class="he-section" id="stack"><div class="he-section__num">01 · Stack</div><h2 class="he-section__title">Stack</h2></section>
+<ul>
 <li><strong>Frontend:</strong> Next.js 16 App Router (React Server Components), React 19, Tailwind CSS v4, shadcn/ui + Radix, Framer Motion</li>
 <li><strong>Backend:</strong> Next.js API routes (serverless)</li>
 <li><strong>Database:</strong> PostgreSQL (<strong>Neon</strong>, primary) via <code>pg</code> Pool; Supabase project is paused/backup only</li>
@@ -40,10 +36,8 @@
 <li><strong>Email:</strong> Resend</li>
 <li><strong>Hosting:</strong> Vercel (region <code>lhr1</code>) with edge <code>proxy.ts</code> (Next 16 replacement for <code>middleware.ts</code>)</li>
 </ul>
-
-<section class="he-section" id="route-layout">
-  <div class="he-section__num">02 · Route layout</div>
-  <h2 class="he-section__title">Route layout</h2><p>The public marketing/careers site and the authenticated admin portal live under
+<section class="he-section" id="route-layout"><div class="he-section__num">02 · Route layout</div><h2 class="he-section__title">Route layout</h2></section>
+<p>The public marketing/careers site and the authenticated admin portal live under
 the same App Router tree.</p>
 <pre><code>app/                   → Public careers site (home, jobs, apply/[slug], register,
                           graduate-program, skilled-training, faq, our-story,
@@ -52,10 +46,8 @@ app/admin/             → Authenticated HR/admin portal (dashboard, application
                           talent, people, organization, documents, settings, my-info, hr)
 app/api/               → REST API (auth, admin/*, public applications, uploads, files)
 </code></pre>
-
-<section class="he-section" id="auth-enforcement-three-layers">
-  <div class="he-section__num">03 · Auth enforcement (three layers)</div>
-  <h2 class="he-section__title">Auth enforcement (three layers)</h2><ol>
+<section class="he-section" id="auth-enforcement-three-layers"><div class="he-section__num">03 · Auth enforcement (three layers)</div><h2 class="he-section__title">Auth enforcement (three layers)</h2></section>
+<ol>
 <li><strong>Edge proxy</strong> at <code>proxy.ts</code> — verifies the JWT session cookie (<code>aj_session</code>) for
 every <code>/admin/*</code> page and <code>/api/admin/*</code> route. Unauthenticated users are
 redirected to <code>/admin/login?redirect=…</code> (pages) or get 401 JSON (API). The
@@ -67,10 +59,8 @@ redirected to <code>/admin/login?redirect=…</code> (pages) or get 401 JSON (AP
 object, since every bucket holds private HR data.</li>
 </ol>
 <p>A missed check in any one layer is caught by the next.</p>
-
-<section class="he-section" id="neon-backed-compatibility-shims">
-  <div class="he-section__num">04 · Neon-backed compatibility shims</div>
-  <h2 class="he-section__title">Neon-backed compatibility shims</h2><p>To migrate off Supabase without rewriting ~30 API routes and components, the three
+<section class="he-section" id="neon-backed-compatibility-shims"><div class="he-section__num">04 · Neon-backed compatibility shims</div><h2 class="he-section__title">Neon-backed compatibility shims</h2></section>
+<p>To migrate off Supabase without rewriting ~30 API routes and components, the three
 Supabase client objects were re-implemented against Neon while keeping their
 original surface:</p>
 <ul>
@@ -80,10 +70,8 @@ original surface:</p>
 </ul>
 <p>All three delegate to <code>lib/db.ts</code> (query builder), <code>lib/auth.ts</code> (sessions), and
 <code>lib/storage.ts</code> (files).</p>
-
-<section class="he-section" id="key-design-decisions">
-  <div class="he-section__num">05 · Key design decisions</div>
-  <h2 class="he-section__title">Key design decisions</h2><ol>
+<section class="he-section" id="key-design-decisions"><div class="he-section__num">05 · Key design decisions</div><h2 class="he-section__title">Key design decisions</h2></section>
+<ol>
 <li><strong>Compatibility shims over a rewrite</strong> — the query builder mimics the subset of
 the supabase-js/PostgREST API the app uses (<code>eq/neq/in/ilike/or/contains/range</code>,
 nested embeds, <code>count</code>, <code>upsert</code>), so call-sites stayed intact.</li>
@@ -112,7 +100,7 @@ exported into Neon once it is unpaused (see the <a href="../guides/neon-migratio
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>

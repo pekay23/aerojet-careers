@@ -14,10 +14,8 @@
   <a class="he-nav__brand" href="../index.html">Aerojet Careers <small>docs</small></a>
   <div class="he-nav__links">
     <a href="../index.html">Index</a>
-    <a href="../architecture/system-overview.html">Architecture</a>
-    <a href="../guides/setup.html">Guides</a>
-    <a href="../AUDIT_REPORT_2026-08-11.html">Audit</a>
-    <a href="../UNDONE_ISSUES_2026-08-11.html">Issues</a>
+    <a href="../architecture/index.html">Architecture</a>
+    <a href="../guides/index.html">Guides</a>
   </div>
 </nav>
 <div class="he-layout">
@@ -27,10 +25,8 @@
   <h1 class="he-title">Refresh Tokens</h1>
   <p class="he-deck">The portal uses one-time-use refresh tokens to rotate JWT sessions without forcing the user to re-authenticate.</p>
 </header>
-
-<section class="he-section" id="lifecycle">
-  <div class="he-section__num">01 · Lifecycle</div>
-  <h2 class="he-section__title">Lifecycle</h2><pre><code>Login (POST /api/auth/login)
+<section class="he-section" id="lifecycle"><div class="he-section__num">01 · Lifecycle</div><h2 class="he-section__title">Lifecycle</h2></section>
+<pre><code>Login (POST /api/auth/login)
   → authenticate(email, password)
   → signSession(user)           // sets aj_session cookie (30 days)
   → issueRefreshToken(user.id)  // INSERT refresh_tokens row (30-day TTL)
@@ -40,23 +36,18 @@ Refresh (POST /api/auth/refresh)
   → signSession(user)           // new JWT
   → issueRefreshToken(user.id)  // INSERT new refresh_tokens row
 </code></pre>
-
-<section class="he-section" id="ttl">
-  <div class="he-section__num">02 · TTL</div>
-  <h2 class="he-section__title">TTL</h2><p>The refresh token TTL is <code>SESSION_MAX_AGE * 30 / 7</code> days (configurable in
+<section class="he-section" id="ttl"><div class="he-section__num">02 · TTL</div><h2 class="he-section__title">TTL</h2></section>
+<p>The refresh token TTL is <code>SESSION_MAX_AGE * 30 / 7</code> days (configurable in
 <code>lib/refresh-token.ts</code>). By default this is ~30 days.</p>
-
-<section class="he-section" id="one-time-use-pattern">
-  <div class="he-section__num">03 · One-time-use pattern</div>
-  <h2 class="he-section__title">One-time-use pattern</h2><p><code>consumeRefreshToken()</code> deletes the token row immediately after reading it.
+<section class="he-section" id="one-time-use-pattern"><div class="he-section__num">03 · One-time-use pattern</div><h2 class="he-section__title">One-time-use pattern</h2></section>
+<p><code>consumeRefreshToken()</code> deletes the token row immediately after reading it.
 If the client replays the same token, the lookup returns <code>null</code> and the refresh
 fails with <code>401</code>. The user must log in again.</p>
-
-<section class="he-section" id="implementation">
-  <div class="he-section__num">04 · Implementation</div>
-  <h2 class="he-section__title">Implementation</h2><ul>
+<section class="he-section" id="implementation"><div class="he-section__num">04 · Implementation</div><h2 class="he-section__title">Implementation</h2></section>
+<ul>
 <li><strong>Table:</strong> <code>refresh_tokens</code> (<code>token</code>, <code>auth_user_id</code>, <code>expires_at</code>)</li>
-<li><strong>Module:</strong> <code>lib/refresh-token.ts</code><ul>
+<li><strong>Module:</strong> <code>lib/refresh-token.ts</code>
+<ul>
 <li><code>issueRefreshToken(userId)</code> — generates a 64-char hex token and inserts it</li>
 <li><code>consumeRefreshToken(token)</code> — returns the user or <code>{ user: null, error }</code></li>
 <li><code>revokeRefreshToken(token)</code> — deletes a token (logout)</li>
@@ -65,10 +56,8 @@ fails with <code>401</code>. The user must log in again.</p>
 <li><strong>Route:</strong> <code>app/api/auth/refresh/route.ts</code> — public endpoint that rotates the
 token and sets a new <code>aj_session</code> cookie</li>
 </ul>
-
-<section class="he-section" id="security-notes">
-  <div class="he-section__num">05 · Security notes</div>
-  <h2 class="he-section__title">Security notes</h2><ul>
+<section class="he-section" id="security-notes"><div class="he-section__num">05 · Security notes</div><h2 class="he-section__title">Security notes</h2></section>
+<ul>
 <li>Refresh tokens are single-use; replay attacks are impossible after the first use.</li>
 <li>Expired tokens are rejected by the <code>expires_at</code> check.</li>
 <li>The <code>aj_session</code> cookie is <code>httpOnly</code>, <code>SameSite=Lax</code>, and <code>Secure</code> in production.</li>
@@ -90,7 +79,7 @@ affect refresh tokens.</li>
 </aside>
 </div>
 <footer class="he-foot">
-  Generated from Markdown · rebuild with <code>bun run docs:html</code>
+  Source · <a href="../..">browse the markdown</a> · rebuild with <code>bun run docs:html</code>
 </footer>
 </div>
 </body>
