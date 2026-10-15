@@ -25,7 +25,7 @@
     "@radix-ui/react-slot": "^1.0.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.43.4",
-    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-table": "^9.0.0",
     "@types/dagre": "^0.7.54",
     "@upstash/ratelimit": "^2.0.0",
     "@upstash/redis": "^1.0.0",
