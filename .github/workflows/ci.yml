@@ -124,3 +124,55 @@ jobs:
           echo "Advisories: $(jq '[to_entries[].value[]] | length' audit-report.json)"
           echo ""
           jq -r 'to_entries[] | .key as $pkg | .value[] | "  - $pkg: \(.title) [\(.severity)]"' audit-report.json
+
+  preview:
+    name: Preview Deploy
+    # Previews are for pull requests only. Production is handled by deploy.yml,
+    # which is gated to a CI run on main. Pull requests from forks are skipped
+    # because GitHub withholds repository secrets from them, and a deployment
+    # without VERCEL_TOKEN could not succeed anyway.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    # Only deploy once the code is known to be sound. A Vercel build fails on a
+    # type error anyway, and every failed build burns one of the project's
+    # daily deployment allowance.
+    needs: [lint, type-check]
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Deploy preview to Vercel
+        id: deploy
+        run: |
+          set -o pipefail
+          vercel deploy --yes --token="$VERCEL_TOKEN" 2>&1 | tee deploy.log
+          url="$(grep -Eo 'https://[A-Za-z0-9._-]+\.vercel\.app' deploy.log | tail -n 1)"
+          if [ -z "$url" ]; then
+            echo "::error::Could not determine the preview URL from the Vercel output"
+            exit 1
+          fi
+          echo "Preview: $url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Publish the preview URL on the pull request
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            const marker = '<!-- vercel-preview -->';
+            const body = `${marker}\n### Vercel Preview\n\n${url}\n`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
