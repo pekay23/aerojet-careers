@@ -2,7 +2,7 @@ interface FileZoneProps {
   label: string
   sub: string
   chosen?: string
-  onFile: (f: File) => void
+  onFile: (_file: File) => void
   accept?: string
   id?: string
 }

@@ -117,9 +117,9 @@ export default async function HomePage() {
       </section>
 
       <section className="section-brand">
-        <div className="container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div className="container-max mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 text-center">
           {displayStats.map((s) => (
-            <div key={s.value}>
+            <div key={s.value} className="flex flex-col items-center">
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
                 {s.value}
               </div>
@@ -181,8 +181,8 @@ export default async function HomePage() {
 function TrackCard({ track }: { track: (typeof TRACKS)[number] }) {
   return (
     <div className="card" style={{ overflow: 'hidden', background: 'white' }}>
-      <div style={{ background: 'var(--aero-blue)', padding: '1.5rem 1.75rem' }}>
-        <h3 style={{ color: 'white', fontSize: '1.2rem', marginBottom: '0.35rem' }}>{track.title}</h3>
+      <div style={{ background: 'var(--aero-blue)', padding: '1.25rem 1.5rem' }}>
+        <h3 style={{ color: 'white', fontSize: '1.1rem', marginBottom: '0.35rem' }}>{track.title}</h3>
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', margin: 0 }}>
           {track.subtitle}
         </p>
@@ -198,12 +198,12 @@ function TrackCard({ track }: { track: (typeof TRACKS)[number] }) {
               alignItems: 'flex-start',
               justifyContent: 'space-between',
               gap: '1rem',
-              padding: '1.25rem 1.75rem',
+              padding: '1rem 1.25rem',
               textDecoration: 'none',
               borderBottom: i < track.options.length - 1 ? '1px solid var(--border)' : 'none',
             }}
           >
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, color: 'var(--aero-blue)', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                 {opt.label}
               </div>

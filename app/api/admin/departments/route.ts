@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, verifyRole, sanitizeErrorMessage, ALLOWED_UPDATE_KEYS } from '@/lib/api-utils'
+import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 import { DepartmentSchema as SharedDepartmentSchema } from '@/lib/validation/schemas'
 
 const DepartmentSchema = SharedDepartmentSchema.extend({
@@ -23,7 +23,7 @@ const DepartmentUpdateSchema = DepartmentSchema.extend({
   id: z.string().uuid('id must be a valid UUID'),
 })
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const auth = await verifyRole(['admin', 'hr_manager'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)

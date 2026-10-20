@@ -4,7 +4,6 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   X, 
-  User, 
   Mail, 
   Phone, 
   Globe, 
@@ -16,14 +15,13 @@ import {
   Clock,
   ArrowRight
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface TalentDetailDrawerProps {
   talent: any | null
   isOpen: boolean
   onClose: () => void
-  onFastTrack: (talent: any) => void
-  onDelete: (talent: any) => void
+  onFastTrack: (_talent: any) => void
+  onDelete: (_talent: any) => void
 }
 
 export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrack, onDelete }: TalentDetailDrawerProps) {
@@ -52,10 +50,10 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
           >
             {/* Header */}
             <div className="bg-slate-900 px-8 py-10 text-white relative">
-              <button 
-                onClick={onClose}
-                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white transition-colors"
-              >
+<button 
+  onClick={onClose}
+  className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white transition-colors"
+>
                 <X size={20} />
               </button>
               
@@ -66,7 +64,7 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
                  <div className="space-y-1">
                     <h2 className="text-2xl font-bold uppercase tracking-tighter leading-none">{talent.first_name} {talent.last_name}</h2>
                     <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">{talent.current_job_title || 'General Candidate'}</p>
-                    <div className="flex items-center gap-3 pt-2 text-slate-400">
+                    <div className="flex items-center gap-3 pt-2 text-slate-500">
                       <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
                          <Globe size={12} className="text-emerald-500" />
                          {talent.nationality}
@@ -86,14 +84,14 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
                
                {/* Contact Info */}
                <section className="space-y-4">
-                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Primary Contact</h3>
+                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">Primary Contact</h3>
                   <div className="grid grid-cols-1 gap-3">
                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100 group hover:border-blue-200 transition-all">
                         <div className="p-2 bg-white rounded-lg text-blue-600 shadow-sm">
                            <Mail size={16} />
                         </div>
                         <div className="flex flex-col">
-                           <span className="text-[10px] font-bold text-slate-400 uppercase">Work Email</span>
+                           <span className="text-[10px] font-bold text-slate-600 uppercase">Work Email</span>
                            <span className="text-sm font-bold text-slate-900">{talent.email}</span>
                         </div>
                         <ArrowRight size={14} className="ml-auto text-slate-200 opacity-0 group-hover:opacity-100 transition-all" />
@@ -103,7 +101,7 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
                            <Phone size={16} />
                         </div>
                         <div className="flex flex-col">
-                           <span className="text-[10px] font-bold text-slate-400 uppercase">Mobile Number</span>
+                           <span className="text-[10px] font-bold text-slate-600 uppercase">Mobile Number</span>
                            <span className="text-sm font-bold text-slate-900">{talent.phone || 'N/A'}</span>
                         </div>
                         <ArrowRight size={14} className="ml-auto text-slate-200 opacity-0 group-hover:opacity-100 transition-all" />
@@ -113,7 +111,7 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
 
                {/* Profile Highlights */}
                <section className="space-y-4">
-                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Profile Highlights</h3>
+                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">Profile Highlights</h3>
                   <div className="grid grid-cols-2 gap-4">
                      <div className="p-5 bg-blue-50/50 border border-blue-100 rounded-2xl">
                         <Briefcase size={20} className="text-blue-500 mb-2" />
@@ -130,7 +128,7 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
 
                {/* Interests */}
                <section className="space-y-4">
-                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Areas of Interest</h3>
+                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">Areas of Interest</h3>
                   <div className="flex flex-wrap gap-2">
                      {(talent.departments_interest || []).map((d: string) => (
                        <span key={d} className="px-4 py-2 bg-white border border-slate-200 text-[10px] font-bold text-slate-600 rounded-xl uppercase tracking-widest shadow-sm">
@@ -138,14 +136,14 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
                        </span>
                      ))}
                      {(!talent.departments_interest || talent.departments_interest.length === 0) && (
-                       <span className="text-xs italic text-slate-400">No specific interests listed.</span>
+                       <span className="text-xs italic text-slate-600">No specific interests listed.</span>
                      )}
                   </div>
                </section>
 
                {/* Documents */}
                <section className="space-y-4">
-                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Documents</h3>
+                  <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">Documents</h3>
                   {talent.cv_path ? (
                     <a 
                       href={`/api/admin/download?path=${encodeURIComponent(talent.cv_path)}&bucket=application-documents`}
@@ -156,14 +154,14 @@ export default function TalentDetailDrawer({ talent, isOpen, onClose, onFastTrac
                        </div>
                        <div className="flex flex-col">
                           <span className="text-xs font-bold uppercase tracking-widest">Master Curriculum Vitae</span>
-                          <span className="text-[10px] font-medium text-white/60 uppercase">Click to view/download PDF</span>
+                          <span className="text-[10px] font-medium text-white/90 uppercase">Click to view/download PDF</span>
                        </div>
                        <ArrowRight size={20} className="ml-auto opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </a>
                   ) : (
                     <div className="p-8 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center text-center">
                        <Download size={32} className="text-slate-100 mb-2" />
-                       <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No documentation found</p>
+                       <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">No documentation found</p>
                     </div>
                   )}
                </section>

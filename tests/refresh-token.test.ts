@@ -33,7 +33,7 @@ describe('refresh-token', () => {
       pool.query.mockResolvedValue({ rows: [] })
 
       const before = new Date()
-      const token = await issueRefreshToken('auth-1')
+      await issueRefreshToken('auth-1')
       const after = new Date()
 
       const queryCall = pool.query.mock.calls[0]

@@ -1,5 +1,5 @@
 export type ToastOptions = { type?: 'success' | 'error' | 'info', duration?: number }
-type ToastListener = (message: string, options?: ToastOptions) => void
+type ToastListener = (_message: string, _options?: ToastOptions) => void
 
 let listeners: ToastListener[] = []
 

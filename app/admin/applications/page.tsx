@@ -1,16 +1,13 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import type { Application } from '@/types'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { 
-  Trash2, 
   ArrowRight, 
   Layers, 
   Table as TableIcon, 
   Download, 
-  Plus, 
   Zap,
   Clock,
   CheckCircle2,
@@ -34,7 +31,7 @@ export default function ApplicationsPage() {
   const [status,    setStatus]    = useState('')
   const [page,      setPage]      = useState(1)
   const [selected,  setSelected]  = useState<string[]>([])
-  const [updating,  setUpdating]  = useState<string | null>(null)
+  const [, setUpdating]  = useState<string | null>(null)
   
   // High-End UI State
   const [viewMode, setViewMode] = useState<'list' | 'pipeline'>('list')
@@ -76,20 +73,9 @@ export default function ApplicationsPage() {
   useEffect(() => {
     const t = setTimeout(() => { setPage(1); load() }, 400)
     return () => clearTimeout(t)
-  }, [search]) // eslint-disable-line
+  }, [search])  
 
-  const updateStatus = async (id: string, newStatus: string) => {
-    setUpdating(id)
-    await fetch('/api/admin/applications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: newStatus }),
-    })
-    await load()
-    setUpdating(null)
-  }
-
-  const [userRole, setUserRole] = useState<string | null>(null)
+  const [, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
     const checkRole = async () => {
@@ -107,24 +93,6 @@ export default function ApplicationsPage() {
     }
     checkRole()
   }, [])
-
-  const handleDelete = async (a: Application) => {
-    const isManager = userRole === 'recruiter'
-    const actionName = isManager ? 'archive' : 'PERMANENTLY delete'
-    const confirmMsg = `Are you sure you want to ${actionName} the application for ${a.first_name} ${a.last_name}?`
-    
-    if (!confirm(confirmMsg)) return
-    
-    try {
-      const res = await fetch(`/api/admin/applications?id=${a.id}`, { method: 'DELETE' })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete')
-      load()
-      loadStats()
-    } catch (err: any) {
-      alert(err.message)
-    }
-  }
 
   const handleBatchStatus = async (newStatus: string) => {
     if (!confirm(`Move ${selected.length} applications to stage: ${newStatus.toUpperCase()}?`)) return
@@ -196,9 +164,9 @@ export default function ApplicationsPage() {
            ].map((stat, i) => (
              <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm group hover:border-blue-200 transition-all flex items-start justify-between">
                 <div className="space-y-1">
-                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
+                   <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{stat.label}</p>
                    <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{stat.desc}</p>
+                   <p className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">{stat.desc}</p>
                 </div>
                 <div className={cn("p-3 rounded-xl transition-all shadow-lg shadow-black/5", 
                   stat.color === 'blue' ? "bg-blue-50 text-blue-600" :
@@ -259,7 +227,7 @@ export default function ApplicationsPage() {
             <div className="flex items-center gap-3 md:ml-auto">
               <button 
                 onClick={exportCSV} 
-                className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                className="p-3 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
                 title="Export Visible Results"
               >
                 <Download size={18} />
@@ -286,7 +254,7 @@ export default function ApplicationsPage() {
               {loading ? (
                 <div className="py-24 flex flex-col items-center justify-center space-y-4">
                    <div className="w-8 h-8 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest animate-pulse">Updating Selection Process…</p>
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest animate-pulse">Updating Selection Process…</p>
                 </div>
               ) : apps.length === 0 ? (
                 <div className="py-20">
@@ -329,28 +297,28 @@ export default function ApplicationsPage() {
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <div className="flex flex-col">
                               <span className="text-sm font-bold text-slate-900 group-hover/row:text-blue-600 transition-colors uppercase tracking-tight">{a.first_name} {a.last_name}</span>
-                               <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{a.email}</span>
+                               <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">{a.email}</span>
                               <span className="text-[9px] font-bold text-blue-400 uppercase tracking-tighter mt-0.5">{a.ref_code}</span>
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6 max-w-[180px]">
                             <div className="flex flex-col">
                               <span className="text-[11px] font-bold text-slate-900 uppercase tracking-tight truncate">{a.job_title || 'General Application'}</span>
-                               <span className="text-[9px] font-bold text-slate-500 uppercase truncate">{a.qualifications?.licence_type}</span>
+                               <span className="text-[9px] font-bold text-slate-600 uppercase truncate">{a.qualifications?.licence_type}</span>
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <div className="flex flex-col">
                               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">{a.nationality}</span>
-                               <span className="text-[9px] font-bold text-slate-500 uppercase truncate">{a.experience?.total_years_exp || '0'} YRS EXP</span>
+                               <span className="text-[9px] font-bold text-slate-600 uppercase truncate">{a.experience?.total_years_exp || '0'} YRS EXP</span>
                             </div>
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
                             <StatusPill status={a.status} />
                           </td>
                           <td className="px-4 lg:px-8 py-4 lg:py-6">
-                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-                                <Clock size={12} className="text-slate-400" />
+                              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">
+                                <Clock size={12} className="text-slate-600" />
                                {new Date(a.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                             </div>
                           </td>
@@ -373,14 +341,14 @@ export default function ApplicationsPage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-center gap-4">
-                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                   <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                     Showing {((page - 1) * 25) + 1} to {Math.min(page * 25, total)} of {total} entries
                   </span>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setPage(p => Math.max(1, p - 1))} 
                       disabled={page === 1} 
-                       className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 disabled:opacity-30 hover:text-slate-900 transition-all font-sans"
+                       className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-600 disabled:opacity-30 hover:text-slate-900 transition-all font-sans"
                     >
                       ← Previous
                     </button>

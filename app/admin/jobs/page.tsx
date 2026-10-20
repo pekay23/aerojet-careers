@@ -315,7 +315,7 @@ export default function JobsAdminPage() {
           </div>
           
           <div className="md:ml-auto flex items-center gap-6">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">
                {pageInfo.total > 0 ? `${(pageInfo.page - 1) * pageInfo.limit + 1}-${Math.min(pageInfo.page * pageInfo.limit, pageInfo.total)} of ${pageInfo.total}` : `${jobs.length} posting${jobs.length !== 1 ? 's' : ''}`}
             </span>
             {pageInfo.total > pageInfo.limit && (
@@ -323,17 +323,17 @@ export default function JobsAdminPage() {
                 <button
                   onClick={() => load(pageInfo.page - 1)}
                   disabled={pageInfo.page <= 1}
-                  className="px-3 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
+                  className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
                 >
                   Prev
                 </button>
-                <span className="text-[10px] font-bold text-slate-400">
+                <span className="text-[10px] font-bold text-slate-600">
                   {pageInfo.page} / {Math.ceil(pageInfo.total / pageInfo.limit)}
                 </span>
                 <button
                   onClick={() => load(pageInfo.page + 1)}
                   disabled={pageInfo.page >= Math.ceil(pageInfo.total / pageInfo.limit)}
-                  className="px-3 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
+                  className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all"
                 >
                   Next
                 </button>
@@ -351,7 +351,7 @@ export default function JobsAdminPage() {
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center space-y-4">
              <div className="w-8 h-8 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Loading Jobs…</p>
+             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest animate-pulse">Loading Jobs…</p>
           </div>
         ) : jobs.length === 0 ? (
           <div className="py-20">
@@ -391,7 +391,7 @@ export default function JobsAdminPage() {
                     <td className="px-3 py-2.5">
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs font-bold text-slate-900 uppercase tracking-tight truncate group-hover/row:text-blue-600 transition-colors">{j.title}</span>
-                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{j.ref_code} · {j.location}</span>
+                         <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest truncate">{j.ref_code} · {j.location}</span>
                        </div>
                     </td>
                     <td className="px-3 py-2.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight truncate">{j.department}</td>
@@ -405,14 +405,14 @@ export default function JobsAdminPage() {
                      </td>
                      <td className="px-3 py-2.5"><StatusPill status={j.status} /></td>
                     <td className="px-3 py-2.5">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                        {new Date(j.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                        {new Date(j.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </span>
+<span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+                         {new Date(j.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                       </span>
+                     </td>
+                     <td className="px-3 py-2.5">
+                       <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+                         {new Date(j.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                       </span>
                     </td>
                      <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <div className="flex gap-1.5 flex-wrap">
@@ -426,7 +426,7 @@ export default function JobsAdminPage() {
                             <>
                           <button
                             onClick={() => toggleVisibility(j)}
-                            className={`px-2.5 py-1 border rounded text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'live' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white'}`}
+                            className={`px-2.5 py-1 border rounded text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm ${j.status === 'live' ? 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white'}`}
                             title={j.status === 'live' ? 'Hide from careers page' : 'Publish to careers page'}
                           >
                             {j.status === 'live' ? 'Published' : 'Draft'}
@@ -466,7 +466,7 @@ export default function JobsAdminPage() {
               </div>
                <button 
                  onClick={() => { setModal(null); setNewDeptName('') }} 
-                 className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all"
+                 className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-100 text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-all"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -511,7 +511,7 @@ export default function JobsAdminPage() {
                           <button
                             type="button"
                             onClick={() => { cancelNewDept(); sf('department')('') }}
-                            className="px-4 py-2 bg-white border border-slate-200 text-slate-400 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-all"
+                            className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-all"
                           >
                             Cancel
                           </button>
@@ -593,7 +593,7 @@ export default function JobsAdminPage() {
             </div>
             
             <div className="p-8 border-t border-slate-100 bg-slate-50 flex flex-wrap gap-4 justify-end shrink-0">
-                <button onClick={() => { setModal(null); setNewDeptName('') }} className="px-8 py-3.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all">Cancel</button>
+                <button onClick={() => { setModal(null); setNewDeptName('') }} className="px-8 py-3.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:text-slate-900 hover:border-slate-400 transition-all">Cancel</button>
               <button 
                 onClick={() => save(false)} 
                 disabled={saving} 

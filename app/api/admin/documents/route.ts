@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
               const talentResults = await Promise.all(talentPromises)
               mapped.push(...talentResults)
             }
-          } catch (e) {
+          } catch {
             // talent_pool table may not have created_at or may not exist on older DBs
           }
         }

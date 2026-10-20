@@ -22,7 +22,7 @@ function toBuffer(data: ArrayBuffer | Uint8Array | Buffer | Blob): Promise<Buffe
 }
 
 class BucketApi {
-  constructor(private bucket: string) {}
+  constructor(private _bucket: string) {}
 
   async upload(
     path: string,
@@ -31,7 +31,7 @@ class BucketApi {
   ) {
     try {
       const buf = await toBuffer(data)
-      await putObject(this.bucket, path, buf, opts?.contentType)
+      await putObject(this._bucket, path, buf, opts?.contentType)
       return { data: { path }, error: null }
     } catch (e: any) {
       return { data: null, error: { message: e.message } }
@@ -40,7 +40,7 @@ class BucketApi {
 
   async download(path: string) {
     try {
-      const obj = await getObject(this.bucket, path)
+      const obj = await getObject(this._bucket, path)
       if (!obj) return { data: null, error: { message: 'Object not found' } }
       // Return a Blob so callers can use `.arrayBuffer()` and `.type`.
       const blob = new Blob([new Uint8Array(obj.content)], {
@@ -55,7 +55,7 @@ class BucketApi {
 
   async remove(paths: string[]) {
     try {
-      await removeObjects(this.bucket, paths)
+      await removeObjects(this._bucket, paths)
       return { data: null, error: null }
     } catch (e: any) {
       return { data: null, error: { message: e.message } }
@@ -65,11 +65,11 @@ class BucketApi {
   async createSignedUrl(path: string, _expiresIn: number) {
     // Access is gated by the /api/files route (session-checked), so we can
     // hand back an internal URL that behaves like a signed URL.
-    return { data: { signedUrl: objectUrl(this.bucket, path) }, error: null }
+    return { data: { signedUrl: objectUrl(this._bucket, path) }, error: null }
   }
 
   getPublicUrl(path: string) {
-    return { data: { publicUrl: objectUrl(this.bucket, path) } }
+    return { data: { publicUrl: objectUrl(this._bucket, path) } }
   }
 }
 

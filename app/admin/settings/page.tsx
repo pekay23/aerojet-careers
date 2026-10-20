@@ -5,24 +5,17 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import { 
   Save, 
   Building2, 
-  MapPin, 
    Mail, 
    Loader2,
   CheckCircle2,
   AlertCircle,
   Database,
-  UploadCloud,
-  Plus,
-  Trash2,
-  Table as TableIcon,
   RotateCcw,
    Shield,
    History,
-  Smartphone,
   ChevronRight,
   User,
   Zap,
-  CheckCircle,
   Clock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -36,8 +29,6 @@ export default function SettingsPage() {
   // Data State
   const [settings, setSettings] = useState<any[]>([])
   const [auditLogs, setAuditLogs] = useState<any[]>([])
-  const [manualSnapshots, setManualSnapshots] = useState<any[]>([])
-  const [isCapturing, setIsCapturing] = useState(false)
   const [loadingLogs, setLoadingLogs] = useState(false)
   
   const fetchSettings = async () => {
@@ -117,7 +108,7 @@ export default function SettingsPage() {
                 <span className="w-6 h-px bg-blue-600" /> Administrative Core
               </h2>
               <h1 className="text-3xl font-bold text-slate-900 tracking-tight uppercase">System Settings</h1>
-              <p className="text-xs font-medium text-slate-400">Manage settings and recent system updates.</p>
+              <p className="text-xs font-medium text-slate-600">Manage settings and recent system updates.</p>
            </div>
            
            <div className="flex bg-slate-100 p-1.5 rounded-2xl">
@@ -129,7 +120,7 @@ export default function SettingsPage() {
                     "flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
                     activeTab === tab.id 
                       ? "bg-white text-slate-900 shadow-xl shadow-slate-200/50" 
-                      : "text-slate-400 hover:text-slate-600"
+                      : "text-slate-600 hover:text-slate-800"
                   )}
                 >
                   <tab.icon size={16} />
@@ -160,14 +151,14 @@ export default function SettingsPage() {
                      <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl"><Building2 size={24} /></div>
                      <div className="space-y-1">
                         <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Company Details</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Profile</p>
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Enterprise Profile</p>
                      </div>
                   </div>
 
                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-2">Support & Admin Email</label>
+                      <label className="text-[10px] font-bold tracking-widest text-slate-600 uppercase ml-2">Support & Admin Email</label>
                         <div className="relative">
-                           <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                           <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                            <input 
                              className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-slate-900"
                              value={getSetting('support_email')}
@@ -189,13 +180,13 @@ export default function SettingsPage() {
                         <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl"><History size={24} /></div>
                         <div className="space-y-1">
                            <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Activity History</h3>
-                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recent actions and process updates</p>
+                           <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Recent actions and process updates</p>
                         </div>
                      </div>
                      <button 
                        onClick={fetchAuditLogs}
                        disabled={loadingLogs}
-                       className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                       className="p-3 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
                      >
                         <RotateCcw size={18} className={cn(loadingLogs && "animate-spin")} />
                      </button>
@@ -222,7 +213,7 @@ export default function SettingsPage() {
                              <tr>
                                 <td colSpan={4} className="px-8 py-20 text-center">
                                    <Database size={40} className="mx-auto text-slate-100 mb-4" />
-                                   <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">No activity recorded yet.</p>
+                                   <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">No activity recorded yet.</p>
                                 </td>
                              </tr>
                            ) : auditLogs.map((log) => (
@@ -244,19 +235,19 @@ export default function SettingsPage() {
                                 <td className="px-8 py-5">
                                    <p className="text-xs font-bold text-slate-900 uppercase tracking-tight line-clamp-1">{log.note || 'Manual Process Record'}</p>
                                    <div className="flex gap-2 mt-1">
-                                      {log.from_status && <span className="text-[8px] font-bold text-slate-300 line-through uppercase">{log.from_status}</span>}
+                                      {log.from_status && <span className="text-[8px] font-bold text-slate-500 line-through uppercase">{log.from_status}</span>}
                                       {log.to_status && <ChevronRight size={8} className="text-slate-200 self-center" />}
                                       {log.to_status && <span className="text-[8px] font-extrabold text-blue-500 uppercase">{log.to_status}</span>}
                                    </div>
                                 </td>
                                 <td className="px-8 py-5">
                                    <div className="flex items-center gap-3">
-                                      <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all text-[10px] font-black uppercase">
+                                      <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-blue-600 group-hover:text-white transition-all text-[10px] font-black uppercase">
                                          <User size={14} />
                                       </div>
                                       <div className="flex flex-col">
                                          <span className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">{log.admin?.full_name || 'System Service'}</span>
-                                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">{log.admin?.email || 'Automated Process'}</span>
+                                         <span className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">{log.admin?.email || 'Automated Process'}</span>
                                       </div>
                                    </div>
                                 </td>
@@ -266,7 +257,7 @@ export default function SettingsPage() {
                                          <Clock size={12} className="text-slate-200" />
                                          {new Date(log.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                                       </span>
-                                      <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-1">
+                                      <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-1">
                                          {new Date(log.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                                       </span>
                                    </div>
@@ -288,7 +279,7 @@ export default function SettingsPage() {
                  <Save size={16} />
               </div>
               <div>
-                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Update System</p>
+                 <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none">Update System</p>
                  <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight mt-1">Ready to save changes</p>
               </div>
            </div>

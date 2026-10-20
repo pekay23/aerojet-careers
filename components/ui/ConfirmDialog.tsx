@@ -113,7 +113,7 @@ export default function ConfirmDialog({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
+          className="absolute top-4 right-4 h-8 w-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all"
           aria-label="Close"
         >
           <X size={18} />

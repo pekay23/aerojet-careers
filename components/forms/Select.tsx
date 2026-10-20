@@ -2,7 +2,7 @@ import { FormLabel } from './FormLabel'
 
 interface SelectProps {
   value: any
-  onChange: (_v: string) => void
+  onChange: (_value: string) => void
   options: (string | { value: string; label: string })[]
   label?: string
   required?: boolean

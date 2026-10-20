@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { checkLoginRateLimit } from '@/lib/rate-limit'
 
 describe('checkLoginRateLimit', () => {
@@ -19,7 +19,7 @@ describe('checkLoginRateLimit', () => {
 
   it('normalizes identifier to lowercase', async () => {
     const r1 = await checkLoginRateLimit('User@Example.com')
-    const r2 = await checkLoginRateLimit('user@example.com')
+    await checkLoginRateLimit('user@example.com')
     expect(r1.success).toBe(true)
   })
 })

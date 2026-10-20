@@ -10,7 +10,7 @@ interface FormFieldProps {
   touched?: boolean
 }
 
-export function FormField({ label, required, children, span, hint, error, touched }: FormFieldProps) {
+export function FormField({ label, required, children, span, hint, error }: FormFieldProps) {
   return (
     <div className="field" style={span ? { gridColumn: '1 / -1' } : {}}>
       <FormLabel required={required}>{label}</FormLabel>

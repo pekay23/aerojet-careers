@@ -48,7 +48,13 @@ const pool = new Pool({
 
 async function createAdmin() {
   const email = process.env.SEED_ADMIN_EMAIL || 'admin@aerojet-aviation.com'
-  const password = process.env.SEED_ADMIN_PASSWORD || 'Admin@2026'
+  const password = process.env.SEED_ADMIN_PASSWORD
+  if (!password) {
+    console.error('FATAL: SEED_ADMIN_PASSWORD is not set.')
+    console.error('Set it in .env.local or pass it as an environment variable before running this script.')
+    console.error('Never use the default — a known password on a tracked script is a live credential leak.')
+    process.exit(1)
+  }
   const fullName = 'Admin User'
 
   const client = await pool.connect()

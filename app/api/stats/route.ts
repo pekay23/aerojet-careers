@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, sanitizeErrorMessage } from '@/lib/api-utils'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const [jobsRes, deptsRes] = await Promise.allSettled([
       supabaseAdmin

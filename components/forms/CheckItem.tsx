@@ -1,7 +1,7 @@
 interface CheckItemProps {
   label: string
   checked: boolean
-  onChange: (_v: boolean) => void
+  onChange: (_checked: boolean) => void
 }
 
 export function CheckItem({ label, checked, onChange }: CheckItemProps) {

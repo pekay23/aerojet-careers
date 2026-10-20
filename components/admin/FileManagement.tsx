@@ -211,7 +211,7 @@ export default function FileManagement({
       {/* Search & Actions Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
           <input 
             type="text"
             placeholder="Search folders or files..."
@@ -239,13 +239,13 @@ export default function FileManagement({
       <nav className="flex items-center gap-2 text-sm font-bold">
         <button 
           onClick={() => setCurrentFolder(null)}
-          className={cn("hover:text-blue-600 transition-colors uppercase tracking-widest", !currentFolder ? "text-blue-600" : "text-slate-400")}
+          className={cn("hover:text-blue-600 transition-colors uppercase tracking-widest", !currentFolder ? "text-blue-600" : "text-slate-600")}
         >
           Portal Files
         </button>
         {currentFolder && (
           <>
-            <ChevronRight size={14} className="text-slate-300" />
+            <ChevronRight size={14} className="text-slate-500" />
             <span className="text-blue-600 uppercase tracking-widest">{currentFolder.name}</span>
           </>
         )}
@@ -261,7 +261,7 @@ export default function FileManagement({
           transition={{ duration: 0.2 }}
         >
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <div className="flex flex-col items-center justify-center py-20 text-slate-600">
                <Loader2 className="animate-spin mb-4" size={32} />
                <p className="font-bold text-sm uppercase tracking-widest">Loading documents...</p>
             </div>
@@ -286,7 +286,7 @@ export default function FileManagement({
                         <Folder size={24} fill="currentColor" fillOpacity={0.2} />
                       </div>
                       <h4 className="font-bold text-slate-900 mb-1 uppercase tracking-tight">{folder.name}</h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed truncate w-full">
+                      <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed truncate w-full">
                         {folder.description || 'View contents'}
                       </p>
                     </button>
@@ -325,7 +325,7 @@ export default function FileManagement({
                       {files.length === 0 ? (
                         <tr>
                           <td colSpan={4} className="px-6 py-20 text-center">
-                            <div className="flex flex-col items-center text-slate-400">
+                            <div className="flex flex-col items-center text-slate-600">
                               <FileText size={48} className="mb-4 opacity-20" />
                               <p className="font-bold text-sm uppercase tracking-widest">No documents in this folder</p>
                             </div>
@@ -343,12 +343,12 @@ export default function FileManagement({
                               </div>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                 {new Date(file.created_at).toLocaleDateString()}
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                 {(file.file_size || 0) > 1024 * 1024 
                                   ? `${((file.file_size || 0) / (1024 * 1024)).toFixed(1)} MB` 
                                   : `${((file.file_size || 0) / 1024).toFixed(0)} KB`}
@@ -360,14 +360,14 @@ export default function FileManagement({
                                   href={file.file_url} 
                                   target="_blank" 
                                   rel="noreferrer"
-                                  className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                  className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                 >
                                   <Download size={16} />
                                 </a>
                                  {!viewOnly && !file.is_external && (
                                   <button 
                                     onClick={() => handleDelete(file.id)}
-                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                    className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                   >
                                     <Trash2 size={16} />
                                   </button>
@@ -383,18 +383,18 @@ export default function FileManagement({
                   {/* File Pagination */}
                   {currentFolder && fileTotal > fileLimit && (
                     <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/30 flex justify-between items-center">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                         Showing {((filePage - 1) * fileLimit) + 1} to {Math.min(filePage * fileLimit, fileTotal)} of {fileTotal} files
                       </span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => setFilePage(p => Math.max(1, p - 1))}
                           disabled={filePage === 1}
-                          className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 disabled:opacity-30 hover:text-slate-900 transition-all"
+                          className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-600 disabled:opacity-30 hover:text-slate-900 transition-all"
                         >
                           Previous
                         </button>
-                        <span className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase">
+                        <span className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase">
                           Page {filePage} of {Math.ceil(fileTotal / fileLimit)}
                         </span>
                         <button

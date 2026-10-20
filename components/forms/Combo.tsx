@@ -2,7 +2,7 @@ import { FormLabel } from './FormLabel'
 
 interface ComboProps {
   value: any
-  onChange: (_v: string) => void
+  onChange: (_value: string) => void
   options: string[]
   label?: string
   required?: boolean

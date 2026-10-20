@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
         'Content-Disposition': `attachment; filename="${filename}"`,
       },
     })
-  } catch (err) {
+  } catch {
     return ApiResponse.error('Download failed', 500)
   }
 }

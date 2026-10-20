@@ -6,9 +6,7 @@ import {
   Users, 
   Clock, 
   CheckCircle2, 
-  ArrowUpRight, 
   TrendingUp,
-  Activity,
   ArrowDownRight
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -138,10 +136,10 @@ export default function DashboardStats({ stats }: { stats: DashboardStatsType })
             </div>
 
             <div className="relative z-10">
-              <p className="text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase mb-1">{card.label}</p>
+              <p className="text-[10px] font-bold tracking-[0.15em] text-slate-600 uppercase mb-1">{card.label}</p>
               <div className="flex items-baseline gap-2">
                 <h3 className="text-3xl font-bold text-slate-900 tracking-tighter">{card.value}</h3>
-                {card.subValue && <span className="text-xs font-bold text-slate-400">/ {card.subValue}</span>}
+                {card.subValue && <span className="text-xs font-bold text-slate-600">/ {card.subValue}</span>}
               </div>
             </div>
 

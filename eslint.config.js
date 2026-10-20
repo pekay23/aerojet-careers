@@ -26,7 +26,7 @@ module.exports = [
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-console': 'off',
       'no-undef': 'off',
     },
@@ -47,7 +47,7 @@ module.exports = [
     },
     rules: {
       'no-undef': 'off',
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
   {
@@ -62,7 +62,7 @@ module.exports = [
     },
     rules: {
       'no-undef': 'off',
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
   {

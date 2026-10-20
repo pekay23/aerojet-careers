@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const auth = await verifyRole(['admin', 'hr_manager', 'recruiter'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)

@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react'
 
 interface TextInputProps {
   value: any
-  onChange: (_v: string) => void
+  onChange: (_value: string) => void
   id?: string
   name?: string
   autoComplete?: string

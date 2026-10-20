@@ -1,16 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { sanitizeErrorMessage } from '@/lib/api-utils'
+import { sanitizeErrorMessage, withPublicProtection } from '@/lib/api-utils'
+import DOMPurify from 'dompurify'
+
+/**
+ * Strip anything that isn't a safe name character. Prevents XSS when
+ * interpolated into HTML and stops header-injection via caller-controlled
+ * subject fragments.
+ */
+function safeName(raw: unknown): string {
+  return String(raw ?? '').replace(/[^A-Za-z0-9'()\-\s]/g, '').trim().slice(0, 80)
+}
+
+function safeRef(raw: unknown): string {
+  return String(raw ?? '').replace(/[^A-Za-z0-9_-]/g, '').trim().slice(0, 40)
+}
+
+function safeTitle(raw: unknown): string {
+  return String(raw ?? 'General Application').replace(/[<>&"']/g, '').trim().slice(0, 120)
+}
 
 export async function POST(req: NextRequest) {
+  const protection = await withPublicProtection(req, 'email:acknowledge')
+  if (protection) return protection
+
   try {
     const body = await req.json()
 
     const to = body?.to
-    const firstName = body?.firstName || ''
-    const lastName = body?.lastName || ''
-    const refCode = body?.refCode || ''
-    const jobTitle = body?.jobTitle || 'General Application'
+    const firstName = safeName(body?.firstName)
+    const lastName = safeName(body?.lastName)
+    const refCode = safeRef(body?.refCode)
+    const jobTitle = safeTitle(body?.jobTitle)
 
     if (!to) {
       return NextResponse.json({ error: 'Recipient email is required' }, { status: 400 })
@@ -62,7 +83,7 @@ export async function POST(req: NextRequest) {
         from: emailFrom,
         to: [to],
         subject,
-        html,
+        html: DOMPurify.sanitize(html),
       }),
     })
 

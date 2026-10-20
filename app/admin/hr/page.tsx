@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import { StatusPill } from '@/components/ui/StatusPill'
 import { toast } from '@/lib/toast'
 import type { Application } from '@/types'
 
@@ -18,7 +17,7 @@ export default function HRPage() {
   const [selected,  setSelected]  = useState<string[]>([])
   const [platform,  setPlatform]  = useState('csv')
   const [pushing,   setPushing]   = useState(false)
-  const [result,    setResult]    = useState<{ success: number; failed: number } | null>(null)
+  const [, setResult]    = useState<{ success: number; failed: number } | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/applications?status=hired&limit=100')
@@ -73,7 +72,7 @@ export default function HRPage() {
         <div className="bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/50 p-8 space-y-8 font-medium">
           <div className="space-y-1">
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-widest leading-none">Export Destination</h2>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select the target HR system for data transfer</p>
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Select the target HR system for data transfer</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -92,7 +91,7 @@ export default function HRPage() {
                 }`}>
                   {p.label}
                 </div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-relaxed group-hover:text-slate-500 transition-colors">
+                <div className="text-[10px] font-bold text-slate-600 uppercase tracking-tight leading-relaxed group-hover:text-slate-800 transition-colors">
                   {p.sub}
                 </div>
               </button>
@@ -102,7 +101,7 @@ export default function HRPage() {
           <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-50">
             <button 
               onClick={exportCSV} 
-              className="flex-1 sm:flex-none px-8 py-3.5 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all shadow-sm"
+              className="flex-1 sm:flex-none px-8 py-3.5 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:text-slate-900 hover:border-slate-400 transition-all shadow-sm"
             >
               ↓ Download CSV
             </button>
@@ -130,12 +129,12 @@ export default function HRPage() {
           {loading ? (
             <div className="py-24 flex flex-col items-center justify-center space-y-4">
                <div className="w-8 h-8 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Loading records…</p>
+               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest animate-pulse">Loading records…</p>
             </div>
           ) : apps.length === 0 ? (
             <div className="py-24 text-center space-y-4 px-8">
                <div className="text-4xl opacity-10 grayscale">👥</div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">No hired staff records are available for export yet.</p>
+               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">No hired staff records are available for export yet.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -170,7 +169,7 @@ export default function HRPage() {
                       <td className="px-4 lg:px-8 py-5">
                         <div className="flex flex-col">
                           <span className="text-sm font-bold text-slate-900 uppercase tracking-tight group-hover:text-blue-600 transition-colors">{a.first_name} {a.last_name}</span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{a.email}</span>
+                          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{a.email}</span>
                         </div>
                       </td>
                       <td className="px-4 lg:px-8 py-5 text-[11px] uppercase tracking-tight text-slate-600">{a.job_title || 'General'}</td>

@@ -7,7 +7,6 @@ import {
   ArrowRight, 
   PlusCircle, 
   MapPin, 
-  Calendar,
   Zap,
   Briefcase,
   FileText
@@ -82,7 +81,7 @@ export default async function AdminDashboardPage() {
             <div className="space-y-1">
                <h2 className="text-[9px] font-bold tracking-[0.3em] text-blue-600 uppercase">{sMap.company_name || 'Aerojet Aviation Group'}</h2>
                <h1 className="text-3xl font-bold text-slate-900 tracking-tight uppercase leading-none">Dashboard</h1>
-               <p className="text-xs font-medium text-slate-400">Welcome back. Here is an overview of current portal activity.</p>
+               <p className="text-xs font-medium text-slate-600">Welcome back. Here is an overview of current portal activity.</p>
             </div>
            
            <div className="flex items-center gap-3">
@@ -103,7 +102,7 @@ export default async function AdminDashboardPage() {
            {/* Recent Applications Listing */}
            <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center justify-between px-2">
-                 <h3 className="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">Recent Applications</h3>
+                 <h3 className="text-xs font-bold tracking-[0.2em] text-slate-600 uppercase">Recent Applications</h3>
                  <Link href="/admin/applications" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest">View All</Link>
               </div>
               
@@ -113,14 +112,14 @@ export default async function AdminDashboardPage() {
 
                       <div key={app.id} className="p-6 hover:bg-slate-50 transition-colors group flex items-center justify-between">
                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center font-bold text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all text-[10px]">
+                            <div className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center font-bold text-slate-600 group-hover:bg-blue-600 group-hover:text-white transition-all text-[10px]">
                                {app.first_name[0]}{app.last_name[0]}
                             </div>
                             <div>
                                <Link href={`/admin/applications/${app.id}`} className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors uppercase tracking-tight">
                                  {app.first_name} {app.last_name}
                                </Link>
-                               <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                               <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                   <span className="text-blue-600">{app.job?.title}</span>
                                   <span>•</span>
                                   <span>{new Date(app.created_at).toLocaleDateString()}</span>
@@ -134,14 +133,14 @@ export default async function AdminDashboardPage() {
                              )}>
                                 {app.status}
                              </span>
-                            <Link href={`/admin/applications/${app.id}`} className="p-2 text-slate-300 hover:text-blue-600 transition-colors">
+                            <Link href={`/admin/applications/${app.id}`} className="p-2 text-slate-500 hover:text-blue-600 transition-colors">
                                <ArrowRight size={18} />
                             </Link>
                          </div>
                       </div>
                     ))}
                     {(!recentApps || recentApps.length === 0) && (
-                      <div className="p-12 text-center text-slate-400 font-bold text-sm">
+                      <div className="p-12 text-center text-slate-600 font-bold text-sm">
                          No recent applications found.
                       </div>
                     )}
@@ -152,7 +151,7 @@ export default async function AdminDashboardPage() {
            {/* Quick Actions / Shortcuts */}
             <div className="space-y-6">
                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                 <h3 className="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-6">Quick Actions</h3>
+                 <h3 className="text-xs font-bold tracking-[0.2em] text-slate-600 uppercase mb-6">Quick Actions</h3>
                   <div className="space-y-3">
                      <ShortcutLink href="/admin/applications?view=pipeline" label="Selection Process" icon={Zap} color="amber" />
                      <ShortcutLink href="/admin/documents" label="Manage Files" icon={FileText} color="blue" />
@@ -164,13 +163,13 @@ export default async function AdminDashboardPage() {
                   <div className="relative z-10">
                      <p className="text-[9px] font-bold tracking-[0.3em] text-blue-600 uppercase mb-2">System Status</p>
                      <h4 className="text-xl font-bold uppercase mb-1 text-slate-900">Operational</h4>
-                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
                         <MapPin size={12} />
                         <span>{sMap.base_location || 'Accra Base, GH'}</span>
                      </div>
                   </div>
                   <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform flex items-center justify-center h-32 w-48 grayscale brightness-0">
-                     <img src={sMap.enterprise_logo_url || "/images/aalogo-TUj_x_h8.png"} className="h-full w-auto object-contain" alt="Logo" />
+                     <img src={sMap.enterprise_logo_url || "/images/aalogo-TUj_x_h8.png"} className="h-full w-auto object-contain" alt="Logo" sizes="(max-width: 1024px) 192px, 192px" />
                   </div>
                </div>
            </div>

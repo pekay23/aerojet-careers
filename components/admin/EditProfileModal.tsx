@@ -76,7 +76,7 @@ export default function EditProfileModal({ isOpen, onClose, member, onSuccess }:
              </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <X size={20} className="text-slate-400" />
+            <X size={20} className="text-slate-500" />
           </button>
         </div>
 
@@ -113,7 +113,7 @@ export default function EditProfileModal({ isOpen, onClose, member, onSuccess }:
           <div className="space-y-1.5">
              <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Phone Number</label>
              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                 <input 
                   type="tel"
                   value={formData.phone}
@@ -127,7 +127,7 @@ export default function EditProfileModal({ isOpen, onClose, member, onSuccess }:
           <div className="space-y-1.5">
              <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Date of Birth</label>
              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                 <input 
                   type="date"
                   value={formData.date_of_birth}
@@ -140,7 +140,7 @@ export default function EditProfileModal({ isOpen, onClose, member, onSuccess }:
           <div className="space-y-1.5">
              <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Profile Photo URL</label>
              <div className="relative">
-                <Camera className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                <Camera className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                 <input 
                   type="url"
                   value={formData.avatar_url}
@@ -165,7 +165,7 @@ export default function EditProfileModal({ isOpen, onClose, member, onSuccess }:
              <button 
                type="button"
                onClick={onClose}
-               className="px-6 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
+               className="px-6 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-slate-900 transition-all"
                disabled={isSaving}
              >
                Cancel

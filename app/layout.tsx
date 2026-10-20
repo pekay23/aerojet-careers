@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { CookieBanner } from '@/components/ui/CookieBanner'
 import ToastContainer from '@/components/ui/ToastContainer'
+import SecurityShield from '@/components/security/SecurityShield'
 
 export const metadata: Metadata = {
   title: {
@@ -18,6 +19,15 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/site.webmanifest',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: true,
+    },
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -41,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div id="main-content">{children}</div>
         <ToastContainer />
         <CookieBanner />
+        <SecurityShield />
       </body>
     </html>
   )

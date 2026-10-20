@@ -8,14 +8,11 @@ import {
   Filter, 
   Download,
   Mail,
-  Phone,
   ArrowUpRight,
-  Circle,
   Shield, 
   UserPlus,
   Trash2,
-  UserX,
-  AlertTriangle
+  UserX
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -40,7 +37,6 @@ export default function PeopleDirectory() {
   const [filter, setFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -142,7 +138,7 @@ export default function PeopleDirectory() {
          <div className="space-y-1">
             <h2 className="text-[10px] font-bold tracking-[0.3em] text-blue-600 uppercase">Aerojet Staff Directory</h2>
             <h1 className="text-4xl font-bold text-slate-900 tracking-tighter uppercase">Team Management</h1>
-            <p className="text-sm font-bold text-slate-400">Review and manage your team information and contact details.</p>
+            <p className="text-sm font-bold text-slate-600">Review and manage your team information and contact details.</p>
          </div>
          
          <div className="flex items-center gap-3">
@@ -164,7 +160,7 @@ export default function PeopleDirectory() {
         ].map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
              <div>
-               <p className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-1">{stat.label}</p>
+               <p className="text-xs font-bold tracking-widest text-slate-600 uppercase mb-1">{stat.label}</p>
                <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
              </div>
              <div className={cn(
@@ -182,7 +178,7 @@ export default function PeopleDirectory() {
       {/* Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
           <input 
             type="text"
             placeholder="Search by name or title..."
@@ -203,7 +199,7 @@ export default function PeopleDirectory() {
              ))}
            </select>
            
-           <button className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:bg-white hover:text-blue-600 hover:shadow-lg transition-all">
+           <button className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 hover:bg-white hover:text-blue-600 hover:shadow-lg transition-all">
              <Download size={18} />
            </button>
         </div>
@@ -227,7 +223,7 @@ export default function PeopleDirectory() {
             >
               <div className="absolute top-4 right-4 z-10">
                  <div className="relative group/menu">
-                    <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
+                    <button className="p-2 text-slate-500 hover:text-slate-800 transition-colors">
                        <MoreVertical size={18} />
                     </button>
                     <div className="absolute right-0 top-full mt-1 hidden group-hover/menu:block bg-white border border-slate-200 rounded-xl shadow-2xl p-2 min-w-40 z-50">
@@ -251,9 +247,9 @@ export default function PeopleDirectory() {
 
               <div className="flex items-start gap-4 mb-6">
                 <div className="relative">
-                  <div className="h-16 w-16 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 border-2 border-white shadow-md flex items-center justify-center font-bold text-xl text-slate-400 uppercase overflow-hidden">
+                  <div className="h-16 w-16 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 border-2 border-white shadow-md flex items-center justify-center font-bold text-xl text-slate-500 uppercase overflow-hidden">
                     {member.photo_url ? (
-                      <img src={member.photo_url} alt={member.full_name} className="h-full w-full object-cover" />
+                      <img src={member.photo_url} alt={member.full_name} className="h-full w-full object-cover" sizes="(max-width: 768px) 64px, 64px" />
                     ) : (
                       member.full_name[0]
                     )}
@@ -275,14 +271,14 @@ export default function PeopleDirectory() {
 
               <div className="grid grid-cols-2 border-t border-slate-100 pt-5 gap-4">
                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Contact</p>
+                    <p className="text-[10px] font-bold tracking-widest text-slate-600 uppercase">Contact</p>
                     <div className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors">
                        <Mail size={14} />
                        <span className="text-xs font-bold truncate">{member.email || 'N/A'}</span>
                     </div>
                  </div>
                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Role</p>
+                    <p className="text-[10px] font-bold tracking-widest text-slate-600 uppercase">Role</p>
                     <div className="flex items-center gap-2 text-slate-600">
                        <Shield size={14} className="text-blue-600" />
                        <span className="text-xs font-bold uppercase tracking-tight">{member.role}</span>
@@ -298,25 +294,25 @@ export default function PeopleDirectory() {
         <div className="bg-white py-20 rounded-xl border border-slate-200 text-center">
            <Users size={48} className="mx-auto text-slate-200 mb-4" />
            <p className="text-lg font-bold text-slate-900">No members found</p>
-           <p className="text-sm text-slate-400">Try adjusting your filters or search terms.</p>
+           <p className="text-sm text-slate-600">Try adjusting your filters or search terms.</p>
        </div>
        )}
 
       {/* Pagination */}
       {!isLoading && totalPages > 1 && (
         <div className="px-4 py-6 border-t border-slate-100 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
             Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} staff
           </span>
           <div className="flex gap-2">
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 disabled:opacity-30 hover:text-slate-900 transition-all"
+              className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-600 disabled:opacity-30 hover:text-slate-900 transition-all"
             >
               Previous
             </button>
-            <span className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <span className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
               Page {page} of {totalPages}
             </span>
             <button

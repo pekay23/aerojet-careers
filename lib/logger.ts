@@ -87,7 +87,7 @@ export function createLogger(prefix: string, level: LogLevel = 'info'): Logger {
   return new Logger(prefix, level)
 }
 
-export function withCorrelationId<T extends (...args: any[]) => any>(fn: T, correlationId?: string): T {
+export function withCorrelationId<T extends (..._args: any[]) => any>(fn: T, correlationId?: string): T {
   const id = correlationId || generateCorrelationId()
   return ((..._args: any[]) => fn(..._args, id)) as T
 }

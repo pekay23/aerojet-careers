@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 interface SelectionHUDProps {
   selectedCount: number
   onClear: () => void
-  onBatchStatus: (status: string) => void
+  onBatchStatus: (_status: string) => void
   onBatchDelete: () => void
   onBatchExport: () => void
 }
@@ -50,7 +50,7 @@ export default function SelectionHUD({
                    <p className="text-[10px] font-bold uppercase tracking-tight text-slate-900 leading-none">Selected Items</p>
                    <button 
                      onClick={onClear}
-                     className="text-[9px] font-bold text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors flex items-center gap-1 mt-1"
+                     className="text-[9px] font-bold text-slate-600 hover:text-blue-600 uppercase tracking-widest transition-colors flex items-center gap-1 mt-1"
                    >
                       <X size={10} /> Deselect All
                    </button>
@@ -83,7 +83,7 @@ export default function SelectionHUD({
                           className="absolute bottom-full right-0 mb-4 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden w-48 text-slate-900"
                         >
                            <div className="p-3 border-b border-slate-50 bg-slate-50/50">
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Select target stage</span>
+                              <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Select target stage</span>
                            </div>
                            <div className="p-1">
                               {STATUSES.map(s => (
@@ -103,7 +103,7 @@ export default function SelectionHUD({
 
                 <button 
                   onClick={onBatchExport}
-                  className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-900 rounded-2xl transition-all"
+                  className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-2xl transition-all"
                   title="Export records"
                 >
                    <Download size={18} />

@@ -639,9 +639,9 @@ class QueryBuilder implements PromiseLike<any> {
   // ── thenable ────────────────────────────────────────────────
   then<TResult1 = any, TResult2 = never>(
     onfulfilled?:
-      | ((value: { data: any; error: any; count: number | null }) => TResult1 | PromiseLike<TResult1>)
+      | ((_value: { data: any; error: any; count: number | null }) => TResult1 | PromiseLike<TResult1>)
       | null,
-    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null
+    onrejected?: ((_reason: any) => TResult2 | PromiseLike<TResult2>) | null
   ): PromiseLike<TResult1 | TResult2> {
     return this.run().then(onfulfilled, onrejected)
   }

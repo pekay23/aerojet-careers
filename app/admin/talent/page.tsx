@@ -77,7 +77,7 @@ export default function TalentPoolPage() {
   useEffect(() => {
     const t = setTimeout(() => { setPage(1); load() }, 400)
     return () => clearTimeout(t)
-  }, [search, dept]) // eslint-disable-line
+  }, [search, dept])  
 
   const handleExportCSV = () => {
     const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Nationality', 'Experience', 'Job Title', 'Interests', 'Date Registered']
@@ -114,7 +114,7 @@ export default function TalentPoolPage() {
         {/* Header Actions */}
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
            <div className="relative flex-1 w-full max-w-sm group">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-600 group-focus-within:text-blue-500 transition-colors">
               <Search size={18} strokeWidth={2.5} />
             </div>
             <input
@@ -122,13 +122,13 @@ export default function TalentPoolPage() {
               placeholder="Search by name or email…"
               value={search} 
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-12 pr-6 py-3.5 bg-white border border-slate-200 rounded-2xl text-[10px] font-bold text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-slate-300 shadow-sm"
+              className="w-full pl-12 pr-6 py-3.5 bg-white border border-slate-200 rounded-2xl text-[10px] font-bold text-slate-900 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all placeholder:text-slate-500 shadow-sm"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
              <div className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                <Filter size={14} className="text-slate-400" />
+                <Filter size={14} className="text-slate-600" />
                 <select 
                   className="bg-transparent border-none focus:ring-0 text-[10px] font-bold uppercase tracking-widest text-slate-600 cursor-pointer min-w-[120px]"
                   value={dept}
@@ -142,7 +142,7 @@ export default function TalentPoolPage() {
              </div>
              <button 
                onClick={load}
-               className="p-3.5 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-200 hover:text-slate-600 transition-all shadow-sm group"
+               className="p-3.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 hover:text-slate-800 transition-all shadow-sm group"
                title="Refresh Data"
              >
                 <div className="group-active:rotate-180 transition-transform duration-500"><RotateCcw size={18} /></div>
@@ -161,7 +161,7 @@ export default function TalentPoolPage() {
           {loading ? (
             <div className="py-24 flex flex-col items-center justify-center space-y-4">
                <div className="w-10 h-10 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Accessing Records…</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest animate-pulse">Accessing Records…</p>
             </div>
           ) : talents.length === 0 ? (
             <div className="py-20">
@@ -189,12 +189,12 @@ export default function TalentPoolPage() {
                     >
                       <td className="px-4 lg:px-8 py-4 lg:py-6">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 font-bold group-hover:from-blue-600 group-hover:to-blue-700 group-hover:text-white transition-all shadow-sm">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold group-hover:from-blue-600 group-hover:to-blue-700 group-hover:text-white transition-all shadow-sm">
                             <User size={18} />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-sm font-bold text-slate-900 uppercase tracking-tight group-hover:text-blue-600 transition-colors">{t.first_name} {t.last_name}</span>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                               <Mail size={12} className="text-blue-400" />
                               {t.email}
                             </div>
@@ -209,7 +209,7 @@ export default function TalentPoolPage() {
                             </span>
                           ))}
                           {t.departments_interest?.length > 2 && (
-                            <span className="px-3 py-1 bg-slate-100 text-slate-400 text-[9px] font-bold rounded-full uppercase tracking-widest">
+                            <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-full uppercase tracking-widest">
                               +{t.departments_interest.length - 2}
                             </span>
                           )}
@@ -221,7 +221,7 @@ export default function TalentPoolPage() {
                              <Globe size={12} className="text-emerald-500" />
                              {t.nationality || 'Unknown'}
                            </span>
-                           <span className="text-[9px] font-bold text-slate-400 uppercase mt-0.5 ml-5">{t.country || 'Not Specified'}</span>
+                           <span className="text-[9px] font-bold text-slate-600 uppercase mt-0.5 ml-5">{t.country || 'Not Specified'}</span>
                         </div>
                       </td>
                       <td className="px-4 lg:px-8 py-4 lg:py-6">
@@ -231,8 +231,8 @@ export default function TalentPoolPage() {
                         </span>
                       </td>
                       <td className="px-4 lg:px-8 py-4 lg:py-6">
-                        <div className="flex items-center gap-2.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                          <Clock size={14} className="text-slate-300" />
+                        <div className="flex items-center gap-2.5 text-[11px] font-bold text-slate-600 uppercase tracking-widest">
+                          <Clock size={14} className="text-slate-500" />
                           {new Date(t.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </div>
                       </td>
@@ -248,7 +248,7 @@ export default function TalentPoolPage() {
                                <span className="text-[10px] font-bold uppercase tracking-widest pr-1 hidden xl:inline">CV</span>
                             </a>
                           ) : (
-                            <div className="px-4 py-2 bg-slate-50 text-slate-300 text-[9px] font-bold rounded-xl border border-slate-100 uppercase tracking-widest">
+                            <div className="px-4 py-2 bg-slate-50 text-slate-500 text-[9px] font-bold rounded-xl border border-slate-100 uppercase tracking-widest">
                                No CV
                             </div>
                           )}
@@ -278,14 +278,14 @@ export default function TalentPoolPage() {
           {/* Pagination */}
           {!loading && totalPages > 1 && (
             <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                 Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} entries
               </span>
               <div className="flex gap-3">
                 <button 
                   onClick={() => setPage(p => Math.max(1, p - 1))} 
                   disabled={page === 1} 
-                  className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-400 disabled:opacity-30 hover:text-slate-900 hover:border-slate-400 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-600 disabled:opacity-30 hover:text-slate-900 hover:border-slate-400 transition-all shadow-sm"
                 >
                   <ChevronLeft size={14} />
                   Previous
@@ -295,7 +295,7 @@ export default function TalentPoolPage() {
                      <button
                        key={p}
                        onClick={() => setPage(p)}
-                       className={`w-10 h-10 rounded-xl text-[10px] font-bold transition-all ${p === page ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-white text-slate-400 border border-slate-200 hover:border-blue-400'}`}
+                       className={`w-10 h-10 rounded-xl text-[10px] font-bold transition-all ${p === page ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-400'}`}
                      >
                        {p}
                      </button>
@@ -325,7 +325,7 @@ export default function TalentPoolPage() {
                   </div>
                   <h3 className="text-xl font-bold uppercase tracking-tight text-slate-900 leading-none">About Staff & Candidates</h3>
                 </div>
-                <p className="max-w-xl text-[11px] font-bold text-slate-400 uppercase tracking-tight leading-relaxed">
+                <p className="max-w-xl text-[11px] font-bold text-slate-600 uppercase tracking-tight leading-relaxed">
                   This repository contains combined records of staff members and external candidates who have expressed general interest in joining the group.
                 </p>
               </div>
@@ -338,7 +338,7 @@ export default function TalentPoolPage() {
           talent={selectedTalent}
           isOpen={showDrawer}
           onClose={() => setShowDrawer(false)}
-          onFastTrack={(t) => { setShowDrawer(false); setShowFastTrack(true); }}
+          onFastTrack={() => { setShowDrawer(false); setShowFastTrack(true); }}
           onDelete={(t) => { setShowDrawer(false); handleDelete(t.id, `${t.first_name} ${t.last_name}`); }}
         />
 

@@ -37,24 +37,24 @@ export default function SiteFooter() {
 
           {/* Column 1: Brand */}
           <div className="footer-col py-4">
-             <div className="relative h-12 w-40 mb-6">
-               <Image
-                 src="/logos/logo-footer.png"
-                 alt="Aerojet Aviation Footer Logo"
-                 fill
-                 sizes="160px"
-                 className="object-contain object-left"
-               />
+            <div className="relative h-9 sm:h-10 w-32 sm:w-40 mb-4 sm:mb-6">
+              <Image
+                src="/logos/logo-footer.png"
+                alt="Aerojet Aviation Footer Logo"
+                fill
+                sizes="(max-width: 640px) 128px, (max-width: 1024px) 160px, 160px"
+                className="object-contain object-left"
+              />
             </div>
             <p className="opacity-80 leading-relaxed text-sm">
-              Building West Africa's premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
+              Building West Africa&apos;s premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
             </p>
           </div>
 
           {/* Column 2: Careers */}
           <div className="footer-col py-4">
-            <h4 className="text-lg font-bold text-aero-accent mb-4">Careers</h4>
-            <ul className="space-y-2 text-sm opacity-90">
+            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Careers</h4>
+            <ul className="space-y-1.5 sm:space-y-2 text-sm opacity-90">
               {footerLinks.careers.map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
@@ -67,73 +67,72 @@ export default function SiteFooter() {
 
           {/* Column 3: Company */}
           <div className="footer-col py-4">
-             <h4 className="text-lg font-bold text-aero-accent mb-4">Company</h4>
-             <ul className="space-y-2 text-sm opacity-90">
-               {footerLinks.company.map((link) => (
-                 <li key={link.label}>
-                   <a
-                     href={link.href}
-                     target={link.href.startsWith('http') ? '_blank' : undefined}
-                     rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                     className="text-white hover:text-aero-accent transition-colors"
-                   >
-                     {link.label}
-                   </a>
-                 </li>
-               ))}
-             </ul>
-            </div>
-
-            {/* Column 4: Legal */}
-            <div className="footer-col py-4">
-              <h4 className="text-lg font-bold text-aero-accent mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm opacity-90">
-                {footerLinks.legal.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 5: Contact */}
-            <div className="footer-col py-4">
-              <h4 className="text-lg font-bold text-aero-accent mb-4">Contact</h4>
-              <ul className="footer-contact space-y-3 text-sm opacity-90">
-                <li className="flex items-center gap-3">
-                  <FaMapMarkerAlt className="text-white" />
-                  <span className="text-white">Accra International Airport, Accra, Ghana</span>
-                </li>
-                <li>
+            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Company</h4>
+            <ul className="space-y-1.5 sm:space-y-2 text-sm opacity-90">
+              {footerLinks.company.map((link) => (
+                <li key={link.label}>
                   <a
-                    href="mailto:careers@aerojet-aviation.com"
-                    className="flex items-center gap-3 text-white hover:text-aero-accent transition-colors"
+                    href={link.href}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="text-white hover:text-aero-accent transition-colors"
                   >
-                    <FaEnvelope className="text-white" />
-                    careers@aerojet-aviation.com
+                    {link.label}
                   </a>
                 </li>
-                <li>
-                  <a
-                    href="tel:+233209848423"
-                    className="flex items-center gap-3 text-white hover:text-aero-accent transition-colors"
-                  >
-                    <FaPhoneAlt className="text-white" />
-                    +233-20-984-8423
-                  </a>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Legal */}
+          <div className="footer-col py-4">
+            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Legal</h4>
+            <ul className="space-y-1.5 sm:space-y-2 text-sm opacity-90">
+              {footerLinks.legal.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
+                    {link.label}
+                  </Link>
                 </li>
-              </ul>
-            </div>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 5: Contact */}
+          <div className="footer-col py-4">
+            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Contact</h4>
+            <ul className="footer-contact space-y-2 sm:space-y-3 text-sm opacity-90">
+              <li className="flex items-start gap-2 sm:gap-3">
+                <FaMapMarkerAlt className="text-white mt-0.5 flex-shrink-0" />
+                <span className="text-white">Accra International Airport, Accra, Ghana</span>
+              </li>
+              <li>
+                <a
+                  href="mailto:careers@aerojet-aviation.com"
+                  className="flex items-center gap-2 sm:gap-3 text-white hover:text-aero-accent transition-colors"
+                >
+                  <FaEnvelope className="text-white flex-shrink-0" />
+                  careers@aerojet-aviation.com
+                </a>
+              </li>
+              <li>
+                <a
+                  href="tel:+233209848423"
+                  className="flex items-center gap-2 sm:gap-3 text-white hover:text-aero-accent transition-colors"
+                >
+                  <FaPhoneAlt className="text-white flex-shrink-0" />
+                  +233-20-984-8423
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Copyright */}
-        <div className="text-center pt-6 border-t border-white/10 text-xs opacity-60">
+        <div className="text-center pt-5 sm:pt-6 border-t border-white/10 text-xs opacity-60">
           <p>&copy; {new Date().getFullYear()} Aerojet Aviation. All rights reserved.</p>
         </div>
       </div>
     </footer>
   );
 }
-

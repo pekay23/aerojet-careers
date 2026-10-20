@@ -3,7 +3,7 @@ import { FormLabel } from './FormLabel'
 
 type TextareaProps = {
   value: any
-  onChange: (_v: string) => void
+  onChange: (_value: string) => void
   label?: string
   required?: boolean
   hint?: string

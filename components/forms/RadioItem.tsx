@@ -2,7 +2,7 @@ interface RadioItemProps {
   label: string
   value: string
   current: any
-  onChange: (_v: string) => void
+  onChange: (_value: string) => void
 }
 
 export function RadioItem({ label, value, current, onChange }: RadioItemProps) {
