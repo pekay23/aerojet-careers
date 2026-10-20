@@ -6,7 +6,7 @@
   "description": "Aerojet Aviation Careers Portal — Job listings, applications, admin dashboard",
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "build": "bun run --bun next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",

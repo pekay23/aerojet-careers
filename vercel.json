@@ -1,6 +1,7 @@
 {
   "version": 2,
   "framework": "nextjs",
+  "bunVersion": "1.4.x",
   "installCommand": "bun install --frozen-lockfile",
   "buildCommand": "bun run build",
   "regions": ["lhr1"],
