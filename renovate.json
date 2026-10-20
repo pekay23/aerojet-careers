@@ -9,6 +9,14 @@
   ],
   "packageRules": [
     {
+      "description": "Local workspace packages from ../aerojet-aviation - never published to npm, so Renovate must not try to look them up",
+      "matchPackageNames": [
+        "@aerojet/design-tokens",
+        "@aerojet/ui"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Auto-merge minor and patch updates",
       "matchUpdateTypes": [
         "minor",
@@ -27,9 +35,11 @@
       ],
       "automerge": false,
       "requiredStatusChecks": [
-        "build",
-        "type-check",
-        "lint"
+        "Build",
+        "Type Check",
+        "Lint",
+        "Unit Tests",
+        "Dependency Audit"
       ]
     },
     {
@@ -92,9 +102,11 @@
       "groupName": "upstash",
       "automerge": false,
       "requiredStatusChecks": [
-        "build",
-        "type-check",
-        "lint"
+        "Build",
+        "Type Check",
+        "Lint",
+        "Unit Tests",
+        "Dependency Audit"
       ]
     },
     {
@@ -105,9 +117,11 @@
       "groupName": "supabase",
       "automerge": false,
       "requiredStatusChecks": [
-        "build",
-        "type-check",
-        "lint"
+        "Build",
+        "Type Check",
+        "Lint",
+        "Unit Tests",
+        "Dependency Audit"
       ]
     },
     {
@@ -209,9 +223,11 @@
       ],
       "automerge": false,
       "requiredStatusChecks": [
-        "build",
-        "type-check",
-        "lint"
+        "Build",
+        "Type Check",
+        "Lint",
+        "Unit Tests",
+        "Dependency Audit"
       ]
     }
   ],
