@@ -25,7 +25,7 @@ function memoryLimit(identifier: string): RateLimitResult {
   return { success: true, remaining: MAX_ATTEMPTS - entry.count }
 }
 
-let upstashLimiter: { limit: (id: string) => Promise<{ success: boolean; remaining: number }> } | null = null
+let upstashLimiter: { limit: (_id: string) => Promise<{ success: boolean; remaining: number }> } | null = null
 let upstashInitAttempted = false
 
 async function getUpstashLimiter() {

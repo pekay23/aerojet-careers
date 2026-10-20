@@ -1457,16 +1457,14 @@ async function main() {
 }
 
 async function readProjectName() {
-  try {
-    const pkg = JSON.parse(await fs.readFile(path.join(ROOT, 'package.json'), 'utf8'))
-    if (pkg.name) {
-      // "novastar-montessori" → "Novastar Montessori"
-      return pkg.name
-        .split(/[-_\s]+/)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ')
-    }
-  } catch (e) {}
+  const pkg = JSON.parse(await fs.readFile(path.join(ROOT, 'package.json'), 'utf8'))
+  if (pkg.name) {
+    // "novastar-montessori" → "Novastar Montessori"
+    return pkg.name
+      .split(/[-_\s]+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+  }
   return 'Project'
 }
 

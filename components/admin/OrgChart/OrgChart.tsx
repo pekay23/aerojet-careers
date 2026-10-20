@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   ReactFlow,
   useNodesState,
@@ -14,13 +14,10 @@ import {
   ConnectionMode,
   OnConnect,
   reconnectEdge,
-  XYPosition,
-  Node,
-  NodeTypes,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import dagre from 'dagre'
-import { Layout, RotateCw, ZoomIn, Maximize, Move, Save, Trash2, ArrowRight } from 'lucide-react'
+import { Layout, RotateCw } from 'lucide-react'
 import OrgNode, { StaffNode } from './OrgNode'
 import { cn } from '@/lib/utils'
 
@@ -141,7 +138,7 @@ export default function OrgChart() {
     return (
       <div className="h-[600px] w-full flex flex-col items-center justify-center bg-slate-50 rounded-2xl border border-slate-100">
          <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
-         <p className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">Mapping Aerojet Hierarchy…</p>
+         <p className="mt-4 text-xs font-bold text-slate-600 uppercase tracking-widest animate-pulse">Mapping Aerojet Hierarchy…</p>
       </div>
     )
   }
@@ -198,7 +195,7 @@ export default function OrgChart() {
         <Panel position="bottom-left" className="bg-white/80 backdrop-blur-md p-4 rounded-xl border border-slate-200 shadow-lg max-w-xs">
            <div className="space-y-1">
               <h4 className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-2">Instructions</h4>
-              <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase">
+              <p className="text-[10px] text-slate-600 leading-relaxed font-bold uppercase">
                 • Drag connections to reassign managers.<br />
                 • Click nodes to select/focus.<br />
                 • Use scroll to zoom, right-click to pan.

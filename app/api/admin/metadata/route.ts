@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     // Public access allowed for recruitment metadata
     const [categories, empTypes, departments] = await Promise.all([

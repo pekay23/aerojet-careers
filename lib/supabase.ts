@@ -69,9 +69,9 @@ class AdminUsersQuery {
 }
 
 class TableQuery {
-  constructor(private table: string) {}
+  constructor(private _table: string) {}
   select(columns = '*') {
-    if (this.table === 'admin_users') return new AdminUsersQuery(columns)
+    if (this._table === 'admin_users') return new AdminUsersQuery(columns)
     // Other client-side table reads are not supported; callers should use
     // dedicated API routes. Return an empty result rather than throwing.
     return {
@@ -87,11 +87,11 @@ class TableQuery {
 
 // ── storage shim (client upload) ──────────────────────────────
 class ClientBucket {
-  constructor(private bucket: string) {}
+  constructor(private _bucket: string) {}
   async upload(path: string, file: File | Blob, _opts?: any) {
     try {
       const form = new FormData()
-      form.set('bucket', this.bucket)
+      form.set('bucket', this._bucket)
       form.set('path', path)
       form.set('file', file)
       const res = await fetch('/api/storage/upload', { method: 'POST', body: form })
@@ -105,7 +105,7 @@ class ClientBucket {
   getPublicUrl(path: string) {
     return {
       data: {
-        publicUrl: `/api/files?bucket=${encodeURIComponent(this.bucket)}&path=${encodeURIComponent(path)}`,
+        publicUrl: `/api/files?bucket=${encodeURIComponent(this._bucket)}&path=${encodeURIComponent(path)}`,
       },
     }
   }

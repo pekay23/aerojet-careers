@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const auth = await verifyRole(['admin'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         { metric_name: 'hired_count', metric_value: hired.count || 0, snapshot_date: today }
       ]
 
-      const { data, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('dashboard_snapshots')
         .upsert(currentSnapshots, { onConflict: 'metric_name,snapshot_date' })
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     if (Array.isArray(snapshots)) {
       // Import historical snapshots
-      const { data, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('dashboard_snapshots')
         .upsert(snapshots, { onConflict: 'metric_name,snapshot_date' })
 

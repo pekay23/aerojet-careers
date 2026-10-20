@@ -1,5 +1,5 @@
-@import "./design-tokens.css";
 @import "tailwindcss";
+@import "./design-tokens.css";
 
 @theme {
   /* Semantic colors (shadcn/ui compatible) */
@@ -398,29 +398,40 @@
   .site-footer .footer-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--sp-4);
+    gap: var(--sp-6);
     margin-bottom: var(--sp-6);
     max-width: 80rem;
     margin-left: auto;
     margin-right: auto;
   }
 
+  /* Tablet: 2 columns */
   @media (min-width: 768px) {
     .site-footer .footer-grid {
       grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-8);
     }
   }
 
+  /* Desktop: 3 columns */
   @media (min-width: 1024px) {
     .site-footer .footer-grid {
       grid-template-columns: repeat(3, 1fr);
     }
   }
 
+  /* Large desktop: 5 columns with proportional widths */
   @media (min-width: 1280px) {
     .site-footer .footer-grid {
       grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1.25fr;
       gap: var(--sp-4);
+    }
+  }
+
+  /* Ensure footer columns stack cleanly on small screens */
+  @media (max-width: 767px) {
+    .site-footer .footer-col {
+      break-inside: avoid;
     }
   }
 
@@ -976,23 +987,8 @@
    ============================================ */
 
 @layer utilities {
-  /* ── Responsive site navigation ──────────────────────────────────────────
-     SiteNav renders a horizontal `.desktop-nav` list and a `.mobile-nav-toggle`
-     hamburger (inline `display:none`). These rules do the viewport swap that
-     was previously missing entirely, so the 8-link nav no longer overflows on
-     phones. Breakpoint: 900px. */
-  @media (max-width: 900px) {
-    .desktop-nav { display: none !important; }
-    .mobile-nav-toggle { display: inline-flex !important; align-items: center; justify-content: center; }
-    /* Comfortable 44px touch target for the hamburger. */
-    .mobile-nav-toggle { min-width: 44px; min-height: 44px; }
-  }
-  @media (min-width: 901px) {
-    .mobile-nav-menu { display: none !important; }
-  }
-
-  /* Respect users who prefer reduced motion — disable transitions/animations. */
-  @media (prefers-reduced-motion: reduce) {
+   /* Respect users who prefer reduced motion — disable transitions/animations. */
+   @media (prefers-reduced-motion: reduce) {
 
     *,
     *::before,
@@ -1140,12 +1136,13 @@
   .deploy-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10;
+    gap: 16px;
   }
 
   @media (min-width: 640px) {
     .deploy-grid {
       grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
     }
   }
 
@@ -1205,6 +1202,28 @@
       gap: 1rem;
     }
   }
+
+  /* Touch target minimum size (WCAG 2.1 AA — 44px) */
+  .min-touch {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improve tap targets for buttons and links in nav */
+  .site-nav a,
+  .site-nav button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Mobile menu items get comfortable tap area */
+  #mobile-menu a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 1rem;
+  }
   .info-box {
     background: #eaf3fa;
     border: 1px solid #b5caeb;
@@ -1232,7 +1251,7 @@
   .consent-label {
     display: flex;
     align-items: center;
-    gap: 10;
+    gap: 10px;
     cursor: pointer;
     padding: 0.75rem 1rem;
     border: 1px solid var(--border);
@@ -1243,7 +1262,7 @@
   .checkbox-item {
     display: flex;
     align-items: center;
-    gap: 10;
+    gap: 10px;
     cursor: pointer;
     padding: 0.6rem 0.875rem;
     border: 1px solid var(--border);
@@ -1258,14 +1277,14 @@
   .radio-item {
     display: flex;
     align-items: center;
-    gap: 8;
+    gap: 8px;
     cursor: pointer;
     padding: 0.6rem 0.875rem;
     border: 1px solid var(--border);
-    border-radius: 8;
+    border-radius: 8px;
     background: #fafbfc;
     flex: 1;
-    min-width: 130;
+    min-width: 130px;
     transition: all 0.15s;
   }
   .radio-item.active {

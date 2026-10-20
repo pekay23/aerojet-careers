@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const auth = await verifyRole(['admin', 'hr_manager', 'recruiter', 'employee'])
     if (!auth) return ApiResponse.error('Unauthorized', 403)
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
         description: 'CVs, licence scans and passport scans from applications and talent pool',
         icon: 'file-search',
       }, { onConflict: 'name' })
-    } catch (e) {
+    } catch {
       // ignore — folder may already exist or unique constraint may be absent
     }
 

@@ -18,7 +18,7 @@ export default function DocumentsPage() {
              </div>
              <div>
                 <h2 className="text-2xl font-bold tracking-tight text-slate-900 uppercase">File Management</h2>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Manage company documents and employee records.</p>
+                <p className="text-sm font-bold text-slate-600 uppercase tracking-widest">Manage company documents and employee records.</p>
              </div>
           </div>
         </div>

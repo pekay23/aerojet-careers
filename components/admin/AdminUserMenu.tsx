@@ -52,10 +52,10 @@ export default function AdminUserMenu({ userName, userRole, userMenuOpen, settin
               </div>
               <div className="min-w-0">
                 <p className="truncate font-bold text-slate-700">{userName}</p>
-                <p className="truncate text-[10px] font-bold uppercase tracking-widest text-slate-400">{userRole || 'Member'}</p>
+                <p className="truncate text-[10px] font-bold uppercase tracking-widest text-slate-600">{userRole || 'Member'}</p>
               </div>
             </div>
-            <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition-transform" aria-hidden="true" />
+            <ChevronRight className="h-4 w-4 shrink-0 text-slate-500 transition-transform" aria-hidden="true" />
           </button>
 
           <div className="absolute bottom-full left-0 right-0 z-50 mb-2">
@@ -78,7 +78,7 @@ export default function AdminUserMenu({ userName, userRole, userMenuOpen, settin
         </div>
       ) : (
         <div className="flex justify-center">
-          <button onClick={onLogout} className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-red-50 hover:text-red-600" aria-label="Sign out" title="Sign out">
+          <button onClick={onLogout} className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition-all hover:bg-red-50 hover:text-red-600" aria-label="Sign out" title="Sign out">
             <LogOut className="h-4 w-4" />
           </button>
         </div>

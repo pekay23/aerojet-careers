@@ -72,66 +72,66 @@ export default function SiteNav() {
     <nav className={`site-nav fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
       isOpaque ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
     }`}>
-      <div className="w-full px-6">
-        <div className="mx-auto max-w-8xl grid grid-cols-[auto_1fr_auto] items-center">
+      <div className="w-full px-4 sm:px-6">
+        <div className="mx-auto max-w-8xl grid grid-cols-[auto_1fr_auto] items-center gap-4">
 
-          {/* Logo */}
-          <Link href="/" className="relative h-10 w-40 flex items-center no-underline">
-             <Image
-              src={isOpaque ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
-              alt="Aerojet Aviation"
-              fill
-              sizes="160px"
-              className="object-contain object-left"
-              priority
-            />
+          {/* Logo — always visible, left-aligned */}
+          <Link href="/" className="relative h-9 sm:h-10 w-36 sm:w-40 flex items-center no-underline">
+            <Image
+             src={isOpaque ? '/logos/logo-navbar.png' : '/logos/aerojetaviationlogonoBG.png'}
+             alt="Aerojet Aviation"
+             fill
+             sizes="(max-width: 640px) 144px, (max-width: 1024px) 160px, 160px"
+             className="object-contain object-left"
+             priority
+           />
           </Link>
 
-          {/* Centered Desktop Links */}
+          {/* Centered Desktop Links — hidden below lg, centered on desktop */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="flex items-center gap-7 flex-nowrap">
+            <div className="flex items-center gap-5 xl:gap-7 flex-nowrap">
               {menuItems.map((item, index) => (
-                <div key={item.name} className="relative">
+                <div key={item.name} className="relative min-touch">
                   <Link
                     href={item.href}
-                    className={`font-semibold text-sm uppercase tracking-wider transition-colors ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
+                    className={`font-semibold text-sm uppercase tracking-wider transition-colors py-3 px-3 rounded ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
                     onMouseEnter={() => handleMouseEnter(index)}
                     onMouseLeave={() => handleMouseLeave(index)}
                   >
                     {item.name}
                   </Link>
-                {/* Animated underline */}
-                <div
-                  ref={(el) => { underlineRefs.current[index] = el; }}
-                  className="absolute -bottom-1 left-0 h-0.5 bg-aero-accent origin-left scale-x-0"
-                  style={{ width: '100%' }}
-                />
-              </div>
-            ))}
+                  {/* Animated underline */}
+                  <div
+                    ref={(el) => { underlineRefs.current[index] = el; }}
+                    className="absolute -bottom-1 left-0 h-0.5 bg-aero-accent origin-left scale-x-0"
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* View All Jobs — far right */}
-        <div className="hidden lg:flex justify-end">
-          <Link
-            href="/jobs"
-            className="btn-primary text-sm py-2 px-6 tracking-widest"
+          {/* View All Jobs — far right on desktop */}
+          <div className="hidden lg:flex justify-end">
+            <Link
+              href="/jobs"
+              className="btn-primary text-sm py-2 px-5 sm:px-6 tracking-widest whitespace-nowrap"
+            >
+              View All Jobs
+            </Link>
+          </div>
+
+          {/* Mobile Toggle — visible below lg, right-aligned */}
+          <button
+            className={`lg:hidden text-xl sm:text-2xl ${linkColor} min-h-11 min-w-11 flex items-center justify-center rounded focus:outline-none focus:ring-2 focus:ring-aero-accent`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
-            View All Jobs
-          </Link>
+            {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
         </div>
-
-        {/* Mobile Toggle */}
-        <button
-          className={`lg:hidden text-2xl ${linkColor}`}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileMenuOpen}
-          aria-controls="mobile-menu"
-        >
-          {mobileMenuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </div>
       </div>
 
       {/* Mobile Menu Backdrop */}
@@ -143,20 +143,26 @@ export default function SiteNav() {
         />
       )}
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — slide-down panel */}
       {mobileMenuOpen && (
-         <div id="mobile-menu" className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-8 space-y-6 lg:hidden">
+        <div
+          id="mobile-menu"
+          className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-6 space-y-5 lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+        >
           {menuItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className={`font-bold text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+              className={`font-bold text-base sm:text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}
             </Link>
           ))}
-          <div style={{ width: '80%', height: 1, background: 'var(--border)' }} />
+          <div style={{ width: '60%', height: 1, background: 'var(--border)' }} />
           {secondaryItems.map((item) => (
             <Link
               key={item.name}

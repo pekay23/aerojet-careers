@@ -7,9 +7,6 @@ import BudgetManager from '@/components/admin/BudgetManager'
 import {
   Network,
   DollarSign,
-  Zap,
-  Lock,
-  ArrowRight,
   Info,
   Building2,
   RefreshCw

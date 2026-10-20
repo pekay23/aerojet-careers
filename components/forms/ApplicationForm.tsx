@@ -10,7 +10,7 @@ import {
 } from '@/lib/validation/schemas'
 import type { ApplicationFormData } from '@/types'
 import {
-  FormField, FormGrid, TextInput, TextArea, Select, Combo,
+  FormField, FormGrid, TextInput, TextArea, Select,
   CheckItem, RadioItem, DeployCard, FileZone, Divider, BtnRow,
 } from '@/components/forms'
 

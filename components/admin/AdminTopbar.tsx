@@ -23,7 +23,7 @@ export default function AdminTopbar({ title, breadcrumb, mobileOpen, onToggleMob
         </button>
         <div>
           {breadcrumb && (
-            <nav className="mb-0.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+            <nav className="mb-0.5 flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
               <span className="uppercase tracking-widest">Portal</span>
               <ChevronRight size={10} />
               <span className="uppercase tracking-widest text-slate-700">{breadcrumb}</span>

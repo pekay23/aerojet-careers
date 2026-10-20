@@ -5,7 +5,6 @@ import {
   TrendingUp, 
   DollarSign, 
   History, 
-  PieChart, 
   ChevronRight,
   Plus,
   ArrowUpRight,
@@ -178,11 +177,11 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
       {/* Left Column: Dept List */}
       <div className="lg:col-span-4 space-y-4">
         <div className="flex items-center justify-between mb-4 px-2">
-           <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Departmental Units</h3>
+           <h3 className="text-[10px] font-bold tracking-[0.3em] text-slate-600 uppercase">Departmental Units</h3>
            {(userRole === 'admin' || userRole === 'hr') && (
              <button 
                onClick={() => setShowCreateModal(true)}
-               className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-400 transition-all shadow-sm"
+               className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-400 transition-all shadow-sm"
                title="Create New Department"
              >
                 <Plus size={16} />
@@ -208,11 +207,11 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                  )}>
                    {dept.code || 'DEPT'}
                  </span>
-                 <DollarSign size={16} className={selectedDept?.id === dept.id ? "text-blue-400" : "text-slate-300"} />
+                 <DollarSign size={16} className={selectedDept?.id === dept.id ? "text-blue-400" : "text-slate-500"} />
               </div>
               <p className="font-bold text-lg tracking-tight uppercase mb-1">{dept.name}</p>
               <div className="flex items-end justify-between">
-                 <p className={cn("text-xs font-bold", selectedDept?.id === dept.id ? "text-slate-400" : "text-slate-400")}>
+                 <p className={cn("text-xs font-bold", selectedDept?.id === dept.id ? "text-slate-400" : "text-slate-600")}>
                    Current Budget
                  </p>
                  <p className="text-xl font-bold tracking-tighter">
@@ -242,21 +241,21 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                             onChange={(e) => setMetaForm({ ...metaForm, name: e.target.value })}
                           />
                           <input 
-                            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded"
+                            className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded"
                             value={metaForm.code}
                             placeholder="CODE"
                             onChange={(e) => setMetaForm({ ...metaForm, code: e.target.value.toUpperCase() })}
                           />
                           <div className="flex gap-2">
                              <button onClick={handleUpdateMeta} className="text-[10px] font-bold text-blue-600 uppercase">Save Changes</button>
-                             <button onClick={() => setIsEditing(false)} className="text-[10px] font-bold text-slate-400 uppercase">Cancel</button>
+                             <button onClick={() => setIsEditing(false)} className="text-[10px] font-bold text-slate-600 uppercase">Cancel</button>
                           </div>
                        </div>
                      ) : (
                        <div className="group flex items-center gap-4">
                           <div>
                              <h2 className="text-3xl font-bold text-slate-900 tracking-tighter uppercase">{selectedDept.name}</h2>
-                             <p className="text-sm font-bold text-slate-400">Manage allocation and historical expenditure.</p>
+                             <p className="text-sm font-bold text-slate-600">Manage allocation and historical expenditure.</p>
                           </div>
                           {(userRole === 'admin' || userRole === 'hr') && (
                             <button 
@@ -264,7 +263,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                                 setIsEditing(true)
                                 setMetaForm({ name: selectedDept.name, code: selectedDept.code })
                               }}
-                              className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                              className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                             >
                                <Plus className="rotate-45 scale-75" size={20} />
                             </button>
@@ -273,7 +272,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                      )}
                   </div>
                   <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
-                     <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-1">Allocation Share</p>
+                     <p className="text-[10px] font-bold tracking-widest text-slate-600 uppercase mb-1">Allocation Share</p>
                      <div className="flex items-center gap-3">
                         <TrendingUp size={20} className="text-emerald-500" />
                         <span className="text-2xl font-bold text-slate-900">{selectedDept.allocation_ratio}%</span>
@@ -284,9 +283,9 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                {(userRole === 'admin' || userRole === 'hr') ? (
                  <form onSubmit={handleUpdateBudget} className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1 space-y-1.5">
-                       <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-1">New Budget Amount</label>
+                       <label className="text-[10px] font-bold tracking-widest text-slate-600 uppercase ml-1">New Budget Amount</label>
                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">$</span>
                           <input 
                             type="number"
                             placeholder="0.00"
@@ -297,7 +296,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                        </div>
                     </div>
                     <div className="md:col-span-1 space-y-1.5">
-                       <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-1">Change Reason</label>
+                       <label className="text-[10px] font-bold tracking-widest text-slate-600 uppercase ml-1">Change Reason</label>
                        <input 
                           placeholder="e.g. Q3 Expansion"
                           className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold"
@@ -316,7 +315,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                     </div>
                  </form>
                ) : (
-                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center gap-3 text-slate-400 italic">
+                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center gap-3 text-slate-600 italic">
                     <Lock size={14} />
                     <span className="text-[10px] font-bold uppercase tracking-widest">Editing Restricted to Finance Admins</span>
                  </div>
@@ -326,7 +325,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
             {/* History Feed */}
             <div className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100">
                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400">
+                  <div className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-600">
                      <History size={16} />
                   </div>
                   <h3 className="text-[10px] font-bold tracking-widest text-slate-900 uppercase">Budget Audit Timeline</h3>
@@ -334,7 +333,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
 
                <div className="space-y-4">
                   {history.length === 0 ? (
-                    <div className="py-12 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-300">
+                    <div className="py-12 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-500">
                        <AlertCircle size={32} />
                        <p className="text-[10px] font-bold uppercase tracking-widest mt-2">No historical records</p>
                     </div>
@@ -349,14 +348,14 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                           </div>
                           <div>
                              <p className="text-sm font-bold text-slate-900 tracking-tight uppercase">{h.change_reason}</p>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                By {h.author?.full_name} · {new Date(h.created_at).toLocaleDateString('en-GB')}
-                             </p>
+<p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                                 By {h.author?.full_name} · {new Date(h.created_at).toLocaleDateString('en-GB')}
+                              </p>
                           </div>
                        </div>
                        <div className="text-right">
                           <p className="text-lg font-bold text-slate-900">${h.amount.toLocaleString()}</p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                          <p className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">
                              Prev: ${h.prev_amount?.toLocaleString() || '0'}
                           </p>
                        </div>
@@ -367,7 +366,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
           </>
         ) : (
           <div className="h-full min-h-[400px] border-2 border-dashed border-slate-100 rounded-3xl flex items-center justify-center">
-             <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Select a department to manage</p>
+             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Select a department to manage</p>
           </div>
         )}
       </div>
@@ -379,14 +378,14 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
               <div className="bg-slate-900 p-8 text-white">
                  <div className="flex items-center justify-between mb-2">
                     <h3 className="text-2xl font-bold uppercase tracking-tight">New Unit</h3>
-                    <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-white"><Plus className="rotate-45" size={24} /></button>
+                    <button onClick={() => setShowCreateModal(false)} className="text-slate-600 hover:text-white"><Plus className="rotate-45" size={24} /></button>
                  </div>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Establish a custom organizational department</p>
+                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Establish a custom organizational department</p>
               </div>
               
               <form onSubmit={handleCreateDept} className="p-8 space-y-6">
                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Department Name</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department Name</label>
                     <input 
                       required
                       placeholder="e.g. Flight Operations"
@@ -398,7 +397,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
 
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Code (Auto-Gen)</label>
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Code (Auto-Gen)</label>
                        <input 
                          required
                          maxLength={5}
@@ -409,9 +408,9 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                        />
                     </div>
                     <div className="space-y-1.5">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Initial Budget</label>
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Initial Budget</label>
                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                           <input 
                              type="number"
                              className="w-full pl-8 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:bg-white focus:outline-none transition-all font-sans"
@@ -423,7 +422,7 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                  </div>
 
                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Department Manager</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department Manager</label>
                     <select 
                       className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:bg-white focus:outline-none transition-all font-sans"
                       value={createForm.manager_id}

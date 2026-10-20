@@ -82,12 +82,6 @@ const INDEXES = [
   'CREATE UNIQUE INDEX IF NOT EXISTS idx_document_folders_name ON document_folders(name)',
 ]
 
-async function cleanupJobs(client) {
-  console.log('Cleaning existing job postings...')
-  const res = await client.query('DELETE FROM jobs')
-  console.log(`  ✓ ${res.rowCount} job postings removed`)
-}
-
 async function checkDuplicateFolders(client) {
   const res = await client.query(
     'SELECT COUNT(*) AS dups FROM (SELECT name FROM document_folders GROUP BY name HAVING COUNT(*) > 1) t'

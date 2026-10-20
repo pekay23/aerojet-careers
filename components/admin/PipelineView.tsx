@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
   User, 
-  MapPin, 
   Clock, 
   ChevronRight, 
   Briefcase,
@@ -17,7 +16,7 @@ import { cn } from '@/lib/utils'
 interface PipelineViewProps {
   apps: any[]
   loading: boolean
-  onSelect?: (app: any) => void
+  onSelect?: (_app: any) => void
 }
 
 const STAGES = [
@@ -28,7 +27,7 @@ const STAGES = [
   { id: 'offer', name: 'Final Offer', color: 'emerald' },
 ]
 
-export default function PipelineView({ apps, loading, onSelect }: PipelineViewProps) {
+export default function PipelineView({ apps, loading }: PipelineViewProps) {
   const router = useRouter()
   const getStageApps = (stage: string) => apps.filter(a => a.status === stage)
 
@@ -36,7 +35,7 @@ export default function PipelineView({ apps, loading, onSelect }: PipelineViewPr
      return (
         <div className="flex-1 flex flex-col items-center justify-center py-40 bg-slate-50/50">
            <Layers className="text-slate-200 animate-pulse mb-4" size={48} />
-           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] animate-pulse">Loading applicants&hellip;</p>
+           <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] animate-pulse">Loading applicants&hellip;</p>
         </div>
      )
   }
@@ -45,7 +44,7 @@ export default function PipelineView({ apps, loading, onSelect }: PipelineViewPr
     return (
       <div className="flex-1 flex flex-col items-center justify-center py-40 bg-slate-50/30 space-y-4">
         <Search size={40} className="text-slate-200" />
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No applications found</p>
+        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">No applications found</p>
       </div>
     )
   }
@@ -69,7 +68,7 @@ export default function PipelineView({ apps, loading, onSelect }: PipelineViewPr
                    )} />
                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{stage.name}</h3>
                 </div>
-                <span className="px-2.5 py-1 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-400 shadow-sm">
+                <span className="px-2.5 py-1 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 shadow-sm">
                    {stageApps.length}
                 </span>
               </div>
@@ -79,7 +78,7 @@ export default function PipelineView({ apps, loading, onSelect }: PipelineViewPr
                  {stageApps.length === 0 ? (
                    <div className="p-8 border-2 border-dashed border-slate-100 rounded-3xl flex flex-col items-center justify-center text-center opacity-50 grayscale">
                       <Search size={24} className="text-slate-200 mb-2" />
-                      <p className="text-[9px] font-bold text-slate-300 uppercase">No entries</p>
+                      <p className="text-[9px] font-bold text-slate-500 uppercase">No entries</p>
                    </div>
                  ) : stageApps.map((a) => (
                    <motion.div
@@ -101,20 +100,20 @@ export default function PipelineView({ apps, loading, onSelect }: PipelineViewPr
                           <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors uppercase truncate">
                             {a.first_name} {a.last_name}
                           </h4>
-                          <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">
-                             <Briefcase size={10} className="text-slate-300" />
+                          <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-600 uppercase tracking-widest truncate">
+                             <Briefcase size={10} className="text-slate-500" />
                              {a.job_title || 'General'}
                           </div>
                         </div>
 
                         <div className="pt-3 border-t border-slate-50 flex items-center justify-between">
                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                              <div className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-all">
                                  <User size={12} />
                               </div>
                               <span className="text-[9px] font-bold text-slate-500 uppercase">{a.nationality}</span>
                            </div>
-                           <div className="flex items-center gap-1 text-[9px] font-bold text-slate-300 uppercase">
+                           <div className="flex items-center gap-1 text-[9px] font-bold text-slate-500 uppercase">
                               <Clock size={10} />
                               {Math.floor((new Date().getTime() - new Date(a.created_at).getTime()) / (1000 * 60 * 60 * 24))}d
                            </div>

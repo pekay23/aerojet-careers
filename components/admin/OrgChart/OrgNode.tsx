@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react'
 import { Handle, Position, NodeProps, Node } from '@xyflow/react'
-import { Mail, Shield, User, MapPin } from 'lucide-react'
+import { Mail, Shield, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type StaffNodeData = {
@@ -36,9 +36,9 @@ const OrgNode = ({ data, selected }: NodeProps<StaffNode>) => {
       <div className="p-5 space-y-4">
         <div className="flex items-start gap-4">
            <div className="relative shrink-0">
-              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white shadow-md flex items-center justify-center font-bold text-xl text-slate-400 uppercase overflow-hidden">
+              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white shadow-md flex items-center justify-center font-bold text-xl text-slate-500 uppercase overflow-hidden">
                 {data.avatar ? (
-                  <img src={data.avatar} alt={data.name} className="h-full w-full object-cover" />
+                  <img src={data.avatar} alt={data.name} className="h-full w-full object-cover" sizes="(max-width: 768px) 56px, 56px" />
                 ) : (
                   <User size={24} />
                 )}
@@ -60,7 +60,7 @@ const OrgNode = ({ data, selected }: NodeProps<StaffNode>) => {
            </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-slate-400">
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-slate-500">
            <div className="flex items-center gap-2">
               <Mail size={12} />
               <span className="text-[9px] font-bold truncate max-w-[120px]">{data.email}</span>

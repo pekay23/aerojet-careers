@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { hashPassword, verifyPassword, verifySession } from '@/lib/auth'
 
 const SECRET = 'test-secret-for-unit-tests-only'

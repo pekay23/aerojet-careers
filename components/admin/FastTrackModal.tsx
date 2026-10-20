@@ -9,7 +9,7 @@ interface FastTrackModalProps {
   talent: any | null
   isOpen: boolean
   onClose: () => void
-  onSuccess: (refCode: string) => void
+  onSuccess: (_refCode: string) => void
 }
 
 export default function FastTrackModal({ talent, isOpen, onClose, onSuccess }: FastTrackModalProps) {
@@ -107,7 +107,7 @@ export default function FastTrackModal({ talent, isOpen, onClose, onSuccess }: F
                       <CheckCircle2 size={40} />
                    </div>
                    <h3 className="text-xl font-bold text-slate-900 uppercase">Assignment Successful</h3>
-                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                   <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">
                      Reference Code: <span className="text-blue-600">{success}</span>
                    </p>
                 </div>
@@ -119,19 +119,19 @@ export default function FastTrackModal({ talent, isOpen, onClose, onSuccess }: F
                      </div>
                      <div>
                         <p className="text-sm font-bold text-slate-900">{talent?.first_name} {talent?.last_name}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{talent?.email}</p>
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{talent?.email}</p>
                      </div>
                    </div>
 
                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase ml-1">Select Target Vacancy ({jobs.length})</label>
+                      <label className="text-[10px] font-bold tracking-widest text-slate-600 uppercase ml-1">Select Target Vacancy ({jobs.length})</label>
                       <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                          {loading ? (
                            <div className="py-12 flex justify-center">
                               <Loader2 className="animate-spin text-blue-600" size={24} />
                            </div>
                          ) : jobs.length === 0 ? (
-                           <div className="py-12 text-center text-xs font-bold text-slate-400 uppercase">No active job openings found.</div>
+                           <div className="py-12 text-center text-xs font-bold text-slate-600 uppercase">No active job openings found.</div>
                          ) : jobs.map(job => (
                            <button 
                              key={job.id}
@@ -147,10 +147,10 @@ export default function FastTrackModal({ talent, isOpen, onClose, onSuccess }: F
                                  <Briefcase size={16} className={cn(selectedJob === job.id ? "text-blue-200" : "text-blue-400")} />
                                  <div className="flex flex-col">
                                     <span className="text-xs font-bold uppercase tracking-tight">{job.title}</span>
-                                    <span className={cn("text-[9px] font-bold uppercase tracking-widest", selectedJob === job.id ? "text-blue-200" : "text-slate-400")}>{job.ref_code} • {job.department}</span>
+                                    <span className={cn("text-[9px] font-bold uppercase tracking-widest", selectedJob === job.id ? "text-blue-200" : "text-slate-600")}>{job.ref_code} • {job.department}</span>
                                  </div>
                               </div>
-                              <ChevronRight size={14} className={cn("transition-transform", selectedJob === job.id ? "rotate-90 text-white" : "text-slate-300")} />
+                              <ChevronRight size={14} className={cn("transition-transform", selectedJob === job.id ? "rotate-90 text-white" : "text-slate-500")} />
                            </button>
                          ))}
                       </div>

@@ -12,10 +12,8 @@ import {
   GraduationCap, 
   Briefcase, 
   DollarSign, 
-  MoreHorizontal,
   Download,
   CheckCircle2,
-  XCircle,
   Clock,
   Mail,
   Smartphone,
@@ -136,7 +134,7 @@ export default function ApplicationDetailPage() {
        } else {
          toast.error(`Failed to update status: ${error}`)
        }
-    } catch (err) {
+    } catch {
        toast.error('Network error while updating status.')
     } finally {
        setStatusLoading(false)
@@ -162,7 +160,7 @@ export default function ApplicationDetailPage() {
       } else {
         toast.error('Error: ' + (d.error || 'Could not complete the hire process.'))
       }
-    } catch (err) {
+    } catch {
       toast.error('Connection error — please try again.')
     } finally {
       setHiring(false)
@@ -173,7 +171,7 @@ export default function ApplicationDetailPage() {
     <AdminLayout title="Loading Application…">
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Loading Details…</p>
+        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest animate-pulse">Loading Details…</p>
       </div>
     </AdminLayout>
   )
@@ -184,7 +182,7 @@ export default function ApplicationDetailPage() {
         <div className="text-6xl opacity-20 grayscale">👤</div>
         <div className="text-center space-y-2">
            <h2 className="text-xl font-bold text-slate-900 uppercase tracking-tighter">Record Not Found</h2>
-           <p className="text-xs font-medium text-slate-400">The requested application does not exist in our database.</p>
+           <p className="text-xs font-medium text-slate-600">The requested application does not exist in our database.</p>
         </div>
         <Link href="/admin/applications" className="px-8 py-3 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-blue-600 transition-all">
            Back to Applications
@@ -216,7 +214,7 @@ export default function ApplicationDetailPage() {
               
               <div className="bg-slate-50 border border-slate-100 rounded-xl p-8 text-left space-y-6">
                  <div className="space-y-1.5">
-                   <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Login Email</label>
+                   <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest block">Login Email</label>
                    <div className="flex items-center justify-between gap-4">
                       <span className="text-sm font-bold text-slate-900 truncate">{hireSuccess.email}</span>
                       <button 
@@ -229,7 +227,7 @@ export default function ApplicationDetailPage() {
                  </div>
                  
                  <div className="space-y-1.5 pt-4 border-t border-slate-100">
-                   <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Temporary Password</label>
+                   <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest block">Temporary Password</label>
                    <div className="flex items-center justify-between gap-4">
                       <span className="text-sm font-bold text-emerald-600 font-mono tracking-widest">{hireSuccess.pass}</span>
                       <button 
@@ -251,7 +249,7 @@ export default function ApplicationDetailPage() {
                 </button>
                 <button 
                   onClick={() => setHireSuccess(null)} 
-                  className="w-full py-4 bg-white border border-slate-100 text-[10px] font-bold tracking-widest text-slate-400 hover:text-slate-900 transition-all uppercase"
+                  className="w-full py-4 bg-white border border-slate-100 text-[10px] font-bold tracking-widest text-slate-600 hover:text-slate-900 transition-all uppercase"
                 >
                   Close
                 </button>
@@ -265,7 +263,7 @@ export default function ApplicationDetailPage() {
       <div className="mb-6 flex items-center justify-between">
          <Link 
            href="/admin/applications" 
-           className="group flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors"
+           className="group flex items-center gap-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest hover:text-blue-600 transition-colors"
          >
            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
            Back to applications
@@ -285,7 +283,7 @@ export default function ApplicationDetailPage() {
                 <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 uppercase tracking-tighter leading-none">{app.first_name} {app.last_name}</h1>
                 <StatusPill status={app.status} />
               </div>
-              <div className="flex flex-wrap items-center gap-y-2 gap-x-8 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+              <div className="flex flex-wrap items-center gap-y-2 gap-x-8 text-[11px] font-bold uppercase tracking-widest text-slate-600">
                 <span className="flex items-center gap-2"><Briefcase size={14} className="text-blue-400" /> {app.job_title || 'General Application'}</span>
                 <span className="flex items-center gap-2"><Clock size={14} className="text-blue-400" /> Submitted {new Date(app.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-blue-400" /> Ref: {app.ref_code}</span>
@@ -307,7 +305,7 @@ export default function ApplicationDetailPage() {
               disabled={hiring || app.status === 'hired'}
               className={`px-10 py-3.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${
                 app.status === 'hired' 
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                  ? 'bg-slate-100 text-slate-600 cursor-not-allowed' 
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-600/20 hover:-translate-y-0.5 active:scale-95'
               }`}
             >
@@ -336,7 +334,7 @@ export default function ApplicationDetailPage() {
               className={`flex items-center gap-3 px-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all shrink-0 border-b-2 ${
                 activeTab === tab.id 
                   ? 'text-blue-600 border-blue-600 -mb-[px] opacity-100' 
-                  : 'text-slate-400 border-transparent hover:text-slate-600 opacity-60 hover:opacity-100'
+                  : 'text-slate-600 border-transparent hover:text-slate-800 opacity-60 hover:opacity-100'
               }`}
             >
               <tab.icon size={16} /> 
@@ -389,7 +387,7 @@ export default function ApplicationDetailPage() {
                     <Detail label="Notice Period" value={app.experience.notice_period || 'None'} />
                   </Grid2>
                   <div className="mt-8 space-y-4">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Statement of Interest</div>
+                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-1">Statement of Interest</div>
                     <div className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-8 rounded-xl border border-slate-100 font-bold">
                       {app.experience.motivation || 'No statement provided.'}
                     </div>
@@ -406,7 +404,7 @@ export default function ApplicationDetailPage() {
                     <Detail label="License Expiry" value={app.qualifications.licence_expiry ? new Date(app.qualifications.licence_expiry).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'} />
                   </Grid2>
                   <div className="mt-8 space-y-4">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Type Ratings</div>
+                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-1">Type Ratings</div>
                     <div className="flex gap-2 flex-wrap">
                       {(app.qualifications.type_ratings || []).map((t: string) => (
                         <span key={t} className="px-6 py-2 bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-bold rounded-lg uppercase tracking-widest">
@@ -432,7 +430,7 @@ export default function ApplicationDetailPage() {
                         </div>
                         <div>
                           <div className="text-sm font-bold text-slate-900 uppercase tracking-tight truncate max-w-[120px]">{doc.file_name}</div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{doc.document_type.replace(/_/g, ' ')} · {doc.file_size ? `${Math.round(doc.file_size / 1024)} KB` : ''}</div>
+                          <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">{doc.document_type.replace(/_/g, ' ')} · {doc.file_size ? `${Math.round(doc.file_size / 1024)} KB` : ''}</div>
                         </div>
                       </div>
                       <a
@@ -455,18 +453,18 @@ export default function ApplicationDetailPage() {
                   {/* Notes Feed */}
                   <div className="space-y-6">
                      {noteFeed.length === 0 ? (
-                        <div className="text-sm font-bold text-slate-400 py-10 text-center uppercase tracking-widest border border-dashed border-slate-200 rounded-xl bg-slate-50">No notes recorded yet.</div>
+                        <div className="text-sm font-bold text-slate-600 py-10 text-center uppercase tracking-widest border border-dashed border-slate-200 rounded-xl bg-slate-50">No notes recorded yet.</div>
                      ) : (
                         noteFeed.map(note => (
                            <div key={note.id} className="p-6 bg-slate-50 border border-slate-100 rounded-xl space-y-4 shadow-sm group">
                               <div className="flex justify-between items-center border-b border-slate-200/60 pb-3">
                                  <div className="flex flex-col">
                                     <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{note.author}</span>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date(note.date).toLocaleString()}</span>
+                                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">{new Date(note.date).toLocaleString()}</span>
                                  </div>
                                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={() => { setEditingNoteId(note.id); setEditBuffer(note.text); }} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={14} /></button>
-                                    <button onClick={() => { if(confirm('Delete this note?')) syncNotes(noteFeed.filter(x => x.id !== note.id)) }} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                    <button onClick={() => { setEditingNoteId(note.id); setEditBuffer(note.text); }} className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={14} /></button>
+                                    <button onClick={() => { if(confirm('Delete this note?')) syncNotes(noteFeed.filter(x => x.id !== note.id)) }} className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={14} /></button>
                                  </div>
                               </div>
                               
@@ -492,7 +490,7 @@ export default function ApplicationDetailPage() {
                   
                   {/* Add New Note */}
                   <div className="pt-8 border-t border-slate-100 space-y-4">
-                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Add a Note</label>
+                     <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-1">Add a Note</label>
                      <textarea
                        value={draftNote}
                        onChange={e => setDraftNote(e.target.value)}
@@ -539,7 +537,7 @@ export default function ApplicationDetailPage() {
                <button 
                 onClick={() => updateStatus('shortlisted')}
                 disabled={statusLoading || app.status === 'shortlisted'}
-                className="w-full py-4 rounded-lg border-2 border-slate-700 hover:border-blue-500 hover:text-blue-400 text-slate-400 text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-lg border-2 border-slate-700 hover:border-blue-500 hover:text-blue-400 text-slate-600 text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                >
                  {statusLoading ? 'Updating…' : app.status === 'shortlisted' ? '✓ Shortlisted' : 'Move to Shortlist'}
                </button>
@@ -557,11 +555,11 @@ export default function ApplicationDetailPage() {
             <h3 className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.3em] border-b border-slate-50 pb-4">Application Info</h3>
             <div className="space-y-4">
               <div className="space-y-1">
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Source</div>
+                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Source</div>
                 <div className="text-xs font-bold text-slate-900 uppercase">{app.source || 'Direct Application'}</div>
               </div>
               <div className="space-y-1">
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Attachments</div>
+                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Attachments</div>
                 <div className="text-xs font-bold text-slate-900 uppercase">{(app.documents || []).length} Files</div>
               </div>
             </div>
@@ -593,7 +591,7 @@ function Grid2({ children }: { children: React.ReactNode }) {
 function Detail({ label, value, icon: Icon }: { label: string; value: any; icon?: any }) {
   return (
     <div className="bg-slate-50 p-6 rounded-lg border border-slate-50 hover:border-blue-100 transition-all group">
-      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">{label}</div>
+      <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-3">{label}</div>
       <div className="flex items-center gap-3 text-sm font-bold text-slate-900 uppercase tracking-tight transition-colors group-hover:text-blue-600">
         {Icon && <Icon size={16} className="text-blue-400" />}
         {value || '—'}

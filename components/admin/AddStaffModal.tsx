@@ -99,10 +99,10 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
           >
             {/* Header */}
             <div className="bg-slate-900 p-8 text-white relative">
-              <button 
-                onClick={onClose}
-                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white transition-colors"
-              >
+<button 
+  onClick={onClose}
+  className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white transition-colors"
+>
                 <X size={20} />
               </button>
               <div className="flex items-center gap-4">
@@ -111,7 +111,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
                 </div>
                 <div>
                    <h2 className="text-2xl font-bold uppercase tracking-tight text-white">Add New Staff</h2>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Manual Staff Entry</p>
+                  <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Manual Staff Entry</p>
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">First Name</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">First Name</label>
                       <input 
                         required
                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -149,7 +149,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Last Name</label>
                       <input 
                         required
                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -161,7 +161,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Work Email</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Work Email</label>
                     <input 
                       required
                       type="email"
@@ -174,7 +174,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Department</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department</label>
                       <select 
                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none transition-all font-sans"
                         value={formData.department}
@@ -188,7 +188,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">User Role</label>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">User Role</label>
                       <select 
                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none transition-all"
                         value={formData.role}
@@ -202,7 +202,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Job Title</label>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Job Title</label>
                     <input 
                       required
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-sans"

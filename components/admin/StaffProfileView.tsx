@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { 
   Mail, 
   Phone, 
-  Globe, 
   Calendar, 
   MapPin, 
   Briefcase, 
@@ -44,7 +43,7 @@ interface StaffProfileProps {
   isOwnProfile?: boolean
 }
 
-export default function StaffProfileView({ member, isOwnProfile = false }: StaffProfileProps) {
+export default function StaffProfileView({ member }: StaffProfileProps) {
   const [activeTab, setActiveTab] = useState('Personal')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const router = useRouter()
@@ -77,7 +76,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
             <div className="h-32 w-32 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-1 shadow-2xl shadow-blue-500/20">
               <div className="h-full w-full rounded-xl bg-white flex items-center justify-center text-4xl font-bold text-blue-600 uppercase overflow-hidden relative">
                 {member.profile_photo_url ? (
-                  <img src={member.profile_photo_url} className="h-full w-full object-cover" alt="Profile" />
+                  <img src={member.profile_photo_url} className="h-full w-full object-cover" alt="Profile" sizes="(max-width: 768px) 128px, 128px" />
                 ) : (
                   member.full_name?.[0] || '?'
                 )}
@@ -100,7 +99,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
                <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold tracking-widest uppercase">
                  {member.department}
                </span>
-               <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 ml-2">
+               <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 ml-2">
                  <MapPin size={14} />
                  <span>Aerojet Accra Base, Ghana</span>
                </div>
@@ -116,7 +115,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
                onClick={() => setActiveTab(tab)}
                className={cn(
                  "pb-4 text-xs font-bold tracking-widest uppercase transition-all relative",
-                 activeTab === tab ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
+                 activeTab === tab ? "text-blue-600" : "text-slate-600 hover:text-slate-800"
                )}
              >
                {tab}
@@ -146,7 +145,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <InfoCard label="Personal Email" value={member.personal_email} icon={Mail} />
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                      <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-3">Work Email</p>
+                      <p className="text-[10px] font-bold tracking-widest text-slate-600 uppercase mb-3">Work Email</p>
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                           <Shield size={16} />
@@ -158,7 +157,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
                     <InfoCard label="Date of Birth" value={member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString() : 'N/A'} icon={Calendar} />
                     
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-2">
-                       <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-3 text-left">Biography</p>
+                       <p className="text-[10px] font-bold tracking-widest text-slate-600 uppercase mb-3 text-left">Biography</p>
                        <div className="text-sm font-medium text-slate-700 leading-relaxed whitespace-pre-wrap text-left">
                          {member.bio || 'No biography provided.'}
                        </div>
@@ -197,7 +196,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
         {/* Right Column: Quick Stats / Meta */}
         <div className="space-y-6">
            <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm font-sans">
-              <h3 className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-6 flex items-center gap-2">
+              <h3 className="text-xs font-bold tracking-widest text-slate-600 uppercase mb-6 flex items-center gap-2">
                 <Clock size={14} /> Account Activity
               </h3>
               <div className="space-y-4">
@@ -231,7 +230,7 @@ export default function StaffProfileView({ member, isOwnProfile = false }: Staff
 function InfoCard({ label, value, icon: Icon, color = 'blue' }: any) {
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-      <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-3">{label}</p>
+      <p className="text-[10px] font-bold tracking-widest text-slate-600 uppercase mb-3">{label}</p>
       <div className="flex items-center gap-3">
         <div className={cn(
           "h-8 w-8 rounded-lg flex items-center justify-center",

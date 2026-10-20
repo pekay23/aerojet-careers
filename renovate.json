@@ -1,0 +1,257 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "schedule:earlyMonsters"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Auto-merge minor and patch updates",
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Major updates require manual approval via PR",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false,
+      "requiredStatusChecks": [
+        "build",
+        "type-check",
+        "lint"
+      ]
+    },
+    {
+      "description": "Group Next.js and related packages",
+      "matchPackageNames": [
+        "next",
+        "eslint-config-next",
+        "@next/*"
+      ],
+      "groupName": "next.js ecosystem",
+      "automerge": false
+    },
+    {
+      "description": "Group React and related packages",
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "groupName": "react ecosystem",
+      "automerge": false
+    },
+    {
+      "description": "Group Tailwind and related packages",
+      "matchPackageNames": [
+        "tailwindcss",
+        "@tailwindcss/*",
+        "postcss",
+        "tailwind-merge",
+        "prettier-plugin-tailwindcss"
+      ],
+      "groupName": "tailwind ecosystem",
+      "automerge": true
+    },
+    {
+      "description": "Group Radix UI packages",
+      "matchPackageNames": [
+        "@radix-ui/*"
+      ],
+      "groupName": "radix ui",
+      "automerge": true
+    },
+    {
+      "description": "Group TypeScript and ESLint",
+      "matchPackageNames": [
+        "typescript",
+        "eslint",
+        "@typescript-eslint/*",
+        "@eslint/*"
+      ],
+      "groupName": "typescript and eslint",
+      "automerge": false
+    },
+    {
+      "description": "Group Upstash packages",
+      "matchPackageNames": [
+        "@upstash/*"
+      ],
+      "groupName": "upstash",
+      "automerge": false,
+      "requiredStatusChecks": [
+        "build",
+        "type-check",
+        "lint"
+      ]
+    },
+    {
+      "description": "Group Supabase packages",
+      "matchPackageNames": [
+        "@supabase/*"
+      ],
+      "groupName": "supabase",
+      "automerge": false,
+      "requiredStatusChecks": [
+        "build",
+        "type-check",
+        "lint"
+      ]
+    },
+    {
+      "description": "Group testing packages",
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/*",
+        "jsdom",
+        "@playwright/test",
+        "playwright"
+      ],
+      "groupName": "testing tools",
+      "automerge": true
+    },
+    {
+      "description": "Group form/validation packages",
+      "matchPackageNames": [
+        "zod",
+        "class-variance-authority",
+        "clsx",
+        "dompurify"
+      ],
+      "groupName": "form and validation",
+      "automerge": true
+    },
+    {
+      "description": "Group animation packages",
+      "matchPackageNames": [
+        "framer-motion",
+        "lucide-react",
+        "react-icons",
+        "gsap"
+      ],
+      "groupName": "animation and icons",
+      "automerge": true
+    },
+    {
+      "description": "Group database packages",
+      "matchPackageNames": [
+        "pg",
+        "@types/pg",
+        "bcryptjs",
+        "@types/bcryptjs",
+        "jose"
+      ],
+      "groupName": "database and auth",
+      "automerge": true
+    },
+    {
+      "description": "Group email and communication packages",
+      "matchPackageNames": [
+        "resend",
+        "sonner"
+      ],
+      "groupName": "email and notifications",
+      "automerge": true
+    },
+    {
+      "description": "Group chart and visualization packages",
+      "matchPackageNames": [
+        "@xyflow/react",
+        "@types/dagre",
+        "dagre",
+        "@tanstack/react-table"
+      ],
+      "groupName": "visualization",
+      "automerge": true
+    },
+    {
+      "description": "Pin Vercel CLI and vercel framework",
+      "matchPackageNames": [
+        "vercel"
+      ],
+      "groupName": "vercel",
+      "automerge": false,
+      "enabled": true
+    },
+    {
+      "description": "Pin local workspace packages - never auto-update",
+      "matchPackageNames": [
+        "@aerojet/design-tokens",
+        "@aerojet/ui"
+      ],
+      "automerge": false,
+      "enabled": false
+    },
+    {
+      "description": "Bun runtime and package manager updates",
+      "matchPackageNames": [
+        "bun"
+      ],
+      "automerge": false,
+      "enabled": true
+    },
+    {
+      "description": "Security-sensitive packages require manual review - never automerge",
+      "matchPackageNames": [
+        "jose",
+        "bcryptjs",
+        "@supabase/supabase-js",
+        "@supabase/ssr",
+        "dompurify",
+        "zod",
+        "@upstash/ratelimit",
+        "@upstash/redis",
+        "pg",
+        "resend"
+      ],
+      "automerge": false,
+      "requiredStatusChecks": [
+        "build",
+        "type-check",
+        "lint"
+      ]
+    }
+  ],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 2,
+  "prMinimumBranchAge": 3,
+  "stabilityDays": 3,
+  "timezone": "UTC",
+  "schedule": [
+    "before 5am on monday"
+  ],
+  "semanticCommits": "disabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+  "rebaseWhen": "behind-base-branch",
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 4am on sunday"
+    ]
+  },
+  "dependencyDashboard": true,
+  "dependencyDashboardAccept": false,
+  "major": {
+    "automerge": false
+  },
+  "minor": {
+    "automerge": true
+  },
+  "patch": {
+    "automerge": true
+  }
+}
