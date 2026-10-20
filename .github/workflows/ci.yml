@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
@@ -97,19 +100,27 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: bun install --frozen-lockfile
       - name: Run bun audit
-        run: bun audit --json > audit-report.json
+        # `bun audit` exits 1 whenever any advisory is present. The gate below
+        # decides what actually fails the build, so the exit code is ignored.
+        # Only production dependencies are audited: the dev tree contains
+        # advisories with no patched release (see the //braces-note in
+        # package.json) and advisories inside the `vercel` CLI, which is a
+        # devDependency and never ships.
+        run: bun audit --production --json > audit-report.json || true
       - name: Fail on high or critical advisories
+        # `bun audit --json` emits an object keyed by package name, so each
+        # package's advisory list sits one level down, in .value[].
         run: |
-          if jq -e '.[] | select(.severity == "high" or .severity == "critical")' audit-report.json > /dev/null 2>&1; then
-            echo "High/Critical vulnerabilities found:"
-            jq -r '.[] | select(.severity == "high" or .severity == "critical") | "- \(.title): \(.severity)"' audit-report.json
+          HIGH_COUNT=$(jq '[to_entries[].value[] | select(.severity == "high" or .severity == "critical")] | length' audit-report.json)
+          if [ "$HIGH_COUNT" -gt 0 ]; then
+            echo "::error::High or critical vulnerabilities in production dependencies:"
+            jq -r 'to_entries[] | .key as $pkg | .value[] | select(.severity == "high" or .severity == "critical") | "  - $pkg: \(.title) [\(.severity)]"' audit-report.json
             exit 1
           fi
-          echo "No high or critical advisories."
+          echo "No high or critical advisories in production dependencies."
       - name: Print audit summary
         run: |
-          echo "=== Dependency Audit Summary ==="
-          echo "Total advisories: $(jq 'length' audit-report.json 2>/dev/null || echo 'N/A')"
+          echo "=== Dependency Audit Summary (production dependencies) ==="
+          echo "Advisories: $(jq '[to_entries[].value[]] | length' audit-report.json)"
           echo ""
-          echo "=== Medium Vulnerabilities ==="
-          jq -r '.[] | select(.severity == "medium") | "- \(.title): \(.severity)"' audit-report.json 2>/dev/null || echo "None found"
+          jq -r 'to_entries[] | .key as $pkg | .value[] | "  - $pkg: \(.title) [\(.severity)]"' audit-report.json

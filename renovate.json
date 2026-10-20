@@ -186,15 +186,6 @@
       "enabled": true
     },
     {
-      "description": "Pin local workspace packages - never auto-update",
-      "matchPackageNames": [
-        "@aerojet/design-tokens",
-        "@aerojet/ui"
-      ],
-      "automerge": false,
-      "enabled": false
-    },
-    {
       "description": "Bun runtime and package manager updates",
       "matchPackageNames": [
         "bun"

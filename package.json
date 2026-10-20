@@ -25,8 +25,6 @@
     "ci:all": "bun run ci:lint && bun run ci:type-check && bun run ci:build && bun run ci:test"
   },
   "dependencies": {
-    "@aerojet/design-tokens": "file:../aerojet-aviation/packages/design-tokens",
-    "@aerojet/ui": "file:../aerojet-aviation/packages/ui",
     "@radix-ui/react-select": "^2.4.1",
     "@radix-ui/react-slot": "^1.5.0",
     "@supabase/ssr": "^0.12.7",
@@ -40,7 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dagre": "^0.8.5",
-    "dompurify": "^3.4.13",
+    "dompurify": "^3.4.17",
     "framer-motion": "^12.38.0",
     "jose": "^6.2.3",
     "lucide-react": "^1.59.0",
@@ -52,7 +50,6 @@
     "resend": "^6.22.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.7.0",
-    "vercel": "59.4.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -78,6 +75,7 @@
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4.3.3",
     "typescript": "5.9.3",
+    "vercel": "59.4.0",
     "vitest": "^4.1.4"
   },
   "engines": {
@@ -88,9 +86,11 @@
     "postcss": "^8.5.30",
     "sharp": "^0.35.5",
     "tar": "^7.5.22",
-    "js-yaml": "^4.3.1",
-    "smol-toml": "^1.6.1",
+    "js-yaml": "^4.3.2",
+    "smol-toml": "^1.9.1",
     "minimatch": "^10.2.6",
+    "brace-expansion": "^5.0.12",
+    "source-map-js": "^1.2.2",
     "@tootallnate/once": "^2.0.1"
   },
   "trustedDependencies": [
@@ -102,5 +102,7 @@
     "unrs-resolver"
   ],
   "//ajv-note": "No `ajv` override on purpose. @eslint/eslintrc requires ajv v6 (it passes the v6-only `missingRefs` option and expects the v6 CJS export shape), so forcing v8 crashes every `eslint` run with \"Cannot set properties of undefined (setting 'defaultMeta')\". Scoped overrides/resolutions did not stick: Bun kept the hoisted v8. The advisory (ReDoS via the `$data` option, >=7.0.0-alpha.0 <8.18.0) does not affect v6, and the vulnerable v8 copy is pulled only by @vercel/static-config, a dev-only deploy tool that never ships. Left to normal resolution: eslintrc keeps v6, everything else gets v8.",
-  "//path-to-regexp-undici-note": "Not overridden on purpose. Both live only in the `vercel` CLI tree (dev-only deploy tooling) and `jsdom` (tests), and both exist at several majors at once: path-to-regexp at 6.1.0/6.3.0/8.2.0/8.3.0 (needs >=6.3.0 for the 6.x line and >=8.4.0 for the 8.x line) and undici from 5.28.4 up to 7.29.0 (clearing every advisory would require every copy to be >=6.28.0, i.e. a major bump inside the CLI). A single flat override cannot express per-major targets, and Bun ignored nested/scoped overrides here, so forcing one version would break the CLI for no production benefit. `vercel` is already pinned to the latest (59.4.0)."
+  "//path-to-regexp-undici-note": "Not overridden on purpose. Both live only in the `vercel` CLI tree (deploy tooling) and `jsdom` (tests), and both exist at several majors at once: path-to-regexp at 6.1.0/6.3.0/8.2.0/8.3.0 (needs >=6.3.0 for the 6.x line and >=8.4.0 for the 8.x line) and undici from 5.28.4 up to 7.29.0 (clearing every advisory would require every copy to be >=6.28.0, i.e. a major bump inside the CLI). A single flat override cannot express per-major targets, and Bun ignored nested/scoped overrides here, so forcing one version would break the CLI for no production benefit. `vercel` is a devDependency (see //vercel-devDependency-note), so none of these copies reach the production dependency tree that the CI audit gate checks (`bun audit --production`).",
+  "//vercel-devDependency-note": "The `vercel` CLI is deploy tooling, not an application runtime dependency: nothing under app/, components/, lib/ or scripts/ imports it. It used to sit in `dependencies`, which made the whole CLI tree (undici 5.x/7.x, path-to-regexp 6.x/8.x, @fastify/busboy) part of the production dependency surface, so `bun audit --production` reported 15 high-severity advisories that no production code could ever reach. Moving it to `devDependencies` keeps the install identical for CI and Vercel (both install devDependencies) while making the production audit surface reflect what actually ships.",
+  "//braces-note": "Not overridden on purpose. `braces` 3.0.3 is the latest published release and is itself the affected version (GHSA-vfj7-8cjw-p6xm, <=3.0.3), so there is no patched version to move to. It is reached only through micromatch -> fast-glob -> @next/eslint-plugin-next / @ts-morph/common, i.e. the lint and codemod toolchain, and is therefore outside the production dependency tree that the CI audit gate checks."
 }

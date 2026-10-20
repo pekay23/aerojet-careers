@@ -1,14 +1,32 @@
 import { Resend } from 'resend'
 import { supabaseAdmin } from './supabase-admin'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+/**
+ * Resend client, created on first use.
+ *
+ * The Resend constructor throws when the API key is missing, so building the
+ * client at module scope crashes anything that merely imports this module
+ * without RESEND_API_KEY set — including `next build`, which collects route
+ * configuration for /api/admin/hire. Resolving the key lazily keeps the import
+ * side-effect free and defers the failure to the point where an email is
+ * actually sent, where the existing try/catch reports it cleanly.
+ */
+let resendClient: Resend | null = null
+
+function getResend(): Resend {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('[email] Missing RESEND_API_KEY env var')
+  }
+  resendClient ??= new Resend(process.env.RESEND_API_KEY)
+  return resendClient
+}
 
 export async function sendWelcomeEmail(email: string, fullName: string, tempPassword: string) {
   const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login`
   const fromEmail = process.env.EMAIL_FROM || 'onboarding@aerojet-aviation.com'
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: `Aerojet Aviation <${fromEmail}>`,
       to: [email],
       subject: 'Welcome to Aerojet Aviation - Your Staff Account is Ready',
@@ -88,7 +106,7 @@ export async function sendAcknowledgmentEmail(to: string, firstName: string, las
   `
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: `Aerojet Aviation <${fromEmail}>`,
       to: [to],
       subject,
