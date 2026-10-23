@@ -129,7 +129,7 @@ export default function RegisterPage() {
               <strong>Don't see the right role?</strong> Register your interest and join our talent pool. When suitable positions open across <strong>Engineering, IT, Operations, HR, Customer Support, Sales, Logistics</strong> or <strong>Quality</strong>, we will reach out directly.
             </NoticeBanner>
             {trackCfg && (
-              <NoticeBanner style={{ borderLeft: '4px solid var(--blue)' }}>
+              <NoticeBanner>
                 <strong>Training track:</strong> {trackCfg.label} — {trackCfg.hint}
                 <p style={{ margin: '0.35rem 0 0', fontSize: 13, color: 'var(--muted)' }}>
                   Your department of interest is pre-selected below. You can adjust it before submitting.
