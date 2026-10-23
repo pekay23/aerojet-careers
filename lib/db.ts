@@ -40,20 +40,100 @@ function getConnectionString(): string {
   return cs
 }
 
-let poolInstance: Pool | null = null
+let poolerWarningShown = false
+
+/**
+ * `max` connections per process are only safe against Neon's *pooled*
+ * endpoint (PgBouncer). A direct endpoint opens real PostgreSQL connections,
+ * so a burst of serverless instances would exhaust Neon's connection limit.
+ * Warn once — do not throw, because a direct endpoint is a legitimate choice
+ * for a single-instance deployment.
+ */
+function warnIfNotPooled(cs: string): void {
+  if (poolerWarningShown) return
+  let host = ''
+  try {
+    host = new URL(cs).hostname
+  } catch {
+    return
+  }
+  if (host && !host.includes('-pooler.')) {
+    poolerWarningShown = true
+    console.warn(
+      `[db] DATABASE_URL points at ${host}, which is not a Neon pooled endpoint. ` +
+        'Every process will open up to `max` real PostgreSQL connections.'
+    )
+  }
+}
 
 function getPool(): Pool {
-  if (!poolInstance) {
-    const cs = getConnectionString()
-    poolInstance = new Pool({
-      connectionString: cs,
-      ssl: { rejectUnauthorized: false },
-      max: 10,
-      idleTimeoutMillis: 30_000,
-    })
-    globalForPool.__neonPool = poolInstance
+  if (globalForPool.__neonPool) {
+    return globalForPool.__neonPool
   }
-  return poolInstance
+  const cs = getConnectionString()
+  warnIfNotPooled(cs)
+  const pool = new Pool({
+    connectionString: cs,
+    ssl: { rejectUnauthorized: false },
+    // A Vercel Node instance serves roughly one concurrent request, so 5
+    // connections is far more than any single instance needs — and the lower
+    // the ceiling, the less pressure on Neon's connection limit.
+    max: 5,
+    // The careers site sees bursts minutes apart. A 30s idle timeout empties
+    // the pool between bursts, so each burst pays a fresh TCP+TLS handshake to
+    // Neon (~1.65s measured). 3 minutes sits under Neon's 5-minute
+    // scale-to-zero window, so the socket is closed cleanly before Neon could
+    // kill it underneath us.
+    idleTimeoutMillis: 180_000,
+    // Fail a connect that cannot complete instead of hanging the request
+    // forever (pg's default is 0 = wait indefinitely). The measured cold
+    // connect to Neon is ~1.65s, so 15s leaves ~9x headroom.
+    connectionTimeoutMillis: 15_000,
+    keepAlive: true,
+  })
+  pool.on('error', (err: any) => {
+    // An idle client failed (e.g. the idle-timeout race). Without this
+    // listener Node throws an unhandled 'error' event and kills the process.
+    console.error('[db] pool error:', err?.message || err)
+  })
+  globalForPool.__neonPool = pool
+  return pool
+}
+
+// ── Query telemetry ────────────────────────────────────────────
+
+/**
+ * The database is remote (Neon, us-east-1), so every query pays the network
+ * round trip: ~70ms from the Vercel function region, ~240ms from a machine
+ * further away. A 100ms threshold therefore fired on literally every query
+ * and buried real problems. 1000ms is the point at which a query is actually
+ * worth looking at; override with DB_SLOW_THRESHOLD_MS.
+ */
+function slowQueryThreshold(): number {
+  const raw = process.env.DB_SLOW_THRESHOLD_MS
+  if (raw === undefined || raw === '') return 1000
+  const parsed = parseInt(raw, 10)
+  return Number.isNaN(parsed) ? 1000 : parsed
+}
+
+type PoolSnapshot = { total: number; idle: number; waiting: number; cold: boolean }
+
+/**
+ * Connection-pool state at a point in time. `cold` means the pool held no
+ * connections, so the next query had to pay a full connect — that is what
+ * distinguishes "the pool was cold" from "the query itself is slow".
+ */
+function snapshotPool(): PoolSnapshot {
+  try {
+    const p = getPool()
+    const total = typeof p.totalCount === 'number' ? p.totalCount : 0
+    const idle = typeof p.idleCount === 'number' ? p.idleCount : 0
+    const waiting = typeof p.waitingCount === 'number' ? p.waitingCount : 0
+    return { total, idle, waiting, cold: total === 0 }
+  } catch {
+    // No connection string yet — the query itself will report the real error.
+    return { total: 0, idle: 0, waiting: 0, cold: false }
+  }
 }
 
 export async function query<T = any>(text: string, params: any[] = []) {
@@ -334,6 +414,31 @@ class QueryBuilder implements PromiseLike<any> {
             params.push(val)
             return `${prefix}${qi(col)} <> $${params.length}`
           }
+          if (opr === 'is') {
+            if (val === null || val === undefined || val === 'null') {
+              return `${prefix}${qi(col)} IS NULL`
+            }
+            if (val === 'true') return `${prefix}${qi(col)} IS TRUE`
+            if (val === 'false') return `${prefix}${qi(col)} IS FALSE`
+            params.push(val)
+            return `${prefix}${qi(col)} IS NOT DISTINCT FROM $${params.length}`
+          }
+          if (opr === 'gt') {
+            params.push(val)
+            return `${prefix}${qi(col)} > $${params.length}`
+          }
+          if (opr === 'gte') {
+            params.push(val)
+            return `${prefix}${qi(col)} >= $${params.length}`
+          }
+          if (opr === 'lt') {
+            params.push(val)
+            return `${prefix}${qi(col)} < $${params.length}`
+          }
+          if (opr === 'lte') {
+            params.push(val)
+            return `${prefix}${qi(col)} <= $${params.length}`
+          }
           return null
         }).filter(Boolean)
         if (ors.length) clauses.push('(' + ors.join(' OR ') + ')')
@@ -400,7 +505,12 @@ class QueryBuilder implements PromiseLike<any> {
 
   // ── Execute ─────────────────────────────────────────────────
   private async run(): Promise<{ data: any; error: any; count: number | null }> {
-    const start = process.env.NODE_ENV !== 'production' ? Date.now() : 0
+    // Measured in every environment. The old gate (`NODE_ENV !==
+    // 'production'`) meant the slow-query log never fired in production —
+    // exactly where a cold-connect spike or a pathological query needs to be
+    // visible. The threshold, not the environment, decides what is slow.
+    const start = Date.now()
+    const atStart = snapshotPool()
     try {
       if (this.op === 'select') return await this.runSelect()
       if (this.op === 'insert') return await this.runInsert()
@@ -416,11 +526,14 @@ class QueryBuilder implements PromiseLike<any> {
         count: null,
       }
     } finally {
-      if (start > 0) {
-        const duration = Date.now() - start
-        if (duration > 100) {
-          console.warn(`[DB SLOW] ${this.op} ${this.table} took ${duration}ms`)
-        }
+      const duration = Date.now() - start
+      if (duration > slowQueryThreshold()) {
+        const after = snapshotPool()
+        console.warn(
+          `[DB SLOW] ${new Date().toISOString()} op=${this.op} table=${this.table} ` +
+            `duration=${duration}ms cold=${atStart.cold} poolTotal=${after.total} ` +
+            `poolIdle=${after.idle} poolWaiting=${after.waiting}`
+        )
       }
     }
   }
@@ -726,9 +839,15 @@ function splitTopLevel(s: string, delim: string): string[] {
 const ALLOWED_OR_COLUMNS = new Set([
   'first_name', 'last_name', 'email', 'ref_code',
   'title', 'slug', 'department', 'location', 'status',
+  'closes_at',
   'name', 'code', 'full_name', 'job_title',
   'metric_name', 'snapshot_date',
   'setting_key', 'setting_value',
+])
+
+/** Operators `.or()` may use. Anything else is rejected loudly (no silent drops). */
+const SUPPORTED_OR_OPERATORS = new Set([
+  'ilike', 'eq', 'neq', 'is', 'gt', 'gte', 'lt', 'lte',
 ])
 
 function parseOrExpr(
@@ -742,7 +861,16 @@ function parseOrExpr(
   const col = expr.slice(0, first).trim()
   const opr = expr.slice(first + 1, second).trim()
   const val = expr.slice(second + 1)
-  if (!ALLOWED_OR_COLUMNS.has(col)) return null
+  if (!ALLOWED_OR_COLUMNS.has(col)) {
+    throw new Error(
+      `[db.or] column "${col}" is not allow-listed in .or() expression: ${expr}`
+    )
+  }
+  if (!SUPPORTED_OR_OPERATORS.has(opr)) {
+    throw new Error(
+      `[db.or] operator "${opr}" is not supported in .or() expression: ${expr}`
+    )
+  }
   return { col, opr, val }
 }
 

@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Select } from '@/components/ui/Select'
 import { 
   Search, 
   Download, 
@@ -129,16 +130,14 @@ export default function TalentPoolPage() {
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
              <div className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
                 <Filter size={14} className="text-slate-600" />
-                <select 
-                  className="bg-transparent border-none focus:ring-0 text-[10px] font-bold uppercase tracking-widest text-slate-600 cursor-pointer min-w-[120px]"
+                <Select
                   value={dept}
-                  onChange={e => setDept(e.target.value)}
-                >
-                   <option value="all">All Interests</option>
-                   {officialDepts.map(d => (
-                      <option key={d.code} value={d.name}>{d.name.toUpperCase()}</option>
-                    ))}
-                </select>
+                  onChange={setDept}
+                  options={[{ value: 'all', label: 'All Interests' }, ...officialDepts.map(d => ({ value: d.name, label: d.name.toUpperCase() }))]}
+                  ariaLabel="Filter by interest"
+                  className="w-auto min-w-[120px] border-0 bg-transparent p-0 text-[10px] font-bold uppercase tracking-widest text-slate-600"
+                  contentClassName="text-xs"
+                />
              </div>
              <button 
                onClick={load}

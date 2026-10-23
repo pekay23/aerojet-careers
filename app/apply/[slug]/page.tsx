@@ -1,14 +1,25 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Building2, Clock, Users } from 'lucide-react'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import JobApplyContent from '@/components/apply/JobApplyContent'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getLiveJobBySlug } from '@/lib/recruitment-data'
+import { formatCloseDate } from '@/lib/dates'
 import type { Metadata } from 'next'
 import type { Job } from '@/types'
 
-export const revalidate = 300
+// A role whose closing date has passed must disappear from the public site
+// within a minute, so this page's revalidation window matches the job
+// listing's. The per-slug data cache uses the same window, otherwise the
+// expiry filter inside the cached query would not run again in time.
+export const revalidate = 60
+
+// Dedup the getLiveJobBySlug call within a single request so generateMetadata
+// and the page body issue one DB query instead of two (unstable_cache does not
+// dedupe within a request).
+const getJob = cache((slug: string) => getLiveJobBySlug(slug))
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -17,9 +28,18 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const { data: job, error } = await supabaseAdmin.from('jobs').select('title,summary').eq('slug', slug).single()
 
-  if (error || !job) {
+  // Only live jobs are ever exposed here — a draft job's title/summary must
+  // not leak into the page metadata while the page itself 404s.
+  let job: Job | null = null
+  try {
+    job = await getJob(slug)
+  } catch (err) {
+    console.error('[apply] metadata lookup failed for', slug, err)
+    job = null
+  }
+
+  if (!job) {
     return {
       title: 'Apply',
       description: 'Apply for a role at Aerojet Aviation.',
@@ -34,16 +54,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ApplyPage({ params }: Props) {
   const { slug } = await params
-  const { data: job, error } = await supabaseAdmin
-    .from('jobs')
-    .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at')
-    .eq('slug', slug)
-    .eq('status', 'live')
-    .single()
 
-  if (error || !job) notFound()
+  let job: Job | null = null
+  try {
+    job = await getJob(slug)
+  } catch (err) {
+    // A database outage is NOT the same as a withdrawn role: re-throw so the
+    // request renders a 500 with a "Try Again" affordance instead of telling
+    // the candidate the job no longer exists.
+    console.error('[apply] job lookup failed for', slug, err)
+    throw err
+  }
 
-  const j = job as Job
+  if (!job) notFound()
+
+  const j = job
 
   return (
     <>
@@ -77,7 +102,7 @@ export default async function ApplyPage({ params }: Props) {
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> {j.employment_type?.replace(/_/g, ' ')}</span>
             {j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> {j.target_count} {j.target_count === 1 ? 'Vacancy' : 'Vacancies'}</span>}
             {!j.target_count && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Users size={15} aria-hidden="true" /> Open positions</span>}
-            {j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+            {j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> Closes {formatCloseDate(j.closes_at)}</span>}
             {!j.closes_at && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Clock size={15} aria-hidden="true" /> No deadline</span>}
           </div>
         </div>

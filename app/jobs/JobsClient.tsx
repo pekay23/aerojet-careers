@@ -1,25 +1,17 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { MapPin, Clock, Users, ArrowRight } from 'lucide-react'
-import { StatusPill, EmptyState, SkeletonCard } from '@/components/ui'
-
+import { Select } from '@/components/ui/Select'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { SkeletonCard } from '@/components/ui/SkeletonCard'
+import { StatusPill } from '@/components/ui/StatusPill'
 import type { Job } from '@/types'
+import { formatCloseDate } from '@/lib/dates'
 
-export default function JobsClient({ initialJobs, loading = false }: { initialJobs: Job[]; loading?: boolean }) {
+export default function JobsClient({ initialJobs, departments = [], loading = false }: { initialJobs: Job[]; departments?: string[]; loading?: boolean }) {
   const [search, setSearch] = useState('')
   const [dept,   setDept]   = useState('')
-  const [departments, setDepartments] = useState<string[]>([])
-
-  useEffect(() => {
-    fetch('/api/metadata')
-      .then(r => r.json())
-      .then(({ data }) => {
-        if (data && data.departments) {
-          setDepartments(data.departments.map((d: any) => d.name))
-        }
-      })
-  }, [])
 
   const filtered = useMemo(() => initialJobs.filter(j => {
     const q = search.toLowerCase()
@@ -45,19 +37,15 @@ export default function JobsClient({ initialJobs, loading = false }: { initialJo
           className="field-input"
           style={{ flex: 1, minWidth: 200, maxWidth: 320 }}
         />
-        <select
+        <Select
           id="job-department-filter"
           name="department"
           value={dept}
-          onChange={e => setDept(e.target.value)}
-          aria-label="Filter by department"
-          className="field-input"
-          style={{ width: 200 }}
-        >
-
-          <option value="">All Departments</option>
-          {departments.map(d => <option key={d}>{d}</option>)}
-        </select>
+          onChange={setDept}
+          ariaLabel="Filter by department"
+          className="field-input w-auto min-w-[180px]"
+          options={[{ value: '', label: 'All Departments' }, ...departments.map(d => ({ value: d, label: d }))]}
+        />
         <span className="text-xs text-[var(--muted)] ml-auto">
           {filtered.length} role{filtered.length !== 1 ? 's' : ''}
         </span>
@@ -133,7 +121,7 @@ function JobRow({ job }: { job: Job }) {
         <MetaItem icon={MapPin} label={job.location} />
         <MetaItem icon={Clock} label={job.employment_type.replace(/_/g, ' ')} />
         <MetaItem icon={Users} label={job.target_count ? `${job.target_count} ${job.target_count === 1 ? 'Vacancy' : 'Vacancies'}` : 'Open positions'} />
-        <MetaItem icon={Clock} label={job.closes_at ? `Closes ${new Date(job.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : 'No deadline'} />
+        <MetaItem icon={Clock} label={job.closes_at ? `Closes ${formatCloseDate(job.closes_at)}` : 'No deadline'} />
       </div>
 
       {/* Tags + arrow row */}

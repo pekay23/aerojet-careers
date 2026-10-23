@@ -13,6 +13,7 @@ import {
   Lock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Select } from '@/components/ui/Select'
 
 interface Department {
   id: string
@@ -422,17 +423,18 @@ export default function BudgetManager({ userRole }: { userRole: string | null })
                  </div>
 
                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department Manager</label>
-                    <select 
-                      className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:bg-white focus:outline-none transition-all font-sans"
+                    <label htmlFor="budget-manager" id="budget-manager-label" className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department Manager</label>
+                    <Select
+                      id="budget-manager"
                       value={createForm.manager_id}
-                      onChange={(e) => setCreateForm({ ...createForm, manager_id: e.target.value })}
-                    >
-                       <option value="">Assign Later</option>
-                       {availableManagers.map(m => (
-                         <option key={m.auth_user_id} value={m.auth_user_id}>{m.full_name} ({m.role})</option>
-                       ))}
-                    </select>
+                      onChange={v => setCreateForm({ ...createForm, manager_id: v })}
+                      options={[
+                        { value: '', label: 'Assign Later' },
+                        ...availableManagers.map(m => ({ value: m.auth_user_id, label: `${m.full_name} (${m.role})` })),
+                      ]}
+                      ariaLabelledBy="budget-manager-label"
+                      className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:bg-white focus:outline-none transition-all font-sans"
+                    />
                  </div>
 
                  <div className="pt-4 flex gap-3">

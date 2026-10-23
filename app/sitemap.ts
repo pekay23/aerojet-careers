@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getPublicJobs } from '@/lib/recruitment-data'
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://careers.aerojet-aviation.com'
 
@@ -73,22 +73,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Include published job listing pages
+  // Include published job listing pages (expired roles are excluded by
+  // getPublicJobs(), so they never reach search engines).
   let jobPages: MetadataRoute.Sitemap = []
   try {
-    const result = await supabaseAdmin
-      .from('jobs')
-      .select('slug, created_at, updated_at')
-      .eq('status', 'live')
-
-    if (result.data) {
-      jobPages = result.data.map((job: any) => ({
-        url: `${baseUrl}/jobs/${job.slug}`,
-        lastModified: job.updated_at ? new Date(job.updated_at) : new Date(job.created_at),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }))
-    }
+    const jobs = await getPublicJobs()
+    jobPages = jobs.map((job: any) => ({
+      url: `${baseUrl}/apply/${job.slug}`,
+      lastModified: job.updated_at ? new Date(job.updated_at) : new Date(job.created_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
   } catch {
     // If DB is unavailable at build time, skip job pages
   }

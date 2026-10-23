@@ -1,7 +1,9 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, ALLOWED_UPDATE_KEYS, sanitizeErrorMessage } from '@/lib/api-utils'
+import { JOBS_CACHE_TAG, JOB_DETAIL_CACHE_TAG, STATS_CACHE_TAG } from '@/lib/recruitment-data'
 
 const JobStatusSchema = z.enum(['draft', 'live'])
 const JobCategorySchema = z.enum(['experienced_professional', 'graduate_program', 'skilled_training', 'general_application'])
@@ -115,6 +117,21 @@ export async function POST(req: NextRequest) {
       admin_user_id: auth.adminUserId,
     })
 
+    // The mutation is fully committed — drop the public job caches so a
+    // publish shows up immediately instead of after the revalidate window.
+    revalidateTag(JOBS_CACHE_TAG, { expire: 0 })
+    // The per-slug job cache is a separate entry per slug and is not covered
+    // by the list cache, so it has to be dropped explicitly or /apply/<slug>
+    // keeps serving the previous row for up to 300s.
+    revalidateTag(JOB_DETAIL_CACHE_TAG, { expire: 0 })
+    revalidateTag(STATS_CACHE_TAG, { expire: 0 })
+    revalidatePath('/jobs')
+    revalidatePath('/api/stats')
+    // The Full Route Cache for the job detail pages is keyed by path, so the
+    // data-cache purge above is not enough on its own: without this the
+    // rendered /apply/<slug> page (and any change to it) stays live.
+    revalidatePath('/apply/[slug]', 'page')
+
     return ApiResponse.success(data)
   } catch (err) {
     if ((err as { code?: string })?.code === '23505') {
@@ -197,6 +214,21 @@ export async function PATCH(req: NextRequest) {
       })
     }
 
+    // The mutation is fully committed — drop the public job caches so a
+    // publish shows up immediately instead of after the revalidate window.
+    revalidateTag(JOBS_CACHE_TAG, { expire: 0 })
+    // The per-slug job cache is a separate entry per slug and is not covered
+    // by the list cache, so it has to be dropped explicitly or /apply/<slug>
+    // keeps serving the previous row for up to 300s.
+    revalidateTag(JOB_DETAIL_CACHE_TAG, { expire: 0 })
+    revalidateTag(STATS_CACHE_TAG, { expire: 0 })
+    revalidatePath('/jobs')
+    revalidatePath('/api/stats')
+    // The Full Route Cache for the job detail pages is keyed by path, so the
+    // data-cache purge above is not enough on its own: without this the
+    // rendered /apply/<slug> page (and any change to it) stays live.
+    revalidatePath('/apply/[slug]', 'page')
+
     return ApiResponse.success(data)
   } catch (err) {
     if ((err as { code?: string })?.code === '23505') {
@@ -226,6 +258,21 @@ export async function DELETE(req: NextRequest) {
       note: `Job "${job?.title || id}" deleted by ${auth.user.email}`,
        admin_user_id: auth.adminUserId,
     })
+
+    // The mutation is fully committed — drop the public job caches so the
+    // removal shows up immediately instead of after the revalidate window.
+    revalidateTag(JOBS_CACHE_TAG, { expire: 0 })
+    // The per-slug job cache is a separate entry per slug and is not covered
+    // by the list cache, so it has to be dropped explicitly or /apply/<slug>
+    // keeps serving the deleted row for up to 300s.
+    revalidateTag(JOB_DETAIL_CACHE_TAG, { expire: 0 })
+    revalidateTag(STATS_CACHE_TAG, { expire: 0 })
+    revalidatePath('/jobs')
+    revalidatePath('/api/stats')
+    // The Full Route Cache for the job detail pages is keyed by path, so the
+    // data-cache purge above is not enough on its own: without this the
+    // rendered /apply/<slug> page (and any change to it) stays live.
+    revalidatePath('/apply/[slug]', 'page')
 
     return ApiResponse.success({ message: 'Job deleted' })
   } catch (err) {

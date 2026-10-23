@@ -1,28 +1,19 @@
 import { NextRequest } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getRecruitmentStats } from '@/lib/recruitment-data'
 import { ApiResponse, sanitizeErrorMessage } from '@/lib/api-utils'
 
 export async function GET(_req: NextRequest) {
   try {
-    const [jobsRes, deptsRes] = await Promise.allSettled([
-      supabaseAdmin
-        .from('jobs')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'live'),
+    const { activeJobs, departments } = await getRecruitmentStats()
 
-      supabaseAdmin
-        .from('departments')
-        .select('id', { count: 'exact', head: true }),
-    ])
-
-    const activeJobs = jobsRes.status === 'fulfilled' && !jobsRes.value.error
-      ? jobsRes.value.count || 0
-      : 0
-    const departments = deptsRes.status === 'fulfilled' && !deptsRes.value.error
-      ? deptsRes.value.count || 0
-      : 0
-
-    return ApiResponse.success({ activeJobs, departments })
+    // The counters are cached, so the CDN can serve most requests without
+    // waking the function at all. The window is deliberately short: the CDN
+    // copy is keyed by URL and cannot be purged by `revalidateTag`.
+    return ApiResponse.success(
+      { activeJobs, departments },
+      200,
+      { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=60' }
+    )
   } catch (err) {
     return ApiResponse.error(sanitizeErrorMessage(err), 500)
   }

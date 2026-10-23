@@ -127,11 +127,14 @@ jobs:
 
   preview:
     name: Preview Deploy
-    # Previews are for pull requests only. Production is handled by deploy.yml,
-    # which is gated to a CI run on main. Pull requests from forks are skipped
-    # because GitHub withholds repository secrets from them, and a deployment
-    # without VERCEL_TOKEN could not succeed anyway.
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    # Previews are for pull requests and for pushes to the dev branch.
+    # Production is handled exclusively by deploy.yml, which is gated to a CI
+    # run on main. Pull requests from forks are skipped because GitHub
+    # withholds repository secrets from them, and a deployment without
+    # VERCEL_TOKEN could not succeed anyway.
+    if: |
+      github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+      || (github.event_name == 'push' && github.ref == 'refs/heads/dev')
     runs-on: ubuntu-latest
     # Only deploy once the code is known to be sound. A Vercel build fails on a
     # type error anyway, and every failed build burns one of the project's
@@ -139,7 +142,7 @@ jobs:
     needs: [lint, type-check]
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write   # only needed to post the preview URL on a PR
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -161,6 +164,7 @@ jobs:
           echo "Preview: $url"
           echo "url=$url" >> "$GITHUB_OUTPUT"
       - name: Publish the preview URL on the pull request
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |

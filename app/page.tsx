@@ -3,6 +3,7 @@ import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/ui'
 import { CTAButtons } from '@/components/ui/CTAButtons'
+import { JOBS_CACHE_TAG, METADATA_CACHE_TAG, STATS_CACHE_TAG } from '@/lib/recruitment-data'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -59,7 +60,13 @@ const STATS_FALLBACK = [
 
 async function fetchStats() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/stats`, { next: { revalidate: 300 } })
+    // NEXT_PUBLIC_* values are inlined at build time, so an unset variable
+    // would otherwise produce the literal string "undefined/api/stats" and
+    // the page would silently fall back to the hardcoded counters.
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://careers.aerojet-aviation.com'
+    const res = await fetch(`${baseUrl}/api/stats`, {
+      next: { revalidate: 300, tags: [JOBS_CACHE_TAG, METADATA_CACHE_TAG, STATS_CACHE_TAG] },
+    })
     if (!res.ok) return null
     const { data } = await res.json()
     return data
@@ -117,7 +124,7 @@ export default async function HomePage() {
       </section>
 
       <section className="section-brand">
-        <div className="container-max mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 text-center">
+        <div className="container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {displayStats.map((s) => (
             <div key={s.value} className="flex flex-col items-center">
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
@@ -137,7 +144,7 @@ export default async function HomePage() {
           <p className="section-subtitle" style={{ marginBottom: '3rem' }}>
             We are not just an employer — we are building Africa&apos;s aviation maintenance industry from the ground up.
           </p>
-          <div className="grid-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[
               {
                 title: 'Pioneer Opportunity',
@@ -151,8 +158,8 @@ export default async function HomePage() {
                 title: 'Continental Impact',
                 body: "Your work will directly reduce Africa's reliance on overseas MRO — a mission with lasting regional significance.",
               },
-            ].map((v) => (
-              <div key={v.title} className="card card-inner" style={{ border: '1px solid var(--aero-blue-100)' }}>
+            ].map((v, i) => (
+              <div key={v.title} className={`card card-inner ${i === 2 ? 'md:col-span-2 md:justify-self-center lg:col-span-1 lg:justify-self-stretch' : ''}`} style={{ border: '1px solid var(--aero-blue-100)' }}>
                 <h4 style={{ fontFamily: 'var(--font-display)', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 700, color: 'var(--aero-blue)', textAlign: 'center' }}>{v.title}</h4>
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', lineHeight: 1.65, margin: 0 }}>
                   {v.body}

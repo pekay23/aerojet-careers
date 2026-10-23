@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { StatusPill } from '@/components/ui/StatusPill'
+import { Select } from '@/components/ui/Select'
 import { toast } from '@/lib/toast'
 import type { Application, RecruiterNote } from '@/types'
 import { 
@@ -292,13 +293,14 @@ export default function ApplicationDetailPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <select
+            <Select
               value={app.status}
-              onChange={e => updateStatus(e.target.value)}
-              className="px-6 py-3.5 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:border-blue-300 transition-all cursor-pointer appearance-none min-w-[180px]"
-            >
-              {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s] || s.replace(/_/g, ' ')}</option>)}
-            </select>
+              onChange={updateStatus}
+              options={STATUSES.map(s => ({ value: s, label: STATUS_LABELS[s] || s.replace(/_/g, ' ') }))}
+              ariaLabel="Application status"
+              className="w-auto min-w-[180px] px-6 py-3.5 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:border-blue-300 transition-all"
+              contentClassName="text-xs uppercase"
+            />
             
             <button 
               onClick={handleHire}

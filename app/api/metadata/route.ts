@@ -1,6 +1,5 @@
-import { supabaseAdmin } from '@/lib/supabase-admin'
-import { ApiResponse, sanitizeErrorMessage } from '@/lib/api-utils'
-import { NextResponse } from 'next/server'
+import { getRecruitmentMetadata } from '@/lib/recruitment-data'
+import { ApiResponse } from '@/lib/api-utils'
 
 /**
  * Public metadata endpoint for recruitment data (departments, categories, employment types).
@@ -8,22 +7,19 @@ import { NextResponse } from 'next/server'
  */
 export async function GET() {
   try {
-    const [categories, empTypes, departments] = await Promise.all([
-      supabaseAdmin.from('job_categories').select('value, label, is_active, created_at').eq('is_active', true).order('label'),
-      supabaseAdmin.from('employment_types').select('value, label, is_active, created_at').eq('is_active', true).order('label'),
-      supabaseAdmin.from('departments').select('name, code').order('name')
-    ])
+    const { categories, employment_types, departments } = await getRecruitmentMetadata()
 
-    return NextResponse.json({
-      categories: categories.data || [],
-      employment_types: empTypes.data || [],
-      departments: departments.data || []
-    }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
-      }
+    return ApiResponse.success({
+      categories,
+      employment_types,
+      departments,
+    }, 200, {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=60',
     })
   } catch (err) {
-    return ApiResponse.error(sanitizeErrorMessage(err), 500)
+    // This endpoint is public, so the raw driver error (database host, port,
+    // role name) must never reach an anonymous visitor.
+    console.error('[api/metadata] recruitment metadata unavailable', err)
+    return ApiResponse.error('Recruitment metadata is temporarily unavailable', 503)
   }
 }

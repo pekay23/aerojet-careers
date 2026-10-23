@@ -73,7 +73,7 @@ export default function SiteNav() {
       isOpaque ? 'scrolled bg-white shadow-md py-3' : 'bg-transparent py-5'
     }`}>
       <div className="w-full px-4 sm:px-6">
-        <div className="mx-auto max-w-8xl grid grid-cols-[auto_1fr_auto] items-center gap-4">
+        <div className="mx-auto max-w-8xl flex items-center justify-between w-full gap-4">
 
           {/* Logo — always visible, left-aligned */}
           <Link href="/" className="relative h-9 sm:h-10 w-36 sm:w-40 flex items-center no-underline">
@@ -88,13 +88,13 @@ export default function SiteNav() {
           </Link>
 
           {/* Centered Desktop Links — hidden below lg, centered on desktop */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="flex items-center gap-5 xl:gap-7 flex-nowrap">
+          <div className="hidden lg:flex flex-1 items-center justify-center flex-nowrap">
+            <div className="flex items-center gap-4 xl:gap-6 flex-nowrap">
               {menuItems.map((item, index) => (
                 <div key={item.name} className="relative min-touch">
                   <Link
                     href={item.href}
-                    className={`font-semibold text-sm uppercase tracking-wider transition-colors py-3 px-3 rounded ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
+                    className={`font-semibold text-xs uppercase tracking-wider whitespace-nowrap transition-colors py-3 px-2 xl:px-3 rounded ${linkColor} ${hoverColor} ${pathname === item.href ? 'text-aero-accent' : ''}`}
                     onMouseEnter={() => handleMouseEnter(index)}
                     onMouseLeave={() => handleMouseLeave(index)}
                   >
@@ -115,7 +115,7 @@ export default function SiteNav() {
           <div className="hidden lg:flex justify-end">
             <Link
               href="/jobs"
-              className="btn-primary text-sm py-2 px-5 sm:px-6 tracking-widest whitespace-nowrap"
+              className="btn-primary text-sm py-2 px-4 xl:px-6 tracking-widest whitespace-nowrap"
             >
               View All Jobs
             </Link>
@@ -124,12 +124,12 @@ export default function SiteNav() {
           {/* Mobile Toggle — visible below lg, right-aligned */}
           <button
             className={`lg:hidden text-xl sm:text-2xl ${linkColor} min-h-11 min-w-11 flex items-center justify-center rounded focus:outline-none focus:ring-2 focus:ring-aero-accent`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMobileMenuOpen(true)}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
           >
-            {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+            <FaBars />
           </button>
         </div>
       </div>
@@ -137,31 +137,42 @@ export default function SiteNav() {
       {/* Mobile Menu Backdrop */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Mobile Menu — slide-down panel */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div
           id="mobile-menu"
-          className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-6 space-y-5 lg:hidden"
+          className="fixed top-0 left-0 w-full h-screen overflow-y-auto bg-white shadow-lg flex flex-col items-center justify-start pt-24 pb-10 space-y-5 lg:hidden z-[70]"
           role="dialog"
           aria-modal="true"
           aria-label="Navigation menu"
         >
-          {menuItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`font-bold text-base sm:text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {item.name}
-            </Link>
-          ))}
+          {/* Close button inside menu */}
+          <button
+            className="absolute top-5 right-5 text-2xl text-aero-blue min-h-11 min-w-11 flex items-center justify-center rounded focus:outline-none focus:ring-2 focus:ring-aero-accent"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+          >
+            <FaTimes />
+          </button>
+
+          <div className="flex flex-col items-center space-y-5 w-full px-4">
+            {menuItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`font-bold text-base sm:text-lg hover:text-aero-accent ${pathname === item.href ? 'text-aero-accent' : 'text-aero-blue'}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
           <div style={{ width: '60%', height: 1, background: 'var(--border)' }} />
           {secondaryItems.map((item) => (
             <Link

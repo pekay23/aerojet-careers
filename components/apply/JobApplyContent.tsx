@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import ApplicationForm from '@/components/forms/ApplicationForm'
+import { formatCloseDate } from '@/lib/dates'
 import type { Job } from '@/types'
 
 const CAT_LABELS: Record<string, string> = {
@@ -136,7 +137,7 @@ export default function JobApplyContent({ job }: { job: Job }) {
                       ? `USD ${j.salary_range_min.toLocaleString()} – ${j.salary_range_max.toLocaleString()} per month`
                       : 'Competitive'],
                     ['Ref',        j.ref_code],
-                    ['Closes',     j.closes_at ? new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Rolling'],
+                    ['Closes',     j.closes_at ? formatCloseDate(j.closes_at) : 'Rolling'],
                   ].map(([label, value]) => (
                     <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.65rem 0', borderBottom: '1px solid var(--border)', fontSize: 13, gap: '0.5rem' }}>
                       <span style={{ color: 'var(--muted)', fontWeight: 500 }}>{label}</span>

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Select } from '@/components/ui/Select'
 import { cn } from '@/lib/utils'
 import PipelineView from '@/components/admin/PipelineView'
 import SelectionHUD from '@/components/admin/SelectionHUD'
@@ -212,16 +213,14 @@ export default function ApplicationsPage() {
             
             <div className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl">
                 <Filter size={14} className="text-slate-500" />
-               <select 
-                 value={status} 
-                 onChange={e => { setStatus(e.target.value); setPage(1) }} 
-                 className="bg-transparent border-none focus:ring-0 text-[10px] font-bold uppercase tracking-widest text-slate-800 cursor-pointer min-w-[120px] appearance-none"
-               >
-                 <option value="">All Stages</option>
-                 {STATUSES.map(s => (
-                   <option key={s} value={s}>{s.replace(/_/g, ' ').toUpperCase()}</option>
-                 ))}
-               </select>
+               <Select
+                 value={status}
+                 onChange={v => { setStatus(v); setPage(1) }}
+                 options={[{ value: '', label: 'All Stages' }, ...STATUSES.map(s => ({ value: s, label: s.replace(/_/g, ' ').toUpperCase() }))]}
+                 ariaLabel="Filter by stage"
+                 className="w-auto min-w-[120px] border-0 bg-transparent p-0 text-[10px] font-bold uppercase tracking-widest text-slate-800"
+                 contentClassName="text-xs"
+               />
             </div>
 
             <div className="flex items-center gap-3 md:ml-auto">

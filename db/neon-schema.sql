@@ -552,11 +552,11 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TEMP TABLE seed_jobs AS
 SELECT * FROM (VALUES
-  ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional', 'full_time', 'live',  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2025-12-31'::date),
-  ('Aircraft Mechanics (AME)',            'aircraft-mechanics',              'Engineering', 'experienced_professional', 'full_time', 'live',  15, 'Experienced aircraft maintenance engineers for line and base maintenance operations.',            ARRAY['Line Maintenance','A-Checks','Defect Rectification'],                           '2025-12-31'),
-  ('Avionics Technicians',                'avionics-technicians',            'Engineering', 'experienced_professional', 'full_time', 'live',   6, 'EASA B2 licensed avionics and electrical systems engineers.',                                     ARRAY['EASA B2','Avionics','IFE','Navigation Systems'],                                '2025-12-31'),
-  ('Quality Compliance Officer/Supervisor','quality-compliance-supervisor',  'Quality',     'experienced_professional', 'full_time', 'live',   3, 'QA engineers to develop and maintain our EASA Part-145 quality management system.',              ARRAY['EASA Part-145','QA','Compliance','Auditing'],                                   '2025-12-31'),
-  ('Quality Manager',                     'quality-manager',                 'Quality',     'experienced_professional', 'full_time', 'live',   1, 'Head of Quality to lead EASA Part-145 compliance, audits, and the QMS team.',                    ARRAY['EASA Part-145','Quality Management','Auditing','Compliance'],                    '2025-12-31'),
+  ('Licensed Aircraft Engineers',        'licensed-aircraft-engineers',     'Engineering', 'experienced_professional', 'full_time', 'live',  10, 'EASA/GCAA licensed engineers across Category A, B1, B2 and C for our Accra MRO facility.',        ARRAY['EASA Part-66','B1','B2','Category C','Boeing 737','Airbus A320','AOG Support'], '2026-12-31'::date),
+  ('Aircraft Mechanics (AME)',            'aircraft-mechanics',              'Engineering', 'experienced_professional', 'full_time', 'live',  15, 'Experienced aircraft maintenance engineers for line and base maintenance operations.',            ARRAY['Line Maintenance','A-Checks','Defect Rectification'],                           '2026-12-31'),
+  ('Avionics Technicians',                'avionics-technicians',            'Engineering', 'experienced_professional', 'full_time', 'live',   6, 'EASA B2 licensed avionics and electrical systems engineers.',                                     ARRAY['EASA B2','Avionics','IFE','Navigation Systems'],                                '2026-12-31'),
+  ('Quality Compliance Officer/Supervisor','quality-compliance-supervisor',  'Quality',     'experienced_professional', 'full_time', 'live',   3, 'QA engineers to develop and maintain our EASA Part-145 quality management system.',              ARRAY['EASA Part-145','QA','Compliance','Auditing'],                                   '2026-12-31'),
+  ('Quality Manager',                     'quality-manager',                 'Quality',     'experienced_professional', 'full_time', 'live',   1, 'Head of Quality to lead EASA Part-145 compliance, audits, and the QMS team.',                    ARRAY['EASA Part-145','Quality Management','Auditing','Compliance'],                    '2026-12-31'),
   ('Engine Technicians',                  'engine-technicians',              'Engineering', 'experienced_professional', 'full_time', 'draft',  8, 'Powerplant technicians with CFM56, CFM LEAP or GE90 experience.',                                ARRAY['CFM56','CFM LEAP','GE90','Powerplant'],                                         NULL),
   ('Structures, Skins & Composites',      'composites-technicians',          'Engineering', 'experienced_professional', 'full_time', 'draft',  4, 'Structural repair and composites technicians with NDT experience.',                               ARRAY['NDT','Composite Repair','Structural Repair'],                                   NULL),
   ('Ground Handling & Marshalling',       'ground-handling-operatives',      'Operations',  'experienced_professional', 'full_time', 'draft', 10, 'Ramp operatives for aircraft ground handling, marshalling and airside operations.',              ARRAY['Ramp Operations','Aircraft Marshalling','Ground Safety','IATA DG'],             NULL),
@@ -572,25 +572,32 @@ SELECT * FROM (VALUES
 ) AS v(title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at);
 
 -- Update existing seed jobs (preserves IDs and ref_codes)
+--
+-- `status` and `closes_at` are deliberately NOT overwritten: both are owned by
+-- the admin UI. Re-applying the schema used to flip a published role back to
+-- 'draft' (it vanished from the site) and reset a role's closing date to the
+-- seed value (which, once the seed value was in the past, also hid the role
+-- from the public listing).
 UPDATE jobs SET
   title = s.title,
   department = s.department,
   category = s.category::job_category,
   employment_type = s.employment_type::employment_type,
-  status = s.status::job_status,
   target_count = s.target_count,
   summary = s.summary,
   tags = s.tags,
-  closes_at = s.closes_at,
   updated_at = NOW()
 FROM seed_jobs s
 WHERE jobs.slug = s.slug;
 
--- Insert new seed jobs (those that don't exist yet)
+-- Insert new seed jobs (those that don't exist yet).
+-- The title guard prevents a duplicate posting: the admin route regenerates
+-- `slug` from the title, so renaming a seeded job leaves its old slug free
+-- and the plain slug check would re-create the original posting.
 INSERT INTO jobs (title, slug, department, category, employment_type, status, target_count, summary, tags, closes_at)
 SELECT s.title, s.slug, s.department, s.category::job_category, s.employment_type::employment_type, s.status::job_status, s.target_count, s.summary, s.tags, s.closes_at
 FROM seed_jobs s
-WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE slug = s.slug);
+WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE jobs.slug = s.slug OR jobs.title = s.title);
 
 DROP TABLE seed_jobs;
 

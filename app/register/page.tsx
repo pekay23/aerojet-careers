@@ -1,11 +1,30 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { z } from 'zod'
+import { useSearchParams } from 'next/navigation'
 import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero, NoticeBanner, FormCard } from '@/components/ui'
+import { Select } from '@/components/ui/Select'
 
 const DEPARTMENTS = ['Engineering','IT','Operations','HR','Customer Support','Sales','Logistics','Quality']
+
+const TRACKS: Record<string, {
+  label: string
+  department: string
+  hint: string
+}> = {
+  eng: {
+    label: 'Engineering Technicians & Mechanics',
+    department: 'Engineering',
+    hint: 'Aircraft maintenance training with a pathway to an EASA / GCAA Part-66 licence.',
+  },
+  ramp: {
+    label: 'Ground Handling & Ramp Operatives',
+    department: 'Operations',
+    hint: 'Airside operations training with IATA-recognised certifications.',
+  },
+}
 
 const RegistrationSchema = z.object({
   first_name: z.string().min(2, "Input your first name"),
@@ -18,7 +37,11 @@ const RegistrationSchema = z.object({
 })
 
 export default function RegisterPage() {
-  const [data,      setData]      = useState<Record<string, any>>({})
+  const searchParams = useSearchParams()
+  const track = searchParams.get('track')
+  const trackCfg = track && TRACKS[track] ? TRACKS[track] : null
+  const initialDept = trackCfg ? trackCfg.department : null
+  const [data,      setData]      = useState<Record<string, any>>(initialDept ? { departments_interest: [initialDept] } : {})
   const [cvFile,    setCvFile]    = useState<File | null>(null)
   const [cvName,    setCvName]    = useState('')
   const [consent,   setConsent]   = useState(false)
@@ -105,6 +128,14 @@ export default function RegisterPage() {
             <NoticeBanner>
               <strong>Don't see the right role?</strong> Register your interest and join our talent pool. When suitable positions open across <strong>Engineering, IT, Operations, HR, Customer Support, Sales, Logistics</strong> or <strong>Quality</strong>, we will reach out directly.
             </NoticeBanner>
+            {trackCfg && (
+              <NoticeBanner style={{ borderLeft: '4px solid var(--blue)' }}>
+                <strong>Training track:</strong> {trackCfg.label} — {trackCfg.hint}
+                <p style={{ margin: '0.35rem 0 0', fontSize: 13, color: 'var(--muted)' }}>
+                  Your department of interest is pre-selected below. You can adjust it before submitting.
+                </p>
+              </NoticeBanner>
+            )}
           </div>
 
           {submitted ? (
@@ -144,37 +175,81 @@ export default function RegisterPage() {
                     </div>
                   ))}
                   <div className="field">
-                    <label className="field-label" htmlFor="reg-nationality">Nationality <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-nationality" name="nationality" value={data.nationality ?? ''} onChange={e => set('nationality')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.nationality && touchedFields.nationality} onBlur={() => touch('nationality')}>
-                      <option value="">Select…</option>
-                      {['Ghanaian','Nigerian','Kenyan','Ethiopian','Other African','Other'].map(n => <option key={n}>{n}</option>)}
-                    </select>
+                    <label className="field-label" htmlFor="reg-nationality" id="reg-nationality-label">Nationality <span style={{ color: 'var(--blue)' }}>*</span></label>
+                    <Select
+                      id="reg-nationality"
+                      name="nationality"
+                      value={data.nationality ?? ''}
+                      onChange={set('nationality')}
+                      options={['Ghanaian','Nigerian','Kenyan','Ethiopian','Other African','Other']}
+                      placeholder="Select…"
+                      clearable
+                      required
+                      invalid={!!fieldErrors.nationality && !!touchedFields.nationality}
+                      ariaLabelledBy="reg-nationality-label"
+                      className="field-input"
+                      contentClassName="text-base"
+                      onBlur={() => touch('nationality')}
+                    />
                   </div>
                   <div className="field">
-                    <label className="field-label" htmlFor="reg-country">Country of residence <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-country" name="country" value={data.country ?? ''} onChange={e => set('country')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.country && touchedFields.country} onBlur={() => touch('country')}>
-                      <option value="">Select…</option>
-                      {['Ghana','Nigeria','Kenya','Ethiopia','Other African country','Outside Africa'].map(c => <option key={c}>{c}</option>)}
-                    </select>
+                    <label className="field-label" htmlFor="reg-country" id="reg-country-label">Country of residence <span style={{ color: 'var(--blue)' }}>*</span></label>
+                    <Select
+                      id="reg-country"
+                      name="country"
+                      value={data.country ?? ''}
+                      onChange={set('country')}
+                      options={['Ghana','Nigeria','Kenya','Ethiopia','Other African country','Outside Africa']}
+                      placeholder="Select…"
+                      clearable
+                      required
+                      invalid={!!fieldErrors.country && !!touchedFields.country}
+                      ariaLabelledBy="reg-country-label"
+                      className="field-input"
+                      contentClassName="text-base"
+                      onBlur={() => touch('country')}
+                    />
                   </div>
                   <div className="field">
-                    <label className="field-label" htmlFor="reg-years">Years of experience <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-years" name="years_experience" value={data.years_experience ?? ''} onChange={e => set('years_experience')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.years_experience && touchedFields.years_experience} onBlur={() => touch('years_experience')}>
-                      <option value="">Select…</option>
-                      {['0–1 years','1–3 years','3–5 years','5–10 years','10–15 years','15+ years'].map(y => <option key={y}>{y}</option>)}
-                    </select>
+                    <label className="field-label" htmlFor="reg-years" id="reg-years-label">Years of experience <span style={{ color: 'var(--blue)' }}>*</span></label>
+                    <Select
+                      id="reg-years"
+                      name="years_experience"
+                      value={data.years_experience ?? ''}
+                      onChange={set('years_experience')}
+                      options={['0–1 years','1–3 years','3–5 years','5–10 years','10–15 years','15+ years']}
+                      placeholder="Select…"
+                      clearable
+                      required
+                      invalid={!!fieldErrors.years_experience && !!touchedFields.years_experience}
+                      ariaLabelledBy="reg-years-label"
+                      className="field-input"
+                      contentClassName="text-base"
+                      onBlur={() => touch('years_experience')}
+                    />
                   </div>
                   <div className="field">
-                    <label className="field-label" htmlFor="reg-qualification">Highest qualification <span style={{ color: 'var(--blue)' }}>*</span></label>
-                    <select id="reg-qualification" name="qualification" value={data.qualification ?? ''} onChange={e => set('qualification')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }} aria-invalid={!!fieldErrors.qualification && touchedFields.qualification} onBlur={() => touch('qualification')}>
-                      <option value="">Select…</option>
-                      {['Secondary School Certificate','OND / HND','Professional Certificate (AME, etc.)','Bachelor\'s Degree','Master\'s Degree','PhD / Doctorate'].map(q => <option key={q}>{q}</option>)}
-                    </select>
+                    <label className="field-label" htmlFor="reg-qualification" id="reg-qualification-label">Highest qualification <span style={{ color: 'var(--blue)' }}>*</span></label>
+                    <Select
+                      id="reg-qualification"
+                      name="qualification"
+                      value={data.qualification ?? ''}
+                      onChange={set('qualification')}
+                      options={['Secondary School Certificate','OND / HND','Professional Certificate (AME, etc.)','Bachelor\'s Degree','Master\'s Degree','PhD / Doctorate']}
+                      placeholder="Select…"
+                      clearable
+                      required
+                      invalid={!!fieldErrors.qualification && !!touchedFields.qualification}
+                      ariaLabelledBy="reg-qualification-label"
+                      className="field-input"
+                      contentClassName="text-base"
+                      onBlur={() => touch('qualification')}
+                    />
                   </div>
                 </div>
               </FormCard>
 
-              <FormCard title="Areas of interest" subtitle="Select all departments you would like to be considered for.">
+              <FormCard title="Areas of interest" subtitle={trackCfg ? `You're registering for the ${trackCfg.label} track. Select any additional departments you'd like to be considered for.` : 'Select all departments you would like to be considered for.'}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {DEPARTMENTS.map(d => {
                     const checked = (data.departments_interest || []).includes(d)
@@ -206,11 +281,19 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 <div className="field">
-                  <label className="field-label" htmlFor="reg-source">How did you hear about Aerojet?</label>
-                  <select id="reg-source" value={data.source ?? ''} onChange={e => set('source')(e.target.value)} className="field-input" style={{ cursor: 'pointer' }}>
-                    <option value="">Select…</option>
-                    {['LinkedIn','Colleague referral','Aerojet website','Aviation industry forum','Other'].map(s => <option key={s}>{s}</option>)}
-                  </select>
+                  <label className="field-label" htmlFor="reg-source" id="reg-source-label">How did you hear about Aerojet?</label>
+                  <Select
+                    id="reg-source"
+                    name="source"
+                    value={data.source ?? ''}
+                    onChange={set('source')}
+                    options={['LinkedIn','Colleague referral','Aerojet website','Aviation industry forum','Other']}
+                    placeholder="Select…"
+                    clearable
+                    ariaLabelledBy="reg-source-label"
+                    className="field-input"
+                    contentClassName="text-base"
+                  />
                 </div>
 
                 <div className="info-box">

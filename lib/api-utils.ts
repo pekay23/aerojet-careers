@@ -116,19 +116,74 @@ export function cleanInput(s: any) {
  * Sanitizes error messages for API responses.
  * Returns a generic message and logs the original error server-side.
  */
-export function sanitizeErrorMessage(err: unknown): string {
+const NODE_NETWORK_CODES = new Set([
+  'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', 'EPIPE', 'EAI_AGAIN',
+  'EHOSTUNREACH', 'ENETUNREACH', 'ECONNABORTED', 'EPROTO',
+])
+const SQLSTATE_RE = /^[0-9A-Z]{5}$/
+
+const DRIVER_PATTERNS: RegExp[] = [
+  /ECONNREFUSED/i,
+  /ENOTFOUND/i,
+  /ETIMEDOUT/i,
+  /connection refused/i,
+  /connection reset/i,
+  /password authentication failed/i,
+  /the database system is (starting up|shutting down|in recovery mode)/i,
+  /terminating connection/i,
+  /too many connections/i,
+  /connect /i,
+  /SSL/i,
+  /pool\.query/i,
+]
+
+function isDriverError(err: unknown): boolean {
+  if (err && typeof err === 'object') {
+    const code = (err as { code?: unknown }).code
+    if (typeof code === 'string') {
+      if (NODE_NETWORK_CODES.has(code) || SQLSTATE_RE.test(code)) return true
+    }
+  }
   if (err instanceof Error) {
-    logger.error('API error', { message: err.message, stack: err.stack })
-    return err.message || 'Internal server error'
+    return DRIVER_PATTERNS.some((re) => re.test(err.message))
   }
   if (typeof err === 'object' && err !== null) {
+    const msg = (err as { message?: unknown; error?: unknown }).message ?? (err as { error?: unknown }).error
+    if (typeof msg === 'string') return DRIVER_PATTERNS.some((re) => re.test(msg))
+  }
+  return false
+}
+
+function redact(s: string): string {
+  return s
+    .replace(/postgres(?:ql)?:\/\/[^@\s]+@[^\s]+/gi, '[redacted]')
+    .replace(/(?:password|user|host|port|database|dbname)\s*=\s*[^\s&]+/gi, '[redacted]')
+    .replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?::\d+)?\b/g, '[redacted]')
+    .replace(/\b[a-z0-9.-]+\.(?:com|net|org|io|co|dev|internal)(?::\d+)?\b/gi, (m) => m.includes(':') ? '[redacted]' : m)
+    .replace(/\b(?:\w[\w.-]*):\d{2,5}\b/g, '[redacted]')
+    .replace(/(?:user|role)\s+"[^"]*"/gi, '[redacted]')
+}
+
+export function sanitizeErrorMessage(err: unknown): string {
+  if (typeof err === 'string') {
+    logger.error('API error', { error: err })
+    return redact(err) || 'Internal server error'
+  }
+  if (err instanceof Error) {
+    logger.error('API error', { message: err.message, stack: err.stack })
+    if (isDriverError(err)) return 'Internal server error'
+    return redact(err.message) || 'Internal server error'
+  }
+  if (err && typeof err === 'object') {
     const obj = err as Record<string, unknown>
-    const msg = typeof obj.message === 'string' ? obj.message : typeof obj.error === 'string' ? obj.error : JSON.stringify(obj)
-    logger.error('API error', { details: msg })
-    return msg || 'Internal server error'
+    const msg = typeof obj.message === 'string' ? obj.message : typeof obj.error === 'string' ? obj.error : null
+    logger.error('API error', { details: msg ?? err })
+    if (isDriverError(err)) return 'Internal server error'
+    if (msg) return redact(msg) || 'Internal server error'
+    return 'Internal server error'
   }
   logger.error('API error', { error: String(err) })
-  return String(err) || 'Internal server error'
+  return 'Internal server error'
 }
 
 /**

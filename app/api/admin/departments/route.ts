@@ -1,8 +1,10 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { ApiResponse, verifyRole, sanitizeErrorMessage } from '@/lib/api-utils'
 import { DepartmentSchema as SharedDepartmentSchema } from '@/lib/validation/schemas'
+import { JOBS_CACHE_TAG, JOB_DETAIL_CACHE_TAG, METADATA_CACHE_TAG, STATS_CACHE_TAG } from '@/lib/recruitment-data'
 
 const DepartmentSchema = SharedDepartmentSchema.extend({
   code: z.string().min(1, 'Department code is required').max(20).nullish(),
@@ -19,9 +21,25 @@ function generateDeptCode(name: string): string {
   return base
 }
 
-const DepartmentUpdateSchema = DepartmentSchema.extend({
-  id: z.string().uuid('id must be a valid UUID'),
-})
+const DepartmentUpdateSchema = DepartmentSchema.partial()
+  .extend({
+    id: z.string().uuid('id must be a valid UUID'),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.name === undefined &&
+      data.code === undefined &&
+      data.manager_id === undefined &&
+      data.current_budget === undefined
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'At least one of name, code, manager_id, or current_budget is required',
+        path: ['root'],
+      })
+    }
+  })
 
 export async function GET(_req: NextRequest) {
   try {
@@ -72,7 +90,7 @@ export async function POST(req: NextRequest) {
       // 1. Get current budget for history tracking
       const { data: current } = await supabaseAdmin
         .from('departments')
-        .select('current_budget')
+        .select('current_budget, name')
         .eq('id', id)
         .single()
 
@@ -91,6 +109,25 @@ export async function POST(req: NextRequest) {
 
       if (error) throw error
 
+      // Cascade a department rename to the denormalised jobs.department column
+      // so existing jobs keep matching their department.
+      const newName = updateParsed.data.name
+      if (newName !== undefined && current && newName !== current.name) {
+        const { error: jobsError } = await supabaseAdmin
+          .from('jobs')
+          .update({ department: newName })
+          .eq('department', current.name)
+        if (jobsError) throw jobsError
+        // jobs.department is part of the cached public payload, so drop it too.
+        revalidateTag(JOBS_CACHE_TAG, { expire: 0 })
+        // The per-slug job payload embeds the department name, so the job
+        // detail cache has to go as well.
+        revalidateTag(JOB_DETAIL_CACHE_TAG, { expire: 0 })
+        // ...and so does the rendered job detail page (Full Route Cache, keyed
+        // by path rather than by tag).
+        revalidatePath('/apply/[slug]', 'page')
+      }
+
       // 3. Log budget change if amount changed
       if (current_budget !== undefined && current_budget !== current?.current_budget) {
         await supabaseAdmin.from('department_budget_history').insert({
@@ -101,6 +138,23 @@ export async function POST(req: NextRequest) {
           created_by: auth.user.id
         })
       }
+
+      // 4. The write is committed — the cached public metadata embeds the
+      //    department name/code, so drop it.
+      revalidateTag(METADATA_CACHE_TAG, { expire: 0 })
+      // The per-slug job payload embeds the department name, so the job
+      // detail cache has to go as well.
+      revalidateTag(JOB_DETAIL_CACHE_TAG, { expire: 0 })
+      // The "Departments Hiring" counter on the homepage is derived from this
+      // table, so it has to be dropped too.
+      revalidateTag(STATS_CACHE_TAG, { expire: 0 })
+      // revalidateTag only purges the Next.js Data Cache; the CDN copy of the
+      // public endpoint is keyed by URL, so purge it by path too.
+      revalidatePath('/api/metadata')
+      revalidatePath('/api/stats')
+      // The job detail pages render the department name, so their rendered
+      // (path-keyed) cache has to be dropped as well.
+      revalidatePath('/apply/[slug]', 'page')
 
       return ApiResponse.success(data)
     } else {
@@ -146,7 +200,22 @@ export async function POST(req: NextRequest) {
          .select()
          .single()
 
-       if (error) throw error
+        if (error) throw error
+
+        // The write is committed — a new department changes the cached public
+        // metadata, so drop it.
+        revalidateTag(METADATA_CACHE_TAG, { expire: 0 })
+        // The per-slug job payload embeds the department name, so the job
+        // detail cache has to go as well.
+        revalidateTag(JOB_DETAIL_CACHE_TAG, { expire: 0 })
+        // The "Departments Hiring" counter on the homepage is derived from this
+        // table, so it has to be dropped too.
+        revalidateTag(STATS_CACHE_TAG, { expire: 0 })
+        // revalidateTag only purges the Next.js Data Cache; the CDN copy of the
+        // public endpoint is keyed by URL, so purge it by path too.
+        revalidatePath('/api/metadata')
+        revalidatePath('/api/stats')
+
         return ApiResponse.success(data)
     }
   } catch (err) {

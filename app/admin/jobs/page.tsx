@@ -5,8 +5,10 @@ import type { Job } from '@/types'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Select } from '@/components/ui/Select'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { toast } from '@/lib/toast'
+import { formatCloseDate, isJobExpired } from '@/lib/dates'
 
 
 // Metadata state
@@ -308,10 +310,14 @@ export default function JobsAdminPage() {
         {/* Toolbar */}
         <div className="px-4 lg:px-8 py-4 lg:py-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center">
           <div className="flex items-center gap-3">
-          <select value={statusF} onChange={e => setStatusF(e.target.value)} className="admin-input text-xs uppercase tracking-widest cursor-pointer appearance-none min-w-40">
-            <option value="">All statuses</option>
-            {['live','draft'].map(s => <option key={s}>{s}</option>)}
-          </select>
+          <Select
+            value={statusF}
+            onChange={setStatusF}
+            options={[{ value: '', label: 'All statuses' }, ...['live','draft'].map(s => ({ value: s, label: s }))]}
+            ariaLabel="Filter by status"
+            className="admin-input w-auto min-w-40 text-xs uppercase tracking-widest"
+            contentClassName="text-xs uppercase"
+          />
           </div>
           
           <div className="md:ml-auto flex items-center gap-6">
@@ -400,8 +406,20 @@ export default function JobsAdminPage() {
                     </td>
                      <td className="px-3 py-2.5 text-[10px] font-bold text-slate-900">{!j.target_count ? 'Open' : j.target_count}</td>
                      <td className="px-3 py-2.5">
-                       {j.closes_at && <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter">Closes {new Date(j.closes_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
-                       {!j.closes_at && <span className="text-[9px] font-bold text-sky-600 uppercase tracking-tighter">No deadline</span>}
+                       {j.closes_at ? (
+                         <>
+                           <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter">
+                             Closes {formatCloseDate(j.closes_at)}
+                           </span>
+                           {isJobExpired(j.closes_at) && (
+                             <span className="text-[9px] font-bold text-red-600 uppercase tracking-tighter ml-1">
+                               Expired
+                             </span>
+                           )}
+                         </>
+                       ) : (
+                         <span className="text-[9px] font-bold text-sky-600 uppercase tracking-tighter">No deadline</span>
+                       )}
                      </td>
                      <td className="px-3 py-2.5"><StatusPill status={j.status} /></td>
                     <td className="px-3 py-2.5">
@@ -485,12 +503,19 @@ export default function JobsAdminPage() {
                   <input value={form.ref_code ?? ''} onChange={e => sf('ref_code')(e.target.value)} placeholder="e.g. AERO-ENG-001" className="admin-input" />
                 </div>
                  <div className="space-y-1.5">
-                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Department *</label>
-                   <select value={form.department ?? ''} onChange={e => sf('department')(e.target.value)} className="admin-input appearance-none">
-                     <option value="">Select…</option>
-                     {meta.departments.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
-                     <option value="__add_new__">— Add new department —</option>
-                   </select>
+                   <label htmlFor="job-department" id="job-department-label" className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Department *</label>
+                   <Select
+                     id="job-department"
+                     value={form.department ?? ''}
+                     onChange={sf('department')}
+                     options={[
+                       { value: '', label: 'Select…' },
+                       ...meta.departments.map(d => ({ value: d.name, label: d.name })),
+                       { value: '__add_new__', label: '— Add new department —' },
+                     ]}
+                     ariaLabelledBy="job-department-label"
+                     className="admin-input"
+                   />
                    {form.department === '__add_new__' && (
                      <div className="pt-2 space-y-2">
                         <div className="flex gap-2">
@@ -520,16 +545,26 @@ export default function JobsAdminPage() {
                    )}
                  </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Category</label>
-                  <select value={form.category} onChange={e => sf('category')(e.target.value)} className="admin-input appearance-none">
-                    {meta.categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                  </select>
+                  <label htmlFor="job-category" id="job-category-label" className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Category</label>
+                  <Select
+                    id="job-category"
+                    value={form.category}
+                    onChange={sf('category')}
+                    options={meta.categories.map(c => ({ value: c.value, label: c.label }))}
+                    ariaLabelledBy="job-category-label"
+                    className="admin-input"
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Employment type</label>
-                  <select value={form.employment_type} onChange={e => sf('employment_type')(e.target.value)} className="admin-input appearance-none">
-                    {meta.employment_types.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                  <label htmlFor="job-employment-type" id="job-employment-type-label" className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Employment type</label>
+                  <Select
+                    id="job-employment-type"
+                    value={form.employment_type}
+                    onChange={sf('employment_type')}
+                    options={meta.employment_types.map(t => ({ value: t.value, label: t.label }))}
+                    ariaLabelledBy="job-employment-type-label"
+                    className="admin-input"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-blue-600 uppercase px-1">Location</label>

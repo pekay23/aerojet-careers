@@ -1,4 +1,6 @@
 import { FormLabel } from './FormLabel'
+import { useFormField } from './FormField'
+import { Select as SelectControl } from '@/components/ui/Select'
 
 interface SelectProps {
   value: any
@@ -15,29 +17,42 @@ interface SelectProps {
   onBlur?: () => void
 }
 
+/**
+ * A form field backed by the shared Radix select, so the dropdown looks the
+ * same on every platform and matches the Aerojet design system.
+ *
+ * The label of a field with `id="x"` is expected to be `x-label` - the
+ * wrapper renders it with that id and points the control at it with
+ * `aria-labelledby`, which is what gives the trigger its accessible name.
+ */
 export function Select({
   value, onChange, options, label, required, placeholder, span, id, name, error, touched, onBlur
 }: SelectProps) {
+  const invalid = !!error && !!touched
+  const labelId = id ? `${id}-label` : undefined
+  // The label usually lives in the surrounding `FormField`, which owns the
+  // `required` flag. Inherit it so the trigger is announced as required.
+  const field = useFormField()
+  const isRequired = required ?? field.required
+
   return (
     <div className="field" style={span ? { gridColumn: '1 / -1' } : {}}>
-      {label && <FormLabel required={required}>{label}</FormLabel>}
-      <select
+      {label && <FormLabel required={isRequired} htmlFor={id} id={labelId}>{label}</FormLabel>}
+      <SelectControl
         id={id}
         name={name}
         value={value ?? ''}
-        onChange={e => onChange(e.target.value)}
-        onBlur={onBlur}
+        onChange={onChange}
+        options={options}
+        placeholder={placeholder}
+        clearable
+        required={isRequired}
+        invalid={invalid}
+        ariaLabelledBy={labelId}
         className="field-input"
-        style={{ cursor: 'pointer' }}
-        aria-invalid={!!error && touched}
-      >
-        <option value="">{placeholder ?? 'Select…'}</option>
-        {options.map(o => {
-          const v = typeof o === 'string' ? o : o.value
-          const l = typeof o === 'string' ? o : o.label
-          return <option key={v} value={v}>{l}</option>
-        })}
-      </select>
+        contentClassName="text-base"
+        onBlur={onBlur}
+      />
     </div>
   )
 }

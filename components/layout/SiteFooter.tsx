@@ -35,96 +35,102 @@ export default function SiteFooter() {
         {/* Main Grid: Brand | Careers | Company | Legal | Contact */}
         <div className="footer-grid">
 
-          {/* Column 1: Brand */}
-          <div className="footer-col py-4">
-            <div className="relative h-9 sm:h-10 w-32 sm:w-40 mb-4 sm:mb-6">
-              <Image
-                src="/logos/logo-footer.png"
-                alt="Aerojet Aviation Footer Logo"
-                fill
-                sizes="(max-width: 640px) 128px, (max-width: 1024px) 160px, 160px"
-                className="object-contain object-left"
-              />
+          {/* Tablet column stack 1: Brand + Company + Contact (independent from column 2) */}
+          <div className="stack-col stack-1">
+            {/* Column 1: Brand */}
+            <div className="footer-col py-4">
+              <div className="relative h-8 sm:h-9 w-24 sm:w-32 md:w-40 mb-3 sm:mb-4">
+                <Image
+                  src="/logos/logo-footer.png"
+                  alt="Aerojet Aviation Footer Logo"
+                  fill
+                  sizes="(max-width: 640px) 96px, (max-width: 1024px) 128px, 160px"
+                  className="object-contain object-left"
+                />
+              </div>
+              <p className="opacity-80 leading-relaxed text-xs sm:text-sm">
+                Building West Africa&apos;s premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
+              </p>
             </div>
-            <p className="opacity-80 leading-relaxed text-sm">
-              Building West Africa&apos;s premier MRO facility — delivering world-class maintenance, training, and consultancy capabilities.
-            </p>
-          </div>
 
-          {/* Column 2: Careers */}
-          <div className="footer-col py-4">
-            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Careers</h4>
-            <ul className="space-y-1.5 sm:space-y-2 text-sm opacity-90">
-              {footerLinks.careers.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
-                    {link.label}
-                  </Link>
+            {/* Column 3: Company */}
+            <div className="footer-col py-4">
+              <h4 className="text-sm sm:text-base font-bold text-aero-accent mb-2 sm:mb-3">Company</h4>
+              <ul className="space-y-1 sm:space-y-1.5 text-xs sm:text-sm opacity-90">
+                {footerLinks.company.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target={link.href.startsWith('http') ? '_blank' : undefined}
+                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="text-white hover:text-aero-accent transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Column 5: Contact */}
+            <div className="footer-col py-4">
+              <h4 className="text-sm sm:text-base font-bold text-aero-accent mb-2 sm:mb-3">Contact</h4>
+              <ul className="footer-contact space-y-1 sm:space-y-2 text-xs sm:text-sm opacity-90">
+                <li className="flex items-start gap-2 sm:gap-3">
+                  <FaMapMarkerAlt className="text-white mt-0.5 flex-shrink-0" />
+                  <span className="text-white">Accra International Airport, Accra, Ghana</span>
                 </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Company */}
-          <div className="footer-col py-4">
-            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Company</h4>
-            <ul className="space-y-1.5 sm:space-y-2 text-sm opacity-90">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
+                <li>
                   <a
-                    href={link.href}
-                    target={link.href.startsWith('http') ? '_blank' : undefined}
-                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-white hover:text-aero-accent transition-colors"
+                    href="mailto:careers@aerojet-aviation.com"
+                    className="flex items-center gap-2 sm:gap-3 text-white hover:text-aero-accent transition-colors"
                   >
-                    {link.label}
+                    <FaEnvelope className="text-white flex-shrink-0" />
+                    careers@aerojet-aviation.com
                   </a>
                 </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 4: Legal */}
-          <div className="footer-col py-4">
-            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Legal</h4>
-            <ul className="space-y-1.5 sm:space-y-2 text-sm opacity-90">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
-                    {link.label}
-                  </Link>
+                <li>
+                  <a
+                    href="tel:+233209848423"
+                    className="flex items-center gap-2 sm:gap-3 text-white hover:text-aero-accent transition-colors"
+                  >
+                    <FaPhoneAlt className="text-white flex-shrink-0" />
+                    +233-20-984-8423
+                  </a>
                 </li>
-              ))}
-            </ul>
+              </ul>
+            </div>
           </div>
 
-          {/* Column 5: Contact */}
-          <div className="footer-col py-4">
-            <h4 className="text-base sm:text-lg font-bold text-aero-accent mb-3 sm:mb-4">Contact</h4>
-            <ul className="footer-contact space-y-2 sm:space-y-3 text-sm opacity-90">
-              <li className="flex items-start gap-2 sm:gap-3">
-                <FaMapMarkerAlt className="text-white mt-0.5 flex-shrink-0" />
-                <span className="text-white">Accra International Airport, Accra, Ghana</span>
-              </li>
-              <li>
-                <a
-                  href="mailto:careers@aerojet-aviation.com"
-                  className="flex items-center gap-2 sm:gap-3 text-white hover:text-aero-accent transition-colors"
-                >
-                  <FaEnvelope className="text-white flex-shrink-0" />
-                  careers@aerojet-aviation.com
-                </a>
-              </li>
-              <li>
-                <a
-                  href="tel:+233209848423"
-                  className="flex items-center gap-2 sm:gap-3 text-white hover:text-aero-accent transition-colors"
-                >
-                  <FaPhoneAlt className="text-white flex-shrink-0" />
-                  +233-20-984-8423
-                </a>
-              </li>
-            </ul>
+          {/* Tablet column stack 2: Careers + Legal (independent from column 1) */}
+          <div className="stack-col stack-2">
+            {/* Column 2: Careers */}
+            <div className="footer-col py-4">
+              <h4 className="text-sm sm:text-base font-bold text-aero-accent mb-2 sm:mb-3">Careers</h4>
+              <ul className="space-y-1 sm:space-y-1.5 text-xs sm:text-sm opacity-90">
+                {footerLinks.careers.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Column 4: Legal */}
+            <div className="footer-col py-4">
+              <h4 className="text-sm sm:text-base font-bold text-aero-accent mb-2 sm:mb-3">Legal</h4>
+              <ul className="space-y-1 sm:space-y-1.5 text-xs sm:text-sm opacity-90">
+                {footerLinks.legal.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-white hover:text-aero-accent transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 

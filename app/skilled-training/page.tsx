@@ -72,7 +72,7 @@ export default function SkilledTrainingPage() {
                       </div>
                     ))}
                   </div>
-                  <Link href="/register" className="btn btn-blue" style={{ width: '100%', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <Link href={`/register?track=${track.id}`} className="btn btn-blue" style={{ width: '100%', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                     Apply for This Track <ArrowRight size={15} aria-hidden="true" />
                   </Link>
 

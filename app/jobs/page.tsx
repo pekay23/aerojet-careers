@@ -2,7 +2,7 @@ import SiteNav from '@/components/layout/SiteNav'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/ui'
 import JobsClient from './JobsClient'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getPublicJobs, getRecruitmentMetadata } from '@/lib/recruitment-data'
 import type { Metadata } from 'next'
 import type { Job } from '@/types'
 
@@ -16,22 +16,25 @@ export const revalidate = 60
 
 export default async function JobsPage() {
   let jobs: Job[] = []
+  let departments: string[] = []
   let loadError: string | null = null
 
   try {
-    const result = await supabaseAdmin
-      .from('jobs')
-      .select('id, ref_code, title, slug, department, category, employment_type, location, status, target_count, summary, responsibilities, requirements, what_we_offer, salary_range_min, salary_range_max, tags, closes_at, published_at, created_at, updated_at')
-      .eq('status', 'live')
-      .order('created_at', { ascending: false })
+    jobs = await getPublicJobs()
+  } catch (err) {
+    // The raw driver error (database host, port, role name) is logged
+    // server-side; the public page only ever shows a generic message.
+    console.error('[jobs] failed to load job listings', err)
+    loadError = 'Job listings are temporarily unavailable. Please try again shortly.'
+  }
 
-    if (result.error) {
-      loadError = result.error.message || 'Failed to load job listings'
-    } else {
-      jobs = result.data || []
-    }
-  } catch (err: any) {
-    loadError = err.message || 'Unexpected error loading jobs'
+  // The department filter is a nice-to-have: a metadata outage must not take
+  // the job list down with it, so it degrades to an empty filter list.
+  try {
+    const metadata = await getRecruitmentMetadata()
+    departments = metadata.departments.map(d => d.name).filter(Boolean)
+  } catch (err) {
+    console.error('[jobs] failed to load recruitment metadata', err)
   }
 
   return (
@@ -55,7 +58,7 @@ export default async function JobsPage() {
               </p>
             </div>
           ) : (
-            <JobsClient initialJobs={jobs} loading={false} />
+            <JobsClient initialJobs={jobs} departments={departments} loading={false} />
           )}
         </div>
       </section>

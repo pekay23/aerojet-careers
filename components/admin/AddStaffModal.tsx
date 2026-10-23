@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, UserPlus, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Select } from '@/components/ui/Select'
 
 interface AddStaffModalProps {
   isOpen: boolean
@@ -174,30 +175,32 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department</label>
-                      <select 
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none transition-all font-sans"
+                      <label htmlFor="staff-department" id="staff-department-label" className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">Department</label>
+                      <Select
+                        id="staff-department"
                         value={formData.department}
-                        onChange={(e) => setFormData({...formData, department: e.target.value})}
-                      >
-                         {depts.length === 0 ? (
-                           <option key="empty">No Departments Found</option>
-                         ) : depts.map(d => (
-                           <option key={d.id || d.name} value={d.name}>{d.name}</option>
-                         ))}
-                      </select>
+                        onChange={v => setFormData({ ...formData, department: v })}
+                        options={depts.length === 0
+                          ? [{ value: '', label: 'No Departments Found' }]
+                          : depts.map(d => ({ value: d.name, label: d.name }))}
+                        ariaLabelledBy="staff-department-label"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none transition-all font-sans"
+                      />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">User Role</label>
-                      <select 
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none transition-all"
+                      <label htmlFor="staff-role" id="staff-role-label" className="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-1">User Role</label>
+                      <Select
+                        id="staff-role"
                         value={formData.role}
-                        onChange={(e) => setFormData({...formData, role: e.target.value})}
-                      >
-                         <option value="employee">Employee</option>
-                         <option value="hr_manager">HR Manager</option>
-                         <option value="admin">System Admin</option>
-                      </select>
+                        onChange={v => setFormData({ ...formData, role: v })}
+                        options={[
+                          { value: 'employee', label: 'Employee' },
+                          { value: 'hr_manager', label: 'HR Manager' },
+                          { value: 'admin', label: 'System Admin' },
+                        ]}
+                        ariaLabelledBy="staff-role-label"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none transition-all"
+                      />
                     </div>
                   </div>
 

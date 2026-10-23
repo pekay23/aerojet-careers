@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { Select } from '@/components/ui/Select'
 import AddStaffModal from './AddStaffModal'
 
 
@@ -189,16 +190,15 @@ export default function PeopleDirectory() {
         </div>
 
         <div className="flex items-center gap-3">
-           <select 
-             className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-500 focus:outline-none"
+           <Select
              value={filter}
-             onChange={(e) => setFilter(e.target.value)}
-           >
-             {deptsList.map(d => (
-               <option key={d} value={d}>{d === 'all' ? 'All Departments' : d}</option>
-             ))}
-           </select>
-           
+             onChange={setFilter}
+             options={deptsList.map(d => ({ value: d, label: d === 'all' ? 'All Departments' : d }))}
+             ariaLabel="Filter by department"
+             className="w-auto bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+             contentClassName="text-xs uppercase"
+           />
+
            <button className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 hover:bg-white hover:text-blue-600 hover:shadow-lg transition-all">
              <Download size={18} />
            </button>

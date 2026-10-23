@@ -343,10 +343,10 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
             <FormField label="Phone / WhatsApp" required hint="Include your international dialing code, e.g. +233…" error={validationErrors.phone} touched={!!touchedFields.phone}>
               <TextInput type="tel" name="tel" autoComplete="tel" inputMode="tel" value={data.phone} onChange={set('phone')} placeholder="+233 20 000 0000" error={validationErrors.phone} touched={!!touchedFields.phone} onBlur={() => touch('phone')} />
             </FormField>
-            <FormField label="Nationality" required error={validationErrors.nationality} touched={!!touchedFields.nationality}>
+            <FormField label="Nationality" required htmlFor="app-nationality" error={validationErrors.nationality} touched={!!touchedFields.nationality}>
               <Select id="app-nationality" name="nationality" value={data.nationality} onChange={set('nationality')} options={NATIONALITIES} placeholder="Select nationality" error={validationErrors.nationality} touched={!!touchedFields.nationality} onBlur={() => touch('nationality')} />
             </FormField>
-            <FormField label="Country of residence" required error={validationErrors.country_of_residence} touched={!!touchedFields.country_of_residence}>
+            <FormField label="Country of residence" required htmlFor="app-country" error={validationErrors.country_of_residence} touched={!!touchedFields.country_of_residence}>
               <Select id="app-country" name="country_of_residence" value={data.country_of_residence} onChange={set('country_of_residence')} options={COUNTRIES} placeholder="Select country" error={validationErrors.country_of_residence} touched={!!touchedFields.country_of_residence} onBlur={() => touch('country_of_residence')} />
             </FormField>
           </FormGrid>
@@ -384,7 +384,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
       {step === 2 && (
         <FormCard title="Licences & qualifications" subtitle="Provide your current regulatory licences and authorisations.">
           <FormGrid>
-            <FormField label="Primary licence" required error={validationErrors.licence_type} touched={!!touchedFields.licence_type}>
+            <FormField label="Primary licence" required htmlFor="app-licence-type" error={validationErrors.licence_type} touched={!!touchedFields.licence_type}>
               <Select id="app-licence-type" name="licence_type" value={data.licence_type} onChange={set('licence_type')} options={['EASA Part-66 B1.1','EASA Part-66 B2','EASA Part-66 B1.1 + B2','ECAA (Ethiopian)','KCAA (Kenya)','GCAA (Ghana)','NCAA (Nigeria)','FAA A&P','Other']} error={validationErrors.licence_type} touched={!!touchedFields.licence_type} onBlur={() => touch('licence_type')} />
             </FormField>
             <FormField label="Licence number">
@@ -420,7 +420,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
               ))}
             </div>
           </FormField>
-          <FormField label="Highest educational qualification">
+            <FormField label="Highest educational qualification" htmlFor="app-highest-qualification">
             <Select id="app-highest-qualification" name="highest_qualification" value={data.highest_qualification} onChange={set('highest_qualification')} options={['AMT Certificate','Diploma in Aero Engineering','BSc Aero/Mech Engineering','BSc Electrical Engineering',"Master's Degree",'Other']} />
           </FormField>
           {data.highest_qualification === 'Other' && (
@@ -452,7 +452,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
               )}
             </FormField>
           </FormGrid>
-          <FormField label="Total years of experience" required error={validationErrors.total_years_exp} touched={!!touchedFields.total_years_exp}>
+            <FormField label="Total years of experience" required htmlFor="app-total-years" error={validationErrors.total_years_exp} touched={!!touchedFields.total_years_exp}>
             <Select id="app-total-years" name="total_years_exp" value={data.total_years_exp} onChange={set('total_years_exp')} options={['Less than 3 years','3–5 years','6–8 years','9–12 years','13–15 years','15+ years']} error={validationErrors.total_years_exp} touched={!!touchedFields.total_years_exp} onBlur={() => touch('total_years_exp')} />
           </FormField>
           <FormField label="Types of work">
@@ -488,7 +488,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
              <FormField label="Current salary (monthly)">
               <TextInput type="number" id="app-current-salary" name="current_salary" min={0} step={100} value={data.current_salary} onChange={v => set('current_salary')(v === '' ? undefined : Number(v))} placeholder="0" />
             </FormField>
-            <FormField label="Currency">
+            <FormField label="Currency" htmlFor="app-salary-currency">
               <Select id="app-salary-currency" name="current_salary_currency" value={data.current_salary_currency || 'USD'} onChange={set('current_salary_currency')} options={['USD','ETB','KES','GHS','ZAR','NGN','EUR']} />
             </FormField>
           </FormGrid>
@@ -518,7 +518,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
               ))}
             </div>
           </FormField>
-          <FormField label="Deployment arrangement preference">
+            <FormField label="Deployment arrangement preference" htmlFor="app-deployment-arrangement">
              <Select id="app-deployment-arrangement" name="deployment_arrangement" value={data.deployment_arrangement} onChange={set('deployment_arrangement')} options={['Rotation (4 on / 2 off)','Rotation (6 on / 3 off)','Open to discussion','Other']} />
           </FormField>
           {data.deployment_arrangement === 'Other' && (
@@ -547,7 +547,7 @@ export default function ApplicationForm({ jobId, jobTitle }: Props) {
 
           <Divider />
 
-          <FormField label="How did you hear about us?">
+            <FormField label="How did you hear about us?" htmlFor="app-source">
              <Select id="app-source" name="source" value={data.source} onChange={set('source')} options={['LinkedIn','Ethiopian internal network','Kenya Airways network','Colleague referral','Aerojet website','Job board','Other']} />
           </FormField>
           {data.source === 'Other' && (

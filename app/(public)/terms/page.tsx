@@ -14,7 +14,7 @@ export default function TermsPage() {
         <SiteNav />
       
       <div style={{ background: 'var(--bg)', paddingTop: '70px' }}>
-        <div style={{ maxWidth: '880px', margin: '0 auto', padding: '3rem 1.5rem' }}>
+        <div className="legal-page" style={{ maxWidth: '880px', margin: '0 auto', padding: '3rem 1.5rem' }}>
           <article style={{ borderRadius: '1.5rem', border: '1px solid var(--border)', background: 'white', padding: '2rem', boxShadow: 'var(--shadow-xl)', marginBottom: '2rem' }}>
             <div style={{ marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
               <span style={{ display: 'inline-block', marginBottom: '1rem', borderRadius: '9999px', background: 'rgba(0, 174, 239, 0.1)', padding: '0.5rem 1rem', fontSize: '0.75rem', fontWeight: 800, color: 'var(--aero-sky)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

@@ -6,6 +6,11 @@
  * Safe to run multiple times (IF NOT EXISTS / idempotent guards).
  * Includes deduplication for document_folders to prevent duplicate entries.
  *
+ * After a successful apply the script pokes the app's internal revalidation
+ * endpoint so the public caches are dropped immediately instead of serving
+ * pre-migration rows for up to 300 seconds. A failed purge is reported but
+ * never fails the migration.
+ *
  * Usage:
  *   bun scripts/apply-schema.mjs              # apply to dev/local (DATABASE_URL)
  *   bun scripts/apply-schema.mjs --prod      # apply to prod (DATABASE_URL_PROD)
@@ -55,8 +60,84 @@ async function applySchema(client) {
   try {
     await client.query(schema)
     console.log('  ✓ Schema applied (tables, triggers, seed upsert, dedup)')
+    return true
   } catch (e) {
     console.warn('  ! Schema had errors (partial application):', e.message)
+    return false
+  }
+}
+
+/**
+ * The base URL of the deployed app.
+ *
+ * `NEXT_PUBLIC_APP_URL` wins; `VERCEL_URL` is the fallback and is a bare
+ * host, so it needs the https:// prefix.
+ */
+function resolveAppUrl() {
+  const explicit = (process.env.NEXT_PUBLIC_APP_URL || '').trim()
+  if (explicit) return explicit.replace(/\/+$/, '')
+
+  const vercelUrl = (process.env.VERCEL_URL || '').trim().replace(/\/+$/, '')
+  if (!vercelUrl) return null
+  if (/^https?:\/\//i.test(vercelUrl)) return vercelUrl
+  return `https://${vercelUrl}`
+}
+
+/**
+ * Drop the public caches after a schema/seed run.
+ *
+ * `db/neon-schema.sql` mutates `jobs`, `departments`, `job_categories` and
+ * `employment_types` — the four tables the public pages cache — so the site
+ * would otherwise keep serving the pre-migration rows for up to 300s.
+ *
+ * This never fails the migration: a missing configuration or a failed request
+ * is reported with the exact command the operator has to run by hand.
+ */
+async function revalidateCaches() {
+  const appUrl = resolveAppUrl()
+  const secret = process.env.REVALIDATE_SECRET
+  const endpoint = appUrl
+    ? `${appUrl}/api/internal/revalidate`
+    : '/api/internal/revalidate'
+
+  const manualHint = `  Revalidate manually:  curl -X POST "${endpoint}" -H "x-revalidate-secret: $REVALIDATE_SECRET"`
+
+  if (!appUrl || !secret) {
+    console.warn('\n! Cache invalidation SKIPPED — the site may serve pre-migration data for up to 300 seconds.')
+    if (!appUrl) {
+      console.warn('  Missing NEXT_PUBLIC_APP_URL (or VERCEL_URL): the app URL could not be determined.')
+    }
+    if (!secret) {
+      console.warn('  Missing REVALIDATE_SECRET: the shared secret could not be determined.')
+    }
+    console.warn(manualHint)
+    return
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ source: 'apply-schema' }),
+    })
+
+    if (!res.ok) {
+      console.warn(`\n! Cache invalidation FAILED: HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ''}`)
+      console.warn('  The site may serve pre-migration data for up to 300 seconds.')
+      console.warn(manualHint)
+      return
+    }
+
+    const body = await res.text()
+    console.log(`\n  ✓ Caches invalidated (jobs, job-detail, recruitment-metadata, recruitment-stats) — HTTP ${res.status}`)
+    if (body) console.log(`    ${body.slice(0, 300)}`)
+  } catch (e) {
+    console.warn(`\n! Cache invalidation FAILED: ${e && e.message ? e.message : String(e)}`)
+    console.warn('  The site may serve pre-migration data for up to 300 seconds.')
+    console.warn(manualHint)
   }
 }
 
@@ -109,7 +190,15 @@ async function main() {
   try {
     await deduplicateFolders(client)
 
-    await applySchema(client)
+    const applied = await applySchema(client)
+
+    if (applied) {
+      await revalidateCaches()
+    } else {
+      console.warn('\n! Schema apply reported errors — cache invalidation skipped.')
+      console.warn('  Revalidate manually once the database is consistent:')
+      console.warn('    curl -X POST "<APP_URL>/api/internal/revalidate" -H "x-revalidate-secret: $REVALIDATE_SECRET"')
+    }
 
     console.log('\nApplying indexes...')
     for (const sql of INDEXES) {
