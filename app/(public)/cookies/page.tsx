@@ -24,7 +24,7 @@ export default function CookiePolicyPage() {
               <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', lineHeight: 1.2 }}>
                 Cookie Policy
               </h1>
-              <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic' }}>Last updated: August 2026</p>
+              <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic' }}>Last updated: October 2026</p>
             </div>
 
             <div style={{ color: '#334155', lineHeight: 1.7 }}>
@@ -61,9 +61,7 @@ export default function CookiePolicyPage() {
 
               <h4 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>2. Performance & Analytics Cookies</h4>
               <p style={{ marginBottom: '1rem' }}>
-                These cookies help us understand how visitors interact with the Portal by collecting anonymous
-                information about page views and navigation paths. This data is aggregated and used to improve
-                website performance and user experience.
+                We do not use performance or analytics cookies on the careers portal.
               </p>
 
               <h4 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>3. Functional Cookies</h4>
@@ -106,12 +104,6 @@ export default function CookiePolicyPage() {
                     <td style={{ padding: '0.75rem' }}>Functional</td>
                     <td style={{ padding: '0.75rem' }}>1 year</td>
                   </tr>
-                  <tr>
-                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>_ga / _gid</td>
-                    <td style={{ padding: '0.75rem' }}>Google Analytics (if enabled) — measures how visitors use the site to help us improve it.</td>
-                    <td style={{ padding: '0.75rem' }}>Analytics</td>
-                    <td style={{ padding: '0.75rem' }}>13 months / 24 hours</td>
-                  </tr>
                 </tbody>
               </table>
 
@@ -131,7 +123,6 @@ export default function CookiePolicyPage() {
                 We may use the following third-party services that set their own cookies:
               </p>
               <ul style={{ listStyle: 'disc', paddingLeft: '1.5rem', marginBottom: '1.5rem' }}>
-                <li><strong>Google Analytics</strong> — for aggregated, anonymised website analytics (only with consent).</li>
                 <li><strong>Vercel</strong> — for hosting, edge caching, and performance metrics.</li>
               </ul>
               <p style={{ marginBottom: '1.5rem' }}>

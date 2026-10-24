@@ -249,6 +249,72 @@ export interface ApplicationFormData {
   job_title_applied?: string
 }
 
+export interface EngineeringTrackFormData {
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  nationality: string
+  country_of_residence: string
+  date_of_birth: string
+  has_valid_passport: boolean
+  waec_maths_grade?: string
+  waec_physics_grade?: string
+  waec_not_applicable?: boolean
+  highest_qualification: string
+  qualification_details?: string
+  preferred_engineering_role: string
+  deployment_pref: string
+  shift_availability_confirmed: boolean
+  medical_fitness_confirmed: boolean
+  accra_based_confirmed: boolean
+  motivation: string
+  source?: string
+}
+
+export interface RampTrackFormData {
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  nationality: string
+  country_of_residence: string
+  date_of_birth: string
+  has_valid_passport: boolean
+  waec_english_grade?: string
+  waec_not_applicable?: boolean
+  highest_qualification: string
+  qualification_details?: string
+  driving_licence_type: string
+  driving_licence_expiry?: string
+  preferred_ramp_role: string
+  shift_availability_confirmed: boolean
+  night_weekend_holiday_shifts_confirmed: boolean
+  physical_fitness_confirmed: boolean
+  airside_security_clearance_eligible: boolean
+  motivation: string
+  source?: string
+}
+
+export interface GraduateProgramFormData {
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  nationality: string
+  country_of_residence: string
+  date_of_birth: string
+  has_valid_passport: boolean
+  degree: string
+  university: string
+  graduation_year: number
+  grade_gpa?: string
+  preferred_areas: string[]
+  internships_attachments?: string
+  motivation: string
+  source?: string
+}
+
 export interface StaffDocument {
   id: string
   staff_id: string

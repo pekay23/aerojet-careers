@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { z } from 'zod'
 import { useSearchParams } from 'next/navigation'
 import SiteNav from '@/components/layout/SiteNav'
@@ -36,7 +36,7 @@ const RegistrationSchema = z.object({
   qualification: z.string().min(1, "Select your highest qualification"),
 })
 
-export default function RegisterPage() {
+function RegisterContent() {
   const searchParams = useSearchParams()
   const track = searchParams.get('track')
   const trackCfg = track && TRACKS[track] ? TRACKS[track] : null
@@ -327,5 +327,13 @@ export default function RegisterPage() {
       </section>
       <SiteFooter />
     </>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading…</div>}>
+      <RegisterContent />
+    </Suspense>
   )
 }

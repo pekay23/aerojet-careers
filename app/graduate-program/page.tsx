@@ -106,16 +106,16 @@ export default function GraduateProgramPage() {
             </p>
             <p style={{ color: 'var(--muted)', lineHeight: 1.75, margin: 0 }}>
               Candidates interested in future graduate opportunities may{' '}
-              <Link href="/register" className="text-link">
-                register a general profile
+              <Link href="/apply/graduate-program" className="text-link">
+                submit an expression of interest
               </Link>{' '}
               so Aerojet can retain their details for future consideration.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginTop: '2rem' }}>
-            <Link href="/register" className="btn btn-blue btn-lg">
-              Register General Interest
+            <Link href="/apply/graduate-program" className="btn btn-blue btn-lg">
+              Apply for Graduate Programme
             </Link>
 
             <Link

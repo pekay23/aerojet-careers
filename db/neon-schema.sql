@@ -611,6 +611,21 @@ FROM auth_users au
 WHERE au.email = 'admin@aerojet-aviation.com'
 ON CONFLICT (email) DO UPDATE SET role = 'super_admin', is_active = TRUE;
 
+-- ── cookie_consent_log (GDPR/ePrivacy audit trail) ────────────────────────────
+-- Records each consent decision (banner accept/reject + modal save).
+-- PII policy: no email/name stored. IP is hashed (SHA-256, first 16 hex chars)
+-- so it can be correlated without storing the raw address.
+CREATE TABLE IF NOT EXISTS cookie_consent_log (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  categories  JSONB NOT NULL,
+  timestamp   TIMESTAMPTZ NOT NULL,
+  user_agent  TEXT,
+  ip_hash     TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_cookie_consent_log_created_at ON cookie_consent_log(created_at DESC);
+
 -- ── Indexes (performance) ─────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_jobs_department    ON jobs(department);
 CREATE INDEX IF NOT EXISTS idx_jobs_status        ON jobs(status);

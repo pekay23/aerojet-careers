@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
               <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--aero-blue)', textTransform: 'uppercase', lineHeight: 1.2 }}>
                 Privacy & Data Protection Notice
               </h1>
-              <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic' }}>Last updated: July 2026</p>
+              <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic' }}>Last updated: October 2026</p>
             </div>
 
             <div style={{ color: '#334155', lineHeight: 1.7 }}>
